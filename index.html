@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>لوحة متابعة المندوبين</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   :root {
     --navy:    #EEF2F7;
@@ -1264,10 +1265,10 @@ function render(){
     html+=`<tr class="foot-row ord-row"><td class="name-col">إجمالي كم</td>${footKm}<td class="km-td">${grandKm.toFixed(0)} كم</td></tr>`;
   }
   if(activeTab==='summary'){
-    const allN=[...new Set(allData.map(r=>r.name))];
+    const allN=[...new Set(allData.filter(r=>r&&r.name).map(r=>r.name))];
     // compute totals per courier
     const couriers=allN.map(name=>{
-      const recs=allData.filter(r=>r.name===name);
+      const recs=allData.filter(r=>r&&r.name===name);
       const totalO=recs.reduce((s,r)=>s+r.orders,0);
       const totalH=recs.reduce((s,r)=>s+r.hours,0);
       const totalKm=Object.values(KM_DATA).reduce((s,d)=>s+(d[name]||0),0);
@@ -1282,6 +1283,9 @@ function render(){
     const maxH=Math.max(...couriers.map(c=>c.totalH));
     const maxKm=Math.max(...couriers.map(c=>c.totalKm));
 
+    const act=couriers.filter(c=>c.totalO>0);
+    const labels=act.map(c=>(c.name||'').split(' ')[0]);
+
     let sv=`<div class="sum-wrap">
       <!-- KPI row -->
       <div class="sum-kpi-row">
@@ -1292,81 +1296,90 @@ function render(){
         <div class="sum-kpi red"><div class="sum-kpi-ico">❌</div><div class="sum-kpi-val">${couriers.filter(c=>!c.lic).length}</div><div class="sum-kpi-lbl">بدون تفويض</div></div>
       </div>
 
-      <!-- Charts -->
-      <div class="sum-charts">
-        <!-- Orders chart -->
-        <div class="sum-chart-card">
-          <div class="sum-chart-title">📦 الأوردرات</div>
-          ${couriers.filter(c=>c.totalO>0).map(c=>{
-            const w=Math.round((c.totalO/maxO)*100);
-            return `<div class="sum-bar-row">
-              <div class="sum-bar-name">${(c.name||'').split(' ')[0]}</div>
-              <div class="sum-bar-bg"><div class="sum-bar-fill blue-bar" style="width:${w}%"></div></div>
-              <div class="sum-bar-val">${c.totalO}</div>
-            </div>`;
-          }).join('')}
+      <!-- Charts Grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:16px;">
+
+        <!-- Orders Bar Chart -->
+        <div class="sum-chart-card" style="background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.07);">
+          <div class="sum-chart-title" style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #EEF2F7;">📦 الأوردرات لكل مندوب</div>
+          <div style="position:relative;height:380px;"><canvas id="chart-orders"></canvas></div>
         </div>
 
-        <!-- Hours chart -->
-        <div class="sum-chart-card">
-          <div class="sum-chart-title">⏱ الساعات</div>
-          ${couriers.filter(c=>c.totalH>0).map(c=>{
-            const w=Math.round((c.totalH/maxH)*100);
-            return `<div class="sum-bar-row">
-              <div class="sum-bar-name">${(c.name||'').split(' ')[0]}</div>
-              <div class="sum-bar-bg"><div class="sum-bar-fill green-bar" style="width:${w}%"></div></div>
-              <div class="sum-bar-val">${c.totalH.toFixed(1)}h</div>
-            </div>`;
-          }).join('')}
+        <!-- Hours Bar Chart -->
+        <div class="sum-chart-card" style="background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.07);">
+          <div class="sum-chart-title" style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #EEF2F7;">⏱ الساعات لكل مندوب</div>
+          <div style="position:relative;height:380px;"><canvas id="chart-hours"></canvas></div>
         </div>
 
-        <!-- KM chart -->
-        <div class="sum-chart-card">
-          <div class="sum-chart-title">🏍 كيلومترات GPS</div>
-          ${couriers.filter(c=>c.totalKm>0).map(c=>{
-            const w=Math.round((c.totalKm/maxKm)*100);
-            return `<div class="sum-bar-row">
-              <div class="sum-bar-name">${(c.name||'').split(' ')[0]}</div>
-              <div class="sum-bar-bg"><div class="sum-bar-fill gold-bar" style="width:${w}%"></div></div>
-              <div class="sum-bar-val">${c.totalKm.toFixed(0)}</div>
-            </div>`;
-          }).join('')}
+        <!-- KM Bar Chart -->
+        <div class="sum-chart-card" style="background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.07);">
+          <div class="sum-chart-title" style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #EEF2F7;">🏍 كيلومترات GPS لكل مندوب</div>
+          <div style="position:relative;height:380px;"><canvas id="chart-km"></canvas></div>
         </div>
 
-        <!-- License chart -->
-        <div class="sum-chart-card">
-          <div class="sum-chart-title">📋 التفاويض</div>
-          <div class="sum-donut-wrap">
-            <svg viewBox="0 0 120 120" width="120" height="120">
-              ${(()=>{
-                const tot=couriers.length;
-                const lic=couriers.filter(c=>c.lic).length;
-                const pct=lic/tot;
-                const r=46;const cx=60;const cy=60;
-                const circ=2*Math.PI*r;
-                const dash=pct*circ;
-                return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(220,38,38,.25)" stroke-width="18"/>
-                  <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#34D399" stroke-width="18"
-                    stroke-dasharray="${dash} ${circ}" stroke-dashoffset="${circ*0.25}" stroke-linecap="round"/>
-                  <text x="${cx}" y="${cy-6}" text-anchor="middle" font-size="20" font-weight="900" fill="#F1F5F9">${lic}</text>
-                  <text x="${cx}" y="${cy+12}" text-anchor="middle" font-size="10" fill="#94A3B8">من ${tot}</text>`;
-              })()}
-            </svg>
-            <div class="sum-donut-legend">
-              <div style="color:#34D399;font-size:15px;font-weight:700;margin-bottom:6px">✅ ${couriers.filter(c=>c.lic).length} مرخص</div>
-              <div style="color:#F87171;font-size:15px;font-weight:700">❌ ${couriers.filter(c=>!c.lic).length} بدون تفويض</div>
+        <!-- License Doughnut -->
+        <div class="sum-chart-card" style="background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.07);">
+          <div class="sum-chart-title" style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #EEF2F7;">📋 نسبة التفاويض</div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:32px;height:280px;">
+            <canvas id="chart-license" style="max-width:220px;max-height:220px;"></canvas>
+            <div>
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+                <div style="width:14px;height:14px;background:#10B981;border-radius:3px;"></div>
+                <span style="font-size:15px;font-weight:700;color:#1E293B;">✅ عندهم تفويض: ${couriers.filter(c=>c.lic).length}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:14px;height:14px;background:#EF4444;border-radius:3px;"></div>
+                <span style="font-size:15px;font-weight:700;color:#1E293B;">❌ بدون تفويض: ${couriers.filter(c=>!c.lic).length}</span>
+              </div>
             </div>
           </div>
-          <div class="lic-grid">
-            ${couriers.map(c=>`
-              <div class="lic-card ${c.lic?'lic-yes':'lic-no'}">
-                <div class="lic-card-name">${(c.name||'').split(' ')[0]}<br><span style="font-size:9px;opacity:.7">${c.name.split(' ')[1]||''}</span></div>
-                <div class="lic-card-badge">${c.lic?'✅':'❌'}</div>
-              </div>`).join('')}
-          </div>
         </div>
+
       </div>
     </div>`;
+
+    // بعد إضافة الـ HTML، ارسم الـ charts
+    setTimeout(()=>{
+      const chartDefaults={
+        plugins:{ legend:{display:false}, tooltip:{rtl:true, callbacks:{label:ctx=>` ${ctx.raw}`}} },
+        scales:{
+          x:{grid:{color:'rgba(0,0,0,.05)'}, ticks:{color:'#475569',font:{family:'Cairo',size:11}}},
+          y:{grid:{display:false}, ticks:{color:'#1E293B',font:{family:'Cairo',size:11,weight:'600'}}}
+        },
+        indexAxis:'y',
+        responsive:true,
+        maintainAspectRatio:false,
+      };
+
+      const activeC=couriers.filter(c=>c.totalO>0);
+      const lbl=activeC.map(c=>(c.name||'').split(' ')[0]);
+
+      // Orders
+      new Chart(document.getElementById('chart-orders'),{type:'bar',data:{
+        labels:lbl,
+        datasets:[{data:activeC.map(c=>c.totalO),backgroundColor:'rgba(37,99,235,.75)',borderRadius:6,borderSkipped:false}]
+      },options:{...chartDefaults,plugins:{...chartDefaults.plugins,tooltip:{callbacks:{label:ctx=>`${ctx.raw} أوردر`}}}}});
+
+      // Hours
+      new Chart(document.getElementById('chart-hours'),{type:'bar',data:{
+        labels:couriers.filter(c=>c.totalH>0).map(c=>(c.name||'').split(' ')[0]),
+        datasets:[{data:couriers.filter(c=>c.totalH>0).map(c=>+c.totalH.toFixed(1)),backgroundColor:'rgba(5,150,105,.75)',borderRadius:6,borderSkipped:false}]
+      },options:{...chartDefaults,plugins:{...chartDefaults.plugins,tooltip:{callbacks:{label:ctx=>`${ctx.raw} ساعة`}}}}});
+
+      // KM
+      new Chart(document.getElementById('chart-km'),{type:'bar',data:{
+        labels:couriers.filter(c=>c.totalKm>0).map(c=>(c.name||'').split(' ')[0]),
+        datasets:[{data:couriers.filter(c=>c.totalKm>0).map(c=>+c.totalKm.toFixed(0)),backgroundColor:'rgba(217,119,6,.75)',borderRadius:6,borderSkipped:false}]
+      },options:{...chartDefaults,plugins:{...chartDefaults.plugins,tooltip:{callbacks:{label:ctx=>`${ctx.raw} كم`}}}}});
+
+      // License Doughnut
+      const licCount=couriers.filter(c=>c.lic).length;
+      const unlic=couriers.filter(c=>!c.lic).length;
+      new Chart(document.getElementById('chart-license'),{type:'doughnut',data:{
+        labels:['عندهم تفويض','بدون تفويض'],
+        datasets:[{data:[licCount,unlic],backgroundColor:['#10B981','#EF4444'],borderWidth:0,hoverOffset:6}]
+      },options:{responsive:true,cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}`}}}}});
+    },100);
 
     const mt=document.getElementById('main-table');
     mt.innerHTML=''; mt.style.display='block';
