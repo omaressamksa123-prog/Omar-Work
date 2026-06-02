@@ -1,0 +1,1935 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة متابعة المندوبين</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:    #EEF2F7;
+    --navy2:   #FFFFFF;
+    --navy3:   #E2E8F0;
+    --navy4:   #CBD5E1;
+    --blue:    #1565C0;
+    --blue2:   #1976D2;
+    --blue3:   #2563EB;
+    --gold:    #D97706;
+    --gold2:   #F59E0B;
+    --green:   #059669;
+    --green2:  #10B981;
+    --red:     #DC2626;
+    --purple:  #7C3AED;
+    --purple2: #8B5CF6;
+    --text1:   #1E293B;
+    --text2:   #475569;
+    --text3:   #94A3B8;
+    --border:  rgba(0,0,0,0.07);
+    --border2: rgba(0,0,0,0.12);
+    --card:    #FFFFFF;
+    --card2:   rgba(0,0,0,0.03);
+    --r:  12px;
+    --r2: 8px;
+    --r3: 6px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;overflow:hidden;}
+  body{
+    font-family:'Cairo',sans-serif;
+    background:var(--navy);
+    color:var(--text1);
+    font-size:14px;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(ellipse 70% 50% at 15% 0%,   rgba(21,101,192,.06) 0%,transparent 65%),
+      radial-gradient(ellipse 50% 40% at 85% 100%,  rgba(245,158,11,.04) 0%,transparent 55%);
+  }
+
+  /* ══ LAYOUT ══ */
+  .app{display:flex;height:100vh;position:relative;z-index:1;}
+  /* sticky top area */
+  .topbar{position:sticky;top:0;z-index:10;}
+  #kpi-bar{position:sticky;top:0;z-index:9;}
+
+  /* ══ SIDEBAR ══ */
+  .sidebar{
+    width:280px;flex-shrink:0;
+    background:linear-gradient(180deg,var(--navy2) 0%,var(--navy) 100%);
+    border-left:1px solid var(--border2);
+    display:flex;flex-direction:column;
+    overflow-y:auto;
+  }
+  .sidebar-header{
+    padding:22px 20px 18px;
+    background:linear-gradient(135deg,#1565C0,#1976D2);
+    border-bottom:1px solid var(--border2);
+  }
+  .brand{font-size:11px;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px;}
+  .brand-title{font-size:22px;font-weight:900;color:var(--text1);}
+  .brand-title span{color:var(--gold);}
+  .brand-sub{font-size:11px;color:var(--text2);margin-top:4px;}
+
+  /* sidebar actions */
+  .sb-actions{padding:14px 16px 6px;display:flex;flex-direction:column;gap:7px;}
+  .add-btn{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    padding:11px 14px;border-radius:var(--r2);
+    font-size:13px;font-weight:600;font-family:'Cairo',sans-serif;
+    cursor:pointer;border:none;transition:all .2s;
+  }
+  .btn-primary{background:linear-gradient(135deg,var(--blue2),var(--blue));color:#fff;}
+  .btn-primary:hover{background:linear-gradient(135deg,var(--blue3),var(--blue2));transform:translateY(-1px);box-shadow:0 4px 12px rgba(21,101,192,.4);}
+  .btn-secondary{background:var(--card2);color:var(--text2);border:1px solid var(--border2);}
+  .btn-secondary:hover{background:rgba(0,0,0,.06);color:var(--text1);}
+
+  .sb-section{padding:14px 18px;border-bottom:1px solid var(--border);}
+  .sb-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;}
+
+  /* kpi cards in sidebar */
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .stat-card{
+    background:var(--card);border:1px solid var(--border2);
+    border-radius:var(--r2);padding:12px 10px;
+  }
+  .stat-card .lbl{font-size:10px;color:var(--text3);margin-bottom:4px;}
+  .stat-card .val{font-size:22px;font-weight:800;color:var(--text1);}
+
+  /* legend */
+  .legend-row{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--text2);margin-bottom:7px;}
+  .ldot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+
+  /* month pills */
+  .month-pills{display:flex;flex-wrap:wrap;gap:5px;}
+  .mpill{
+    padding:5px 12px;border-radius:20px;font-size:12px;cursor:pointer;
+    border:1px solid var(--border2);background:transparent;color:var(--text2);
+    font-family:'Cairo',sans-serif;transition:all .15s;
+  }
+  .mpill.active{background:var(--blue2);color:#fff;border-color:var(--blue2);box-shadow:0 2px 8px rgba(25,118,210,.4);}
+
+  /* km bars */
+  .km-item{margin-bottom:10px;}
+  .km-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;}
+  .km-name{color:var(--text2);}
+  .km-val{color:var(--gold);font-weight:700;}
+  .km-bar-bg{height:5px;background:rgba(0,0,0,.09);border-radius:3px;overflow:hidden;}
+  .km-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .5s cubic-bezier(.4,0,.2,1);}
+
+  /* ══ MAIN ══ */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;}
+
+  .topbar{
+    padding:10px 20px;
+    border-bottom:1px solid var(--border2);
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    background:rgba(255,255,255,.97);backdrop-filter:blur(8px);box-shadow:0 1px 4px rgba(0,0,0,.08);
+    flex-shrink:0;
+  }
+  .topbar-left{display:flex;flex-direction:column;gap:2px;}
+  .page-title{font-size:17px;font-weight:800;color:var(--text1);}
+  .page-sub{font-size:12px;color:var(--text3);}
+  .topbar-right{display:flex;align-items:center;gap:12px;}
+
+  /* search in topbar */
+  .search-wrap{position:relative;display:flex;align-items:center;}
+  #courier-search{
+    width:180px;padding:7px 32px 7px 12px;
+    background:var(--card2);border:1px solid var(--border2);
+    border-radius:var(--r2);color:var(--text1);
+    font-family:'Cairo',sans-serif;font-size:12px;
+    transition:all .2s;
+  }
+  #courier-search:focus{outline:none;border-color:var(--blue3);box-shadow:0 0 0 3px rgba(66,165,245,.15);width:220px;}
+  #courier-search::placeholder{color:var(--text3);}
+  .search-clear{
+    position:absolute;left:10px;top:50%;transform:translateY(-50%);
+    color:var(--text3);cursor:pointer;font-size:12px;
+    display:none;align-items:center;justify-content:center;
+    width:16px;height:16px;border-radius:50%;background:var(--navy3);
+  }
+  .search-clear:hover{color:var(--text1);}
+
+  /* KPI bar below topbar */
+  .kpi-bar{
+    display:flex;gap:8px;
+    padding:8px 20px;border-bottom:1px solid var(--border);
+    flex-shrink:0;
+    background:rgba(255,255,255,.97);backdrop-filter:blur(8px);box-shadow:0 1px 4px rgba(0,0,0,.08);
+    overflow-x:auto;
+  }
+  .kpi-card{
+    background:var(--card);border:1px solid var(--border2);
+    border-radius:var(--r2);padding:8px 14px;
+    display:flex;align-items:center;gap:10px;white-space:nowrap;
+    flex-shrink:0;
+  }
+  .kpi-icon{font-size:16px;}
+  .kpi-lbl{font-size:10px;color:var(--text3);font-weight:600;}
+  .kpi-val{font-size:20px;font-weight:900;line-height:1;}
+  .kpi-sub{font-size:10px;color:var(--text3);}
+  .kpi-blue .kpi-val{color:var(--blue3);}
+  .kpi-green .kpi-val{color:var(--green2);}
+  .kpi-gold .kpi-val{color:var(--gold);}
+  .kpi-purple .kpi-val{color:var(--purple2);}
+  .kpi-red .kpi-val{color:#F87171;}
+
+  .content{flex:1;overflow-y:auto;padding:12px 20px;}
+
+  /* ══ TABLE ══ */
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--border2);border-radius:var(--r);box-shadow:0 4px 24px rgba(0,0,0,.3);}
+  table{border-collapse:collapse;font-size:13px;min-width:100%;}
+
+  thead tr.h1 th{
+    background:linear-gradient(135deg,var(--blue) 0%,#0D47A1 100%);
+    color:#fff;padding:12px 14px;text-align:center;
+    white-space:nowrap;font-weight:700;font-size:13px;
+    border-bottom:1px solid rgba(255,255,255,.12);
+  }
+  thead tr.h1 th.name-col{text-align:right;min-width:170px;padding-right:18px;position:sticky;right:0;z-index:3;}
+  thead tr.h1 th.km-hd{background:linear-gradient(135deg,#78350F,#92400E);}
+  thead tr.h2 th{
+    background:rgba(21,101,192,.12);color:var(--text3);
+    padding:6px 14px;text-align:center;font-size:11px;font-weight:500;
+    border-bottom:1px solid var(--border);
+  }
+  thead tr.h2 th.name-col{text-align:right;padding-right:18px;position:sticky;right:0;z-index:3;}
+  thead tr.h2 th.km-sub{background:rgba(120,53,15,.15);color:var(--gold);}
+
+  tbody td{
+    padding:8px 14px;border-bottom:1px solid var(--border);
+    color:var(--text1);text-align:center;white-space:nowrap;vertical-align:middle;
+  }
+  tbody td.name-col{text-align:right;padding-right:18px;position:sticky;right:0;z-index:2;background:var(--navy2);border-left:1px solid var(--border2);}
+  tbody tr:hover td.name-col{background:var(--navy3);}
+  .tbl-wrap{overflow-x:auto;}
+  tbody td.total-col{background:rgba(21,101,192,.1);color:var(--blue3);font-weight:700;font-size:14px;}
+  tbody td.hours-cell{color:var(--green2);font-size:12px;background:rgba(5,150,105,.05);}
+  tbody td.km-td{background:rgba(120,53,15,.15);color:var(--gold2);font-weight:700;}
+  tbody td.km-td-day{background:rgba(245,158,11,.04);color:var(--gold);font-size:12px;}
+  .km-avg{font-size:10px;color:var(--text3);margin-top:2px;font-weight:400;}
+  tr.ord-row td{border-bottom:none;padding-bottom:4px;}
+  tr.hr-row td{padding-top:3px;}
+  tr.foot-row td{background:rgba(0,0,0,.03);font-weight:700;color:var(--text2);border-top:2px solid var(--border2);}
+  .cell-0{color:var(--text3)!important;}
+  .cell-hi{color:#60CDFF!important;font-weight:800!important;}
+  tbody tr:hover td{background:rgba(255,255,255,.04);}
+  tbody tr:hover td.total-col{background:rgba(21,101,192,.18);}
+  tbody tr:hover td.hours-cell{background:rgba(5,150,105,.1);}
+  tbody tr:hover td.km-td{background:rgba(120,53,15,.25);}
+
+  /* name cell */
+  .c-name{font-size:14px;font-weight:700;cursor:pointer;color:var(--blue3);transition:color .15s;}
+  .c-name:hover{color:#90CAF9;text-decoration:underline;}
+  .bike-tag{
+    display:inline-flex;align-items:center;gap:3px;
+    background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);
+    border-radius:20px;padding:2px 8px;font-size:10px;color:var(--gold);margin-top:3px;
+  }
+
+  /* sort */
+  th.sortable{cursor:pointer;user-select:none;transition:background .15s;}
+  th.sortable:hover{filter:brightness(1.15);}
+  .sort-ico{font-size:10px;color:rgba(255,255,255,.4);margin-right:4px;}
+  .sort-ico.sort-active{color:#90CAF9;}
+
+  /* ══ HISTORY PANEL ══ */
+  .history-wrap{
+    margin-top:20px;border:1px solid var(--border2);
+    border-radius:var(--r);overflow:hidden;
+    animation:slideUp .3s cubic-bezier(.4,0,.2,1);
+    box-shadow:0 8px 32px rgba(0,0,0,.4);
+  }
+  @keyframes slideUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  .hp-hdr{
+    background:linear-gradient(135deg,var(--blue) 0%,#0A3D8A 100%);
+    padding:16px 20px;display:flex;align-items:center;gap:14px;
+  }
+  .hp-avatar{
+    width:44px;height:44px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:15px;font-weight:800;flex-shrink:0;
+    border:2px solid rgba(255,255,255,.3);
+    box-shadow:0 2px 8px rgba(0,0,0,.3);
+  }
+  .close-btn{
+    margin-right:auto;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);
+    border-radius:var(--r3);padding:6px 14px;cursor:pointer;
+    font-size:12px;color:#fff;font-family:'Cairo',sans-serif;
+    transition:background .15s;
+  }
+  .close-btn:hover{background:rgba(255,255,255,.25);}
+  .hp-body{padding:18px 20px;background:var(--navy2);}
+  .summary-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+  .s-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--r2);padding:12px;text-align:center;}
+  .s-card .s-lbl{font-size:11px;color:var(--text3);margin-bottom:4px;}
+  .s-card .s-val{font-size:22px;font-weight:800;}
+  .s-km{background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.2);}
+  .s-km .s-val{color:var(--gold);}
+
+  .hp-days-title{font-size:12px;color:var(--text3);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em;}
+  .days-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px;}
+  .day-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:12px 8px;text-align:center;transition:border-color .2s;}
+  .day-card.best{border-color:var(--blue3);background:rgba(21,101,192,.12);}
+  .day-date{font-size:10px;color:var(--text3);margin-bottom:5px;}
+  .day-orders{font-size:24px;font-weight:800;color:var(--text1);}
+  .day-lbl{font-size:9px;color:var(--text3);margin-bottom:3px;}
+  .day-hours{font-size:11px;color:var(--green2);margin-top:4px;}
+
+  .km-compare{margin-bottom:16px;}
+  .km-compare-lbl{font-size:12px;color:var(--text3);font-weight:600;margin-bottom:8px;}
+  .km-cbar{display:flex;align-items:center;gap:12px;}
+  .km-cbar-bg{flex:1;height:10px;background:rgba(255,255,255,.05);border-radius:5px;overflow:hidden;}
+  .km-cbar-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .6s cubic-bezier(.4,0,.2,1);}
+  .km-cbar-val{font-size:13px;font-weight:700;color:var(--gold);width:70px;text-align:left;}
+
+  /* ── SUMMARY TAB ── */
+  .sum-wrap{padding:4px 0;}
+  .sum-kpi-row{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+  .sum-kpi{flex:1;min-width:120px;background:var(--card);border:1px solid var(--border2);border-radius:var(--r);padding:14px 16px;text-align:center;}
+  .sum-kpi-ico{font-size:22px;margin-bottom:6px;}
+  .sum-kpi-val{font-size:26px;font-weight:900;line-height:1;}
+  .sum-kpi-lbl{font-size:11px;color:var(--text3);margin-top:4px;}
+  .sum-kpi.blue .sum-kpi-val{color:var(--blue3);}
+  .sum-kpi.green .sum-kpi-val{color:var(--green2);}
+  .sum-kpi.gold .sum-kpi-val{color:var(--gold);}
+  .sum-kpi.purple .sum-kpi-val{color:var(--purple2);}
+  .sum-kpi.red .sum-kpi-val{color:#F87171;}
+  .sum-charts{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .sum-chart-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--r);padding:16px;}
+  .sum-chart-title{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:8px;}
+  .sum-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .sum-bar-name{width:80px;font-size:11px;color:var(--text2);text-align:right;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .sum-bar-bg{flex:1;height:8px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;}
+  .sum-bar-fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+  .blue-bar{background:linear-gradient(90deg,var(--blue2),var(--blue3));}
+  .green-bar{background:linear-gradient(90deg,var(--green),var(--green2));}
+  .gold-bar{background:linear-gradient(90deg,var(--gold),var(--gold2));}
+  .sum-bar-val{width:48px;font-size:11px;color:var(--text2);font-weight:600;text-align:left;}
+  .sum-donut-wrap{display:flex;align-items:center;gap:16px;justify-content:center;margin-bottom:14px;}
+  .sum-donut-legend{font-size:13px;line-height:2;}
+  .lic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-top:10px;}
+  .lic-card{border-radius:var(--r2);padding:10px 8px;text-align:center;border:1px solid;}
+  .lic-yes{background:rgba(5,150,105,.1);border-color:rgba(52,211,153,.25);}
+  .lic-no{background:rgba(220,38,38,.1);border-color:rgba(248,113,113,.25);}
+  .lic-card-name{font-size:11px;font-weight:700;color:var(--text1);margin-bottom:5px;}
+  .lic-card-badge{font-size:18px;}
+
+  /* HungerStation tab */
+  .hs-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+
+  /* ── TABS ── */
+  .tab-bar{
+    display:flex;gap:0;border-bottom:2px solid var(--border2);
+    background:rgba(255,255,255,.97);backdrop-filter:blur(8px);box-shadow:0 1px 4px rgba(0,0,0,.08);
+    flex-shrink:0;padding:0 20px;
+    position:sticky;top:0;z-index:8;
+  }
+  .tab-btn{
+    padding:10px 22px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;
+    background:transparent;border:none;color:var(--text3);cursor:pointer;
+    border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;
+  }
+  .tab-btn:hover{color:var(--text2);}
+  .tab-btn.active{color:var(--blue3);border-bottom-color:var(--blue3);}
+
+  ::-webkit-scrollbar{width:5px;height:5px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+  /* ══ MODAL ══ */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--navy2);border:1px solid var(--border2);border-radius:var(--r);width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.6);animation:slideUp .2s ease;}
+  .modal-hdr{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .modal-hdr h3{font-size:16px;font-weight:700;}
+  .modal-close{background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;transition:color .15s;}
+  .modal-close:hover{color:var(--text1);}
+  .modal-body{padding:18px;}
+  .modal-date-row{margin-bottom:16px;}
+  .modal-date-row label{font-size:11px;color:var(--text3);font-weight:600;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;}
+  .modal-date-row input{width:100%;padding:10px 12px;border-radius:var(--r2);background:var(--card);border:1px solid var(--border2);color:var(--text1);font-family:'Cairo',sans-serif;font-size:13px;}
+  .modal-grid{display:grid;grid-template-columns:1fr 80px 70px 80px;gap:6px;align-items:center;margin-bottom:6px;}
+  .modal-grid-hdr{font-size:10px;color:var(--text3);text-align:center;padding-bottom:5px;border-bottom:1px solid var(--border);font-weight:700;text-transform:uppercase;}
+  .modal-grid-hdr:first-child{text-align:right;}
+  .modal-inp{width:100%;padding:6px 8px;border-radius:4px;background:var(--card);border:1px solid var(--border);color:var(--text1);font-family:'Cairo',sans-serif;font-size:12px;text-align:center;}
+  .modal-name-lbl{font-size:13px;color:var(--text2);text-align:right;}
+  .modal-footer{padding:14px 18px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
+  .btn-save{background:linear-gradient(135deg,var(--blue2),var(--blue));color:#fff;border:none;border-radius:var(--r2);padding:9px 22px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+  .btn-save:hover{background:linear-gradient(135deg,var(--blue3),var(--blue2));transform:translateY(-1px);}
+  .btn-cancel{background:transparent;color:var(--text2);border:1px solid var(--border2);border-radius:var(--r2);padding:9px 16px;font-family:'Cairo',sans-serif;font-size:13px;cursor:pointer;}
+
+  /* manage modal */
+  .mc-row{display:flex;align-items:center;gap:7px;margin-bottom:7px;}
+  .mc-inp{flex:1;padding:7px 9px;border-radius:var(--r3);background:var(--card);border:1px solid var(--border);color:var(--text1);font-family:'Cairo',sans-serif;font-size:13px;}
+  .mc-inp-sm{width:130px;flex-shrink:0;}
+  .mc-del{background:rgba(220,38,38,.15);border:1px solid rgba(220,38,38,.3);color:#F87171;border-radius:var(--r3);padding:6px 10px;cursor:pointer;font-size:13px;flex-shrink:0;transition:background .15s;}
+  .mc-del:hover{background:rgba(220,38,38,.3);}
+  .mc-add-row{display:flex;gap:7px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
+  .btn-add-c{background:var(--green);color:#fff;border:none;border-radius:var(--r3);padding:8px 16px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s;}
+  .btn-add-c:hover{background:var(--green2);color:#000;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title">الطلبات الشهرية</div>
+        <div class="page-sub">اضغط على اسم أي مندوب لعرض تفاصيله</div>
+      </div>
+      <div class="topbar-right">
+        <div id="month-pills" class="month-pills"></div>
+        <div class="search-wrap">
+          <input id="courier-search" type="text" placeholder="🔍 ابحث..." oninput="applySearch(this.value)" autocomplete="off" />
+          <span class="search-clear" id="search-clear" onclick="clearSearch()" style="display:none">✕</span>
+        </div>
+        <button onclick="exportData()" style="
+          display:flex;align-items:center;gap:6px;padding:8px 14px;
+          background:linear-gradient(135deg,#1565C0,#1976D2);color:#fff;
+          border:none;border-radius:8px;font-family:'Cairo',sans-serif;
+          font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;
+          box-shadow:0 2px 8px rgba(21,101,192,.3);
+        ">⬇️ تصدير Excel</button>
+      </div>
+    </div>
+    <div id="kpi-bar" class="kpi-bar"></div>
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-orders" onclick="switchTab('orders')">📦 الأوردرات والساعات</button>
+      <button class="tab-btn" id="tab-gps" onclick="switchTab('gps')">🏍 GPS والكيلومترات</button>
+      <button class="tab-btn" id="tab-license" onclick="switchTab('license')">📋 التفاويض</button>
+      <button class="tab-btn" id="tab-summary" onclick="switchTab('summary')">📊 الإجمالي</button>
+      <button class="tab-btn" id="tab-hs" onclick="switchTab('hs')">🟠 HungerStation</button>
+      <button class="tab-btn" id="tab-bikes" onclick="switchTab('bikes')">🏍 البايكات</button>
+    </div>
+    <div class="content">
+      <div class="tbl-wrap"><table id="main-table"></table></div>
+      <div id="history-area"></div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">نظام المتابعة</div>
+      <div class="brand-title">كيتا <span>الرياض</span></div>
+    </div>
+
+    <button class="add-btn" style="background:var(--navy3);margin-top:4px;" onclick="document.getElementById('img-upload-input').click()">
+      📷 إضافة يوم من صورة
+    </button>
+    <input type="file" id="img-upload-input" accept="image/*" style="display:none" onchange="uploadDayImage(event)" />
+    <button class="add-btn" onclick="openAddModal()">
+      ＋ إضافة يوم جديد
+    </button>
+
+    
+    <button class="add-btn" style="background:var(--navy3);margin-top:-8px;" onclick="openManageModal()">
+      ⚙ إدارة المندوبين
+    </button>
+
+    <div class="sb-section">
+      <div class="sb-label">الإجماليات</div>
+      <div class="stat-grid" id="sb-stats"></div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-label">دليل الألوان</div>
+      <div class="legend-row"><div class="ldot" style="background:#5BC0F8"></div> أوردرات اليوم</div>
+      <div class="legend-row"><div class="ldot" style="background:#12A872"></div> ساعات العمل</div>
+      <div class="legend-row"><div class="ldot" style="background:#D4A017"></div> كيلومترات البايك</div>
+      <div class="legend-row"><div class="ldot" style="background:#2A8DE0;border:1px solid #7BC4F5"></div> أعلى أوردرات</div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-label">كيلومترات البايك</div>
+      <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;">يوم 07/05 — 08/05 — 09/05 — 10/05</div>
+      <div id="km-sidebar"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MANAGE COURIERS MODAL -->
+<div class="modal-overlay" id="manage-modal">
+  <div class="modal" style="width:520px">
+    <div class="modal-hdr">
+      <h3>⚙ إدارة المندوبين</h3>
+      <button class="modal-close" onclick="closeManageModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">عدّل الاسم أو رقم البايك، أو احذف مندوب، أو أضف جديد.</div>
+      <div style="display:grid;grid-template-columns:1fr 120px 36px;gap:6px;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--border)">
+        <div style="font-size:10px;color:var(--text-muted)">الاسم</div>
+        <div style="font-size:10px;color:var(--text-muted);text-align:center">رقم البايك</div>
+        <div></div>
+      </div>
+      <div id="mc-list"></div>
+      <div class="mc-add-row">
+        <input class="mc-inp" id="mc-new-name" placeholder="اسم المندوب الجديد" />
+        <input class="mc-inp mc-inp-sm" id="mc-new-bike" placeholder="رقم البايك (اختياري)" />
+        <button class="btn-add-c" onclick="addCourier()">＋ إضافة</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeManageModal()">إغلاق</button>
+      <button class="btn-save" onclick="saveManage()">حفظ التغييرات</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- IMPORT FROM KEETA MODAL -->
+<div class="modal-overlay" id="import-modal">
+  <div class="modal" style="width:560px">
+    <div class="modal-hdr">
+      <h3>⬇ استيراد من Keeta</h3>
+      <button class="modal-close" onclick="closeImportModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="margin-bottom:16px;">
+        <div style="font-size:13px;font-weight:700;color:var(--text1);margin-bottom:8px;">الخطوة 1 — أضف الـ Bookmarklet</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">اسحب الزر ده لشريط المفضلة في المتصفح:</div>
+        <a id="keeta-bookmarklet" href="" style="display:inline-flex;align-items:center;gap:6px;background:var(--gold);color:#000;padding:8px 16px;border-radius:var(--r2);font-weight:700;font-size:13px;text-decoration:none;cursor:grab;">
+          🟡 Keeta Extractor
+        </a>
+        <div style="font-size:11px;color:var(--text3);margin-top:8px;">أو انسخ الكود واضغط Ctrl+D عشان تضيفه يدوي</div>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:16px;margin-bottom:16px;">
+        <div style="font-size:13px;font-weight:700;color:var(--text1);margin-bottom:8px;">الخطوة 2 — اضغطه على صفحة Keeta</div>
+        <div style="font-size:12px;color:var(--text3);">افتح <span style="color:var(--blue3)">courier.mykeeta.com</span> ← اضغط الـ Bookmarklet ← هيظهر popup ببيانات المندوبين</div>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:16px;">
+        <div style="font-size:13px;font-weight:700;color:var(--text1);margin-bottom:8px;">الخطوة 3 — الصق البيانات هنا</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px;">بعد ما تضغط الـ Bookmarklet، انسخ النص وعجبه هنا:</div>
+        <textarea id="import-paste" placeholder='الصق البيانات هنا...' style="width:100%;height:120px;background:var(--card);border:1px solid var(--border2);color:var(--text1);border-radius:var(--r2);padding:10px;font-family:monospace;font-size:12px;resize:vertical;"></textarea>
+        <div style="margin-top:8px;">
+          <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:5px;">التاريخ (YYYY-MM-DD)</label>
+          <input type="date" id="import-date" style="padding:8px 10px;background:var(--card);border:1px solid var(--border2);color:var(--text1);border-radius:var(--r2);font-family:'Cairo',sans-serif;font-size:13px;" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeImportModal()">إغلاق</button>
+      <button class="btn-save" onclick="processImport()">✅ استيراد</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD DAY MODAL -->
+<div class="modal-overlay" id="export-modal">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-hdr">
+      <h3>⬇️ تصدير البيانات</h3>
+      <button class="modal-close" onclick="document.getElementById('export-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" style="padding:20px;display:flex;flex-direction:column;gap:16px;">
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--text3);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;">من تاريخ</label>
+        <input id="exp-from" type="date" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--card);color:var(--text1);font-family:'Cairo',sans-serif;font-size:13px;" />
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--text3);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;">لحد تاريخ</label>
+        <input id="exp-to" type="date" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--card);color:var(--text1);font-family:'Cairo',sans-serif;font-size:13px;" />
+      </div>
+      <div style="display:flex;gap:10px;margin-top:4px;">
+        <button onclick="doExport()" style="flex:1;padding:11px;background:linear-gradient(135deg,#1565C0,#1976D2);color:#fff;border:none;border-radius:8px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">⬇️ تحميل CSV</button>
+        <button onclick="document.getElementById('export-modal').classList.remove('open')" style="padding:11px 16px;background:var(--card2);color:var(--text2);border:1px solid var(--border2);border-radius:8px;font-family:'Cairo',sans-serif;font-size:13px;cursor:pointer;">إلغاء</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="add-modal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3>إضافة يوم جديد</h3>
+      <button class="modal-close" onclick="closeAddModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-date-row">
+        <label>التاريخ (YYYY-MM-DD)</label>
+        <input type="date" id="modal-date" />
+      </div>
+      <div class="modal-grid" style="margin-bottom:8px">
+        <div class="modal-grid-hdr">المندوب</div>
+        <div class="modal-grid-hdr">الأوردرات</div>
+        <div class="modal-grid-hdr">الساعات</div>
+        <div class="modal-grid-hdr">كم البايك</div>
+      </div>
+      <div id="modal-rows"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeAddModal()">إلغاء</button>
+      <button class="btn-save" onclick="saveNewDay()">حفظ اليوم</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const COLORS=[
+  {bg:'#1E4A7A',txt:'#7BC4F5'},{bg:'#1A5C42',txt:'#5DEBAA'},
+  {bg:'#4A3A7A',txt:'#C4B0F5'},{bg:'#7A2A1A',txt:'#F5A090'},
+  {bg:'#7A5010',txt:'#F5D080'},{bg:'#2A5A1A',txt:'#90E070'},
+  {bg:'#7A1A40',txt:'#F590C0'},
+];
+function ac(n){let h=0;for(let c of n)h=(h*31+c.charCodeAt(0))&0xffff;return COLORS[h%COLORS.length];}
+function ini(n){return n.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();}
+function fd(d){if(!d||!d.includes('-'))return'—';const[y,m,day]=d.split('-');return`${day}/${m}`;}
+function mk(d){if(!d||!d.includes('-'))return'unknown';const[y,m]=d.split('-');return`${y}-${m}`;}
+function ml(k){if(!k||!k.includes('-'))return'—';const[y,m]=k.split('-');const ns=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];return ns[parseInt(m)-1]+' '+y;}
+
+const HS_DATA=[
+  {id:'2815504',notified:10,completed:8,declined:2,breaks:0,lost:0,acceptance:0.80},
+  {id:'4599342',notified:10,completed:9,declined:1,breaks:0,lost:0.24,acceptance:0.90},
+  {id:'2489548',notified:8,completed:5,declined:2,breaks:0,lost:1.69,acceptance:0.75},
+  {id:'2494607',notified:10,completed:9,declined:1,breaks:0.18,lost:0.15,acceptance:0.90},
+];
+const HS_MAP={
+  '2815504':'Aqib Mehmood Mehmood Ali',
+  '4599342':'ND Rayhan Ahmad',
+  '2489548':'Falak Sher Qadeer Ahmed',
+  '2494607':'MD AL Amin',
+};
+const BIKES={
+  'Sajjad Ali':'8199','Fahad Soomro':'8465','Suronjeet Das':'8245',
+  'Farhan Haider':'3516','Omar Arish':'3154','Usama Asaad':'9910',
+  'Muhammad Shoaib':'3155','Nazim Shabeer':'8270','Muhammed Sajid':'7865','Muhammed Hammad':'8257','Rasel Islam':'8079','Sagar Hossain':'8258',
+  'Muhammed Mujahid':'7868','Rana Molla':'9536','Sobuj Mia':'7867','Tawfeeq Aqib':'9500','Muhammad Adil':'3152','Naim Uddin':'2449','Sabbir Hossain':'3513',
+  'Zulqarnain Haider':'7863','MD AL Amin':'4663','ND Rayhan Ahmad':'8248',
+  'Abdul Rehman':'4575','Akash Chandra':'8097','Rizwan Ibrahim':'2082','Umer Butt':'7871',
+  'Rizwan Nawaz':'4576','Naveed Akhtar':'7522','Shakeel':'2085','Muhammed Anas':'2083',
+};
+// تفاويض — true = عنده تفويض (محدّث من ملف التفاويض 2026-06-02)
+const LICENSE={
+  // ✅ عندهم تفويض فعال
+  'Sajjad Ali':true,'Fahad Soomro':true,'Suronjeet Das':true,
+  'Farhan Haider':true,'Omar Arish':true,'Usama Asaad':true,
+  'Muhammad Shoaib':true,'Muhammed Sajid':true,'Muhammed Mujahid':true,
+  'Naim Uddin':true,'Muhammed Hammad':true,'Rasel Islam':true,
+  'Sobuj Mia':true,'Tawfeeq Aqib':true,'Muhammad Adil':true,
+  'Rizwan Ibrahim':true,'Shakeel':true,'Naveed Akhtar':true,
+  'Muhammed Anas':true,'Umer Butt':true,'ND Rayhan Ahmad':true,
+  // ❌ بدون تفويض
+  'Nazim Shabeer':false,'Rana Molla':false,'Sabbir Hossain':false,
+  'Sagar Hossain':false,'Zulqarnain Haider':false,'MD AL Amin':false,
+  'Abdul Rehman':false,'Akash Chandra':false,'Rizwan Nawaz':false,
+};
+// KM per day per courier
+const KM_DATA={
+  '2026-05-07':{ 'Nazim Shabeer':0,'Farhan Haider':218.2,'Sajjad Ali':303.1,'Suronjeet Das':185.2,'Fahad Soomro':217.9,'Muhammad Shoaib':192.9,'Omar Arish':151.5 },
+  '2026-05-08':{ 'Nazim Shabeer':0,'Farhan Haider':296.4,'Sajjad Ali':211.1,'Suronjeet Das':130.8,'Fahad Soomro':230.3,'Muhammad Shoaib':209.4,'Omar Arish':136.8,'Usama Asaad':264.3 },
+  '2026-05-09':{ 'Nazim Shabeer':0,'Farhan Haider':194,'Sajjad Ali':244,'Suronjeet Das':150,'Fahad Soomro':84.4,'Muhammad Shoaib':158,'Omar Arish':128,'Usama Asaad':217 },
+  '2026-05-10':{ 'Sajjad Ali':202.3,'Fahad Soomro':202.1,'Suronjeet Das':42.4,'Farhan Haider':90.6,'Omar Arish':122.8,'Usama Asaad':128.3,'Muhammad Shoaib':273.8,'Nazim Shabeer':0 },
+  '2026-05-11':{ 'Sajjad Ali':225.6,'Fahad Soomro':206.6,'Suronjeet Das':25.0,'Farhan Haider':267.3,'Omar Arish':73.1,'Usama Asaad':196.5,'Muhammad Shoaib':160.2,'Nazim Shabeer':0 },
+  '2026-05-12':{ 'Sajjad Ali':99.3,'Fahad Soomro':177.6,'Suronjeet Das':9.9,'Farhan Haider':230.3,'Omar Arish':16.2,'Usama Asaad':235.1,'Muhammad Shoaib':223.4,'Nazim Shabeer':180.2,'Muhammed Sajid':349 },
+  '2026-05-13':{ 'Sajjad Ali':190.2,'Fahad Soomro':148.6,'Suronjeet Das':151.2,'Farhan Haider':267.7,'Omar Arish':68.7,'Usama Asaad':160.1,'Muhammad Shoaib':204.1,'Nazim Shabeer':234.8,'Muhammed Sajid':339.4,'Muhammed Mujahid':0,'Rana Molla':5.5,'Sobuj Mia':0,'Tawfeeq Aqib':0,'Muhammad Adil':0,'Naim Uddin':18.3 },
+  '2026-05-14':{ 'Sajjad Ali':186,'Fahad Soomro':174,'Suronjeet Das':266.2,'Farhan Haider':235.2,'Omar Arish':132,'Usama Asaad':192,'Muhammad Shoaib':174,'Nazim Shabeer':209,'Muhammed Sajid':166,'Muhammed Mujahid':85,'Rana Molla':109,'Sobuj Mia':84,'Tawfeeq Aqib':83,'Muhammad Adil':115,'Naim Uddin':192.2 },
+  '2026-05-15':{ 'Sajjad Ali':6.3,'Fahad Soomro':178,'Suronjeet Das':204.2,'Farhan Haider':1.5,'Omar Arish':89.8,'Usama Asaad':166,'Muhammad Shoaib':111.5,'Nazim Shabeer':79.7,'Muhammed Sajid':216.9,'Muhammed Mujahid':166.8,'Rana Molla':95.6,'Sobuj Mia':251.4,'Tawfeeq Aqib':166.4,'Muhammad Adil':175.2,'Naim Uddin':201.1 },
+  '2026-05-17':{ 'Sajjad Ali':188.7,'Fahad Soomro':212.3,'Suronjeet Das':264,'Farhan Haider':184.7,'Omar Arish':106.7,'Usama Asaad':265.7,'Muhammad Shoaib':210.1,'Nazim Shabeer':226.4,'Muhammed Sajid':194,'Rana Molla':26.4,'Sobuj Mia':157.7,'Tawfeeq Aqib':37.8,'Muhammad Adil':189.1,'Naim Uddin':251.4 },
+  '2026-05-31':{ 'Farhan Haider':112.4,'Muhammad Adil':112.5,'Muhammad Shoaib':6.5,'Muhammed Sajid':153.0,'Muhammed Hammad':82.5,'Muhammed Mujahid':71.9,'Nazim Shabeer':11.4,'Omar Arish':92.5,'Rasel Islam':130.9,'Sagar Hossain':10.2,'Sobuj Mia':154.6,'Suronjeet Das':129.3,'Fahad Soomro':35.3,'Usama Asaad':29.6,'Naim Uddin':53.9 },
+  '2026-05-30':{ 'Farhan Haider':265.2,'Muhammad Shoaib':305.0,'Muhammad Adil':15.9,'Nazim Shabeer':132.4,'Omar Arish':112.2,'Sajjad Ali':191.3,'Fahad Soomro':262.7,'Suronjeet Das':177.8,'Muhammed Sajid':175.6,'Muhammed Hammad':258.9,'Rasel Islam':129.6,'Sagar Hossain':13.1,'Muhammed Mujahid':158.8,'Sobuj Mia':264.8,'Tawfeeq Aqib':166.6,'Naim Uddin':120.4 },
+  '2026-05-29':{ 'Sajjad Ali':222.5,'Fahad Soomro':248.4,'Suronjeet Das':191.8,'Farhan Haider':180.2,'Omar Arish':79.6,'Usama Asaad':39.4,'Muhammad Shoaib':289.8,'Nazim Shabeer':279.2,'Muhammed Sajid':195.0,'Muhammed Hammad':101.5,'Rasel Islam':198.0,'Sagar Hossain':0.8,'Muhammed Mujahid':293.6,'Sobuj Mia':221.6,'Tawfeeq Aqib':125.5,'Muhammad Adil':223.8,'Naim Uddin':355.9 },
+  '2026-05-28':{ 'Fahad Soomro':317.3,'Nazim Shabeer':316.9,'Muhammad Adil':296.7,'Naim Uddin':283.9,'Rana Molla':280.4,'Sobuj Mia':274.9,'Muhammed Mujahid':272.7,'Muhammad Shoaib':267.7,'Tawfeeq Aqib':219.8,'Sajjad Ali':218.0,'Rasel Islam':196.5,'Muhammed Sajid':185.0,'Muhammed Hammad':159.5,'Suronjeet Das':155.3,'Omar Arish':39.3 },
+  '2026-05-26':{ 'Fahad Soomro':316.2,'Muhammad Adil':274.5,'Rana Molla':265.8,'Sajjad Ali':243.6,'Tawfeeq Aqib':236.5,'Sobuj Mia':235.6,'Naim Uddin':226.7,'Muhammed Mujahid':210.7,'Farhan Haider':204.4,'Usama Asaad':202.4,'Muhammed Sajid':198.5,'Nazim Shabeer':193.8,'Muhammad Shoaib':152.3,'Muhammed Hammad':104.5,'Suronjeet Das':86.3,'Omar Arish':59.5,'Rasel Islam':0.9 },
+  '2026-05-24':{ 'Sajjad Ali':228.0,'Fahad Soomro':219.7,'Suronjeet Das':118.1,'Farhan Haider':336.8,'Omar Arish':60.4,'Usama Asaad':284.3,'Muhammad Shoaib':272.1,'Nazim Shabeer':334.2,'Muhammed Sajid':164.7,'Muhammed Mujahid':40.9,'Muhammed Hammad':227.9,'Rana Molla':256.9,'Sobuj Mia':268.4,'Tawfeeq Aqib':245.1,'Muhammad Adil':334.8,'Naim Uddin':269.2 },
+  '2026-05-23':{ 'Sajjad Ali':167.9,'Fahad Soomro':181.4,'Suronjeet Das':16.8,'Farhan Haider':29.3,'Omar Arish':44.7,'Usama Asaad':176.3,'Muhammad Shoaib':192.8,'Nazim Shabeer':198.1,'Muhammed Sajid':177.5,'Muhammed Mujahid':95.3,'Muhammed Hammad':190.8,'Rana Molla':262.6,'Sobuj Mia':196.1,'Tawfeeq Aqib':10.2,'Muhammad Adil':145.2,'Naim Uddin':114.2 },
+  '2026-05-22':{ 'Sajjad Ali':222.8,'Fahad Soomro':160.2,'Suronjeet Das':152.7,'Farhan Haider':270.3,'Omar Arish':9.0,'Usama Asaad':182.3,'Muhammad Shoaib':235.7,'Nazim Shabeer':142.9,'Muhammed Sajid':144.4,'Muhammed Mujahid':164.6,'Muhammed Hammad':236.7,'Rana Molla':246.3,'Sobuj Mia':185.8,'Tawfeeq Aqib':78.1,'Muhammad Adil':162.5,'Naim Uddin':214.7 },
+  '2026-05-21':{ 'Sajjad Ali':115.0,'Fahad Soomro':171.0,'Suronjeet Das':257.5,'Farhan Haider':172.8,'Omar Arish':28.5,'Usama Asaad':118.4,'Muhammad Shoaib':180.2,'Nazim Shabeer':182.7,'Muhammed Sajid':243.1,'Muhammed Mujahid':112.2,'Muhammed Hammad':234.2,'Rana Molla':236.0,'Sobuj Mia':190.6,'Tawfeeq Aqib':122.2,'Muhammad Adil':185.6,'Naim Uddin':237.0 },
+  '2026-05-20':{ 'Sajjad Ali':171.1,'Fahad Soomro':189.7,'Suronjeet Das':122.5,'Farhan Haider':171.4,'Omar Arish':67.8,'Usama Asaad':158.6,'Muhammad Shoaib':148.8,'Nazim Shabeer':210.3,'Muhammed Sajid':197.1,'Muhammed Mujahid':11.3,'Muhammed Hammad':150.1,'Rana Molla':75.0,'Sobuj Mia':93.3,'Tawfeeq Aqib':16.0,'Muhammad Adil':182.6,'Naim Uddin':211.6 },
+  '2026-05-19':{ 'Sajjad Ali':211.8,'Fahad Soomro':124.8,'Suronjeet Das':171.5,'Farhan Haider':224.3,'Omar Arish':25.4,'Usama Asaad':169.6,'Muhammad Shoaib':171.7,'Nazim Shabeer':204.5,'Muhammed Sajid':211.9,'Muhammed Mujahid':133.3,'Muhammed Hammad':167.5,'Rana Molla':57.8,'Sobuj Mia':143.2,'Tawfeeq Aqib':93.5,'Muhammad Adil':246.3,'Naim Uddin':235.0 },
+  '2026-05-18':{ 'Sajjad Ali':192.0,'Fahad Soomro':204.8,'Suronjeet Das':217.5,'Farhan Haider':267.5,'Omar Arish':57.5,'Usama Asaad':211.0,'Muhammad Shoaib':184.7,'Nazim Shabeer':199.0,'Muhammed Sajid':100.5,'Muhammed Mujahid':37.2,'Rana Molla':180.9,'Sobuj Mia':179.5,'Tawfeeq Aqib':150.4,'Muhammad Adil':214.8,'Naim Uddin':223.4 },
+  '2026-05-16':{ 'Sajjad Ali':77.7,'Fahad Soomro':158.3,'Suronjeet Das':182.2,'Farhan Haider':171.2,'Omar Arish':66.3,'Usama Asaad':221,'Muhammad Shoaib':210.8,'Nazim Shabeer':220.6,'Muhammed Sajid':234.1,'Muhammed Mujahid':149.1,'Rana Molla':115.8,'Sobuj Mia':243.8,'Tawfeeq Aqib':184.2,'Muhammad Adil':219.9,'Naim Uddin':260.8 },
+};
+
+const allData=[
+  // يوم 7
+  {name:'Fahad Soomro',    hours:10.9, orders:15, date:'2026-05-07'},
+  {name:'Farhan Haider',   hours:6.8,  orders:16, date:'2026-05-07'},
+  {name:'Muhammad Shoaib', hours:12.9, orders:15, date:'2026-05-07'},
+  {name:'Muhammed Sajid',  hours:0.0,  orders:0,  date:'2026-05-07'},
+  {name:'Nazim Shabeer',   hours:9.7,  orders:20, date:'2026-05-07'},
+  {name:'Omar Arish',      hours:10.6, orders:15, date:'2026-05-07'},
+    {name:'Rana Molla',      hours:0.0,  orders:0, date:'2026-05-07'},
+  {name:'Rasel Islam',      hours:0.0,  orders:0,  date:'2026-05-07'},
+  {name:'Sagar Hossain',    hours:0.0,  orders:0,  date:'2026-05-07'},,
+  {name:'Sajjad Ali',      hours:8.3,  orders:29, date:'2026-05-07'},
+  {name:'Suronjeet Das',   hours:10.8, orders:16, date:'2026-05-07'},
+  {name:'Usama Asaad',     hours:9.5,  orders:17, date:'2026-05-07'},
+  // يوم 8
+  {name:'Fahad Soomro',    hours:10.1, orders:14, date:'2026-05-08'},
+  {name:'Farhan Haider',   hours:9.3,  orders:18, date:'2026-05-08'},
+  {name:'Muhammad Shoaib', hours:9.3,  orders:16, date:'2026-05-08'},
+  {name:'Muhammed Sajid',  hours:0.0,  orders:0,  date:'2026-05-08'},
+  {name:'Nazim Shabeer',   hours:8.9,  orders:20, date:'2026-05-08'},
+  {name:'Omar Arish',      hours:6.2,  orders:15, date:'2026-05-08'},
+  {name:'Rana Molla',      hours:0.0,  orders:0,  date:'2026-05-08'},
+  {name:'Sajjad Ali',      hours:6.7,  orders:20, date:'2026-05-08'},
+  {name:'Suronjeet Das',   hours:9.6,  orders:14, date:'2026-05-08'},
+  {name:'Usama Asaad',     hours:9.8,  orders:15, date:'2026-05-08'},
+  // يوم 9
+  {name:'Fahad Soomro',    hours:10.4, orders:15, date:'2026-05-09'},
+  {name:'Farhan Haider',   hours:8.6,  orders:14, date:'2026-05-09'},
+  {name:'Muhammad Shoaib', hours:11.0, orders:13, date:'2026-05-09'},
+  {name:'Muhammed Sajid',  hours:2.2,  orders:3,  date:'2026-05-09'},
+  {name:'Nazim Shabeer',   hours:10.4, orders:18, date:'2026-05-09'},
+  {name:'Omar Arish',      hours:8.7,  orders:15, date:'2026-05-09'},
+  {name:'Rana Molla',      hours:0.0,  orders:0,  date:'2026-05-09'},
+  {name:'Sajjad Ali',      hours:7.8,  orders:26, date:'2026-05-09'},
+  {name:'Suronjeet Das',   hours:10.9, orders:16, date:'2026-05-09'},
+  {name:'Usama Asaad',     hours:10.3, orders:17, date:'2026-05-09'},
+  // يوم 10
+  {name:'Fahad Soomro',    hours:7.0,  orders:15, date:'2026-05-10'},
+  {name:'Farhan Haider',   hours:0.0,  orders:0,  date:'2026-05-10'},
+  {name:'Muhammad Shoaib', hours:10.8, orders:16, date:'2026-05-10'},
+  {name:'Muhammed Sajid',  hours:10.0, orders:11, date:'2026-05-10'},
+  {name:'Nazim Shabeer',   hours:8.0,  orders:18, date:'2026-05-10'},
+  {name:'Omar Arish',      hours:7.8,  orders:15, date:'2026-05-10'},
+  {name:'Rana Molla',      hours:0.0,  orders:0,  date:'2026-05-10'},
+  {name:'Sajjad Ali',      hours:7.4,  orders:23, date:'2026-05-10'},
+  {name:'Suronjeet Das',   hours:0.0,  orders:0,  date:'2026-05-10'},
+  {name:'Usama Asaad',     hours:6.7,  orders:15, date:'2026-05-10'},
+  // يوم 12
+  {name:'Fahad Soomro',    hours:8.7,  orders:15, date:'2026-05-11'},
+  {name:'Farhan Haider',   hours:9.2,  orders:16, date:'2026-05-11'},
+  {name:'Muhammad Shoaib', hours:7.9,  orders:9,  date:'2026-05-11'},
+  {name:'Muhammed Sajid',  hours:9.9,  orders:13, date:'2026-05-11'},
+  {name:'Nazim Shabeer',   hours:8.2,  orders:20, date:'2026-05-11'},
+  {name:'Omar Arish',      hours:6.7,  orders:15, date:'2026-05-11'},
+  {name:'Rana Molla',      hours:0.0,  orders:0,  date:'2026-05-11'},
+  {name:'Sajjad Ali',      hours:8.3,  orders:25, date:'2026-05-11'},
+  {name:'Suronjeet Das',   hours:0.0,  orders:0,  date:'2026-05-11'},
+  {name:'Usama Asaad',     hours:10.0, orders:15, date:'2026-05-11'},
+  // يوم 12
+  {name:'Fahad Soomro',    hours:7.5,  orders:15, date:'2026-05-12'},
+  {name:'Farhan Haider',   hours:9.3,  orders:15, date:'2026-05-12'},
+  {name:'Muhammad Shoaib', hours:9.3,  orders:16, date:'2026-05-12'},
+  {name:'Muhammed Sajid',  hours:9.4,  orders:16, date:'2026-05-12'},
+  {name:'Nazim Shabeer',   hours:7.3,  orders:15, date:'2026-05-12'},
+  {name:'Omar Arish',      hours:8.7,  orders:16, date:'2026-05-12'},
+  {name:'Rana Molla',      hours:0.0,  orders:0,  date:'2026-05-12'},
+  {name:'Sajjad Ali',      hours:4.5,  orders:15, date:'2026-05-12'},
+  {name:'Suronjeet Das',   hours:0.0,  orders:0,  date:'2026-05-12'},
+  {name:'Usama Asaad',     hours:10.3, orders:15, date:'2026-05-12'},
+  // يوم 13
+  {name:'Fahad Soomro',     hours:6.4,  orders:15, date:'2026-05-13'},
+  {name:'Farhan Haider',    hours:10.0, orders:19, date:'2026-05-13'},
+  {name:'Muhammad Adil',    hours:0.0,  orders:0,  date:'2026-05-13'},
+  {name:'Muhammad Shoaib',  hours:8.4,  orders:15, date:'2026-05-13'},
+  {name:'Muhammed Sajid',   hours:11.4, orders:18, date:'2026-05-13'},
+  {name:'Muhammed Hammad',  hours:0.0,  orders:0,  date:'2026-05-13'},
+  {name:'Muhammed Mujahid', hours:0.0,  orders:0,  date:'2026-05-13'},
+  {name:'Naim Uddin',       hours:0.9,  orders:0,  date:'2026-05-13'},
+  {name:'Nazim Shabeer',    hours:9.1,  orders:20, date:'2026-05-13'},
+  {name:'Omar Arish',       hours:7.4,  orders:15, date:'2026-05-13'},
+  {name:'Rana Molla',       hours:0.1,  orders:0,  date:'2026-05-13'},
+  {name:'Sajjad Ali',       hours:7.2,  orders:19, date:'2026-05-13'},
+  {name:'Sobuj Mia',        hours:0.0,  orders:0,  date:'2026-05-13'},
+  {name:'Suronjeet Das',    hours:6.2,  orders:8,  date:'2026-05-13'},
+  {name:'Tawfeeq Aqib',     hours:0.0,  orders:0,  date:'2026-05-13'},
+  {name:'Usama Asaad',      hours:5.9,  orders:10, date:'2026-05-13'},
+  // يوم 14
+  {name:'Fahad Soomro',     hours:6.3,  orders:15, date:'2026-05-14'},
+  {name:'Faizan Ali',       hours:0.0,  orders:0,  date:'2026-05-14'},
+  {name:'Farhan Haider',    hours:8.9,  orders:16, date:'2026-05-14'},
+  {name:'Muhammad Adil',    hours:8.7,  orders:8,  date:'2026-05-14'},
+  {name:'Muhammad Shoaib',  hours:8.6,  orders:17, date:'2026-05-14'},
+  {name:'Muhammed Sajid',   hours:10.5, orders:18, date:'2026-05-14'},
+  {name:'Muhammed Mujahid', hours:9.7,  orders:8,  date:'2026-05-14'},
+  {name:'Naim Uddin',       hours:9.6,  orders:16, date:'2026-05-14'},
+  {name:'Nazim Shabeer',    hours:9.1,  orders:17, date:'2026-05-14'},
+  {name:'Omar Arish',       hours:7.5,  orders:15, date:'2026-05-14'},
+  {name:'Rana Molla',       hours:8.4,  orders:9,  date:'2026-05-14'},
+  {name:'Sabbir Hossain',   hours:0.0,  orders:0,  date:'2026-05-14'},
+  {name:'Sajjad Ali',       hours:6.8,  orders:20, date:'2026-05-14'},
+  {name:'Sobuj Mia',        hours:4.5,  orders:7,  date:'2026-05-14'},
+  {name:'Sumon Mia',        hours:0.0,  orders:0,  date:'2026-05-14'},
+  {name:'Suronjeet Das',    hours:11.6, orders:18, date:'2026-05-14'},
+  {name:'Tawfeeq Aqib',     hours:4.4,  orders:7,  date:'2026-05-14'},
+  {name:'Usama Asaad',      hours:7.1,  orders:15, date:'2026-05-14'},
+  // يوم 15
+  {name:'Fahad Soomro',     hours:7.5,  orders:11, date:'2026-05-15'},
+  {name:'Faizan Ali',       hours:0.0,  orders:0,  date:'2026-05-15'},
+  {name:'Farhan Haider',    hours:0.0,  orders:0,  date:'2026-05-15'},
+  {name:'Muhammad Adil',    hours:8.1,  orders:15, date:'2026-05-15'},
+  {name:'Muhammad Shoaib',  hours:7.3,  orders:8,  date:'2026-05-15'},
+  {name:'Muhammed Sajid',   hours:10.8, orders:14, date:'2026-05-15'},
+  {name:'Muhammed Mujahid', hours:12.9, orders:16, date:'2026-05-15'},
+  {name:'Naim Uddin',       hours:9.0,  orders:15, date:'2026-05-15'},
+  {name:'Nazim Shabeer',    hours:4.8,  orders:5,  date:'2026-05-15'},
+  {name:'Omar Arish',       hours:9.6,  orders:15, date:'2026-05-15'},
+  {name:'Rana Molla',       hours:11.2, orders:9,  date:'2026-05-15'},
+  {name:'Sabbir Hossain',   hours:0.0,  orders:0,  date:'2026-05-15'},
+  {name:'Sajjad Ali',       hours:0.0,  orders:0,  date:'2026-05-15'},
+  {name:'Sobuj Mia',        hours:11.6, orders:18, date:'2026-05-15'},
+  {name:'Sumon Mia',        hours:0.0,  orders:0,  date:'2026-05-15'},
+  {name:'Suronjeet Das',    hours:9.6,  orders:11, date:'2026-05-15'},
+  {name:'Tawfeeq Aqib',     hours:8.4,  orders:11, date:'2026-05-15'},
+  {name:'Usama Asaad',      hours:7.8,  orders:15, date:'2026-05-15'},
+  // يوم 16
+  {name:'Fahad Soomro',     hours:6.1,  orders:15, date:'2026-05-16'},
+  {name:'Faizan Ali',       hours:0.0,  orders:0,  date:'2026-05-16'},
+  {name:'Farhan Haider',    hours:0.0,  orders:0,  date:'2026-05-16'},
+  {name:'Muhammad Adil',    hours:9.0,  orders:15, date:'2026-05-16'},
+  {name:'Muhammad Shoaib',  hours:11.1, orders:23, date:'2026-05-16'},
+  {name:'Muhammed Sajid',   hours:10.3, orders:17, date:'2026-05-16'},
+  {name:'Muhammed Mujahid', hours:10.0, orders:8,  date:'2026-05-16'},
+  {name:'Naim Uddin',       hours:9.5,  orders:15, date:'2026-05-16'},
+  {name:'Nazim Shabeer',    hours:9.0,  orders:20, date:'2026-05-16'},
+  {name:'Omar Arish',       hours:10.0, orders:15, date:'2026-05-16'},
+  {name:'Rana Molla',       hours:9.7,  orders:11, date:'2026-05-16'},
+  {name:'Sabbir Hossain',   hours:0.0,  orders:0,  date:'2026-05-16'},
+  {name:'Sajjad Ali',       hours:7.3,  orders:22, date:'2026-05-16'},
+  {name:'Sobuj Mia',        hours:8.9,  orders:16, date:'2026-05-16'},
+  {name:'Sumon Mia',        hours:0.0,  orders:0,  date:'2026-05-16'},
+  {name:'Suronjeet Das',    hours:10.7, orders:14, date:'2026-05-16'},
+  {name:'Tawfeeq Aqib',     hours:11.5, orders:12, date:'2026-05-16'},
+  {name:'Usama Asaad',      hours:8.1,  orders:15, date:'2026-05-16'},
+  // يوم 17
+  {name:'Nazim Shabeer',    hours:9.3,  orders:20, date:'2026-05-17'},
+  {name:'Farhan Haider',    hours:9.0,  orders:13, date:'2026-05-17'},
+  {name:'Sajjad Ali',       hours:10.3, orders:21, date:'2026-05-17'},
+  {name:'Suronjeet Das',    hours:9.0,  orders:15, date:'2026-05-17'},
+  {name:'Fahad Soomro',     hours:8.3,  orders:15, date:'2026-05-17'},
+  {name:'Muhammad Shoaib',  hours:9.0,  orders:15, date:'2026-05-17'},
+  {name:'Omar Arish',       hours:11.0, orders:17, date:'2026-05-17'},
+  {name:'Usama Asaad',      hours:10.3, orders:16, date:'2026-05-17'},
+  // يوم 18
+  {name:'Fahad Soomro',     hours:7.2,  orders:15, date:'2026-05-18'},
+  {name:'Farhan Haider',    hours:6.6,  orders:13, date:'2026-05-18'},
+  {name:'Muhammad Adil',    hours:7.3,  orders:15, date:'2026-05-18'},
+  {name:'Muhammad Shoaib',  hours:8.6,  orders:9,  date:'2026-05-18'},
+  {name:'Muhammed Sajid',   hours:4.7,  orders:4,  date:'2026-05-18'},
+  {name:'Muhammed Mujahid', hours:0.0,  orders:0,  date:'2026-05-18'},
+  {name:'Muhammed Hammad',  hours:0.0,  orders:0,  date:'2026-05-18'},
+  {name:'Naim Uddin',       hours:10.3, orders:18, date:'2026-05-18'},
+  {name:'Nazim Shabeer',    hours:8.1,  orders:15, date:'2026-05-18'},
+  {name:'Omar Arish',       hours:8.7,  orders:15, date:'2026-05-18'},
+  {name:'Rana Molla',       hours:11.0, orders:15, date:'2026-05-18'},
+  {name:'Sajjad Ali',       hours:6.9,  orders:21, date:'2026-05-18'},
+  {name:'Sobuj Mia',        hours:7.0,  orders:12, date:'2026-05-18'},
+  {name:'Suronjeet Das',    hours:11.2, orders:17, date:'2026-05-18'},
+  {name:'Tawfeeq Aqib',     hours:9.5,  orders:12, date:'2026-05-18'},
+  {name:'Usama Asaad',      hours:9.1,  orders:14, date:'2026-05-18'},
+  // يوم 19
+  {name:'Fahad Soomro',     hours:4.8,  orders:9,  date:'2026-05-19'},
+  {name:'Farhan Haider',    hours:9.0,  orders:20, date:'2026-05-19'},
+  {name:'Muhammad Adil',    hours:7.6,  orders:15, date:'2026-05-19'},
+  {name:'Muhammad Shoaib',  hours:7.9,  orders:15, date:'2026-05-19'},
+  {name:'Muhammed Sajid',   hours:11.1, orders:19, date:'2026-05-19'},
+  {name:'Muhammed Mujahid', hours:7.9,  orders:13, date:'2026-05-19'},
+  {name:'Muhammed Hammad',  hours:8.4,  orders:15, date:'2026-05-19'},
+  {name:'Naim Uddin',       hours:10.6, orders:24, date:'2026-05-19'},
+  {name:'Nazim Shabeer',    hours:7.6,  orders:15, date:'2026-05-19'},
+  {name:'Omar Arish',       hours:7.3,  orders:15, date:'2026-05-19'},
+  {name:'Rana Molla',       hours:4.5,  orders:4,  date:'2026-05-19'},
+  {name:'Sajjad Ali',       hours:7.4,  orders:23, date:'2026-05-19'},
+  {name:'Sobuj Mia',        hours:5.7,  orders:12, date:'2026-05-19'},
+  {name:'Suronjeet Das',    hours:8.4,  orders:16, date:'2026-05-19'},
+  {name:'Tawfeeq Aqib',     hours:2.3,  orders:7,  date:'2026-05-19'},
+  {name:'Usama Asaad',      hours:6.7,  orders:15, date:'2026-05-19'},
+  // يوم 20
+  {name:'Fahad Soomro',     hours:6.4,  orders:15, date:'2026-05-20'},
+  {name:'Farhan Haider',    hours:6.1,  orders:15, date:'2026-05-20'},
+  {name:'Muhammad Adil',    hours:7.5,  orders:15, date:'2026-05-20'},
+  {name:'Muhammad Shoaib',  hours:5.3,  orders:13, date:'2026-05-20'},
+  {name:'Muhammed Sajid',   hours:10.2, orders:20, date:'2026-05-20'},
+  {name:'Muhammed Mujahid', hours:0.1,  orders:1,  date:'2026-05-20'},
+  {name:'Muhammed Hammad',  hours:7.1,  orders:9,  date:'2026-05-20'},
+  {name:'Naim Uddin',       hours:10.2, orders:21, date:'2026-05-20'},
+  {name:'Nazim Shabeer',    hours:7.7,  orders:17, date:'2026-05-20'},
+  {name:'Omar Arish',       hours:6.2,  orders:15, date:'2026-05-20'},
+  {name:'Rana Molla',       hours:2.6,  orders:4,  date:'2026-05-20'},
+  {name:'Sajjad Ali',       hours:7.2,  orders:20, date:'2026-05-20'},
+  {name:'Sobuj Mia',        hours:5.5,  orders:11, date:'2026-05-20'},
+  {name:'Suronjeet Das',    hours:6.7,  orders:10, date:'2026-05-20'},
+  {name:'Tawfeeq Aqib',     hours:0.0,  orders:0,  date:'2026-05-20'},
+  {name:'Usama Asaad',      hours:6.6,  orders:15, date:'2026-05-20'},
+  // يوم 21
+  {name:'Fahad Soomro',     hours:7.0,  orders:15, date:'2026-05-21'},
+  {name:'Farhan Haider',    hours:5.4,  orders:10, date:'2026-05-21'},
+  {name:'Muhammad Adil',    hours:5.8,  orders:15, date:'2026-05-21'},
+  {name:'Muhammad Shoaib',  hours:6.2,  orders:16, date:'2026-05-21'},
+  {name:'Muhammed Sajid',   hours:10.3, orders:22, date:'2026-05-21'},
+  {name:'Muhammed Mujahid', hours:7.4,  orders:16, date:'2026-05-21'},
+  {name:'Muhammed Hammad',  hours:8.8,  orders:19, date:'2026-05-21'},
+  {name:'Naim Uddin',       hours:9.9,  orders:17, date:'2026-05-21'},
+  {name:'Nazim Shabeer',    hours:6.4,  orders:15, date:'2026-05-21'},
+  {name:'Omar Arish',       hours:5.7,  orders:15, date:'2026-05-21'},
+  {name:'Rana Molla',       hours:10.1, orders:20, date:'2026-05-21'},
+  {name:'Sajjad Ali',       hours:4.7,  orders:14, date:'2026-05-21'},
+  {name:'Sobuj Mia',        hours:9.4,  orders:19, date:'2026-05-21'},
+  {name:'Suronjeet Das',    hours:10.5, orders:24, date:'2026-05-21'},
+  {name:'Tawfeeq Aqib',     hours:4.1,  orders:9,  date:'2026-05-21'},
+  {name:'Usama Asaad',      hours:4.2,  orders:9,  date:'2026-05-21'},
+  // يوم 22
+  {name:'Fahad Soomro',     hours:7.8,  orders:14, date:'2026-05-22'},
+  {name:'Farhan Haider',    hours:7.9,  orders:17, date:'2026-05-22'},
+  {name:'Muhammad Adil',    hours:7.4,  orders:15, date:'2026-05-22'},
+  {name:'Muhammad Shoaib',  hours:8.1,  orders:17, date:'2026-05-22'},
+  {name:'Muhammed Sajid',   hours:8.2,  orders:15, date:'2026-05-22'},
+  {name:'Muhammed Mujahid', hours:9.8,  orders:23, date:'2026-05-22'},
+  {name:'Muhammed Hammad',  hours:9.5,  orders:19, date:'2026-05-22'},
+  {name:'Naim Uddin',       hours:9.0,  orders:19, date:'2026-05-22'},
+  {name:'Nazim Shabeer',    hours:6.3,  orders:15, date:'2026-05-22'},
+  {name:'Omar Arish',       hours:7.0,  orders:15, date:'2026-05-22'},
+  {name:'Rana Molla',       hours:9.5,  orders:22, date:'2026-05-22'},
+  {name:'Sajjad Ali',       hours:9.8,  orders:27, date:'2026-05-22'},
+  {name:'Sobuj Mia',        hours:9.3,  orders:14, date:'2026-05-22'},
+  {name:'Suronjeet Das',    hours:8.5,  orders:16, date:'2026-05-22'},
+  {name:'Tawfeeq Aqib',     hours:2.4,  orders:4,  date:'2026-05-22'},
+  {name:'Usama Asaad',      hours:6.7,  orders:15, date:'2026-05-22'},
+  // يوم 23
+  {name:'Fahad Soomro',     hours:6.2,  orders:15, date:'2026-05-23'},
+  {name:'Farhan Haider',    hours:0.0,  orders:0,  date:'2026-05-23'},
+  {name:'Muhammad Adil',    hours:5.5,  orders:15, date:'2026-05-23'},
+  {name:'Muhammad Shoaib',  hours:7.0,  orders:15, date:'2026-05-23'},
+  {name:'Muhammed Sajid',   hours:7.7,  orders:13, date:'2026-05-23'},
+  {name:'Muhammed Mujahid', hours:8.0,  orders:18, date:'2026-05-23'},
+  {name:'Muhammed Hammad',  hours:6.5,  orders:15, date:'2026-05-23'},
+  {name:'Naim Uddin',       hours:3.3,  orders:6,  date:'2026-05-23'},
+  {name:'Nazim Shabeer',    hours:6.6,  orders:15, date:'2026-05-23'},
+  {name:'Omar Arish',       hours:6.0,  orders:15, date:'2026-05-23'},
+  {name:'Rana Molla',       hours:10.4, orders:21, date:'2026-05-23'},
+  {name:'Sajjad Ali',       hours:7.0,  orders:20, date:'2026-05-23'},
+  {name:'Sobuj Mia',        hours:8.5,  orders:12, date:'2026-05-23'},
+  {name:'Suronjeet Das',    hours:2.3,  orders:1,  date:'2026-05-23'},
+  {name:'Tawfeeq Aqib',     hours:0.0,  orders:0,  date:'2026-05-23'},
+  {name:'Usama Asaad',      hours:6.3,  orders:15, date:'2026-05-23'},
+  // يوم 24
+  {name:'Fahad Soomro',     hours:6.9,  orders:17, date:'2026-05-24'},
+  {name:'Farhan Haider',    hours:13.5, orders:32, date:'2026-05-24'},
+  {name:'Muhammad Adil',    hours:12.8, orders:28, date:'2026-05-24'},
+  {name:'Muhammad Shoaib',  hours:13.9, orders:31, date:'2026-05-24'},
+  {name:'Muhammed Sajid',   hours:9.0,  orders:16, date:'2026-05-24'},
+  {name:'Muhammed Mujahid', hours:11.2, orders:30, date:'2026-05-24'},
+  {name:'Muhammed Hammad',  hours:12.1, orders:27, date:'2026-05-24'},
+  {name:'Naim Uddin',       hours:13.9, orders:34, date:'2026-05-24'},
+  {name:'Nazim Shabeer',    hours:12.6, orders:27, date:'2026-05-24'},
+  {name:'Omar Arish',       hours:6.5,  orders:15, date:'2026-05-24'},
+  {name:'Rana Molla',       hours:12.8, orders:24, date:'2026-05-24'},
+  {name:'Sajjad Ali',       hours:12.1, orders:32, date:'2026-05-24'},
+  {name:'Sobuj Mia',        hours:13.3, orders:25, date:'2026-05-24'},
+  {name:'Suronjeet Das',    hours:3.3,  orders:7,  date:'2026-05-24'},
+  {name:'Tawfeeq Aqib',     hours:10.4, orders:21, date:'2026-05-24'},
+  {name:'Usama Asaad',      hours:10.8, orders:20, date:'2026-05-24'},
+  // يوم 26
+  {name:'Fahad Soomro',     hours:11.8, orders:31, date:'2026-05-26'},
+  {name:'Farhan Haider',    hours:10.2, orders:22, date:'2026-05-26'},
+  {name:'Muhammad Adil',    hours:12.1, orders:29, date:'2026-05-26'},
+  {name:'Muhammad Shoaib',  hours:11.1, orders:21, date:'2026-05-26'},
+  {name:'Muhammed Sajid',   hours:10.4, orders:22, date:'2026-05-26'},
+  {name:'Muhammed Mujahid', hours:9.9,  orders:30, date:'2026-05-26'},
+  {name:'Muhammed Hammad',  hours:6.6,  orders:12, date:'2026-05-26'},
+  {name:'Naim Uddin',       hours:12.9, orders:31, date:'2026-05-26'},
+  {name:'Nazim Shabeer',    hours:11.0, orders:28, date:'2026-05-26'},
+  {name:'Omar Arish',       hours:10.7, orders:20, date:'2026-05-26'},
+  {name:'Rana Molla',       hours:12.6, orders:28, date:'2026-05-26'},
+  {name:'Rasel Islam',      hours:0.0,  orders:0,  date:'2026-05-26'},
+  {name:'Sagar Hossain',    hours:0.0,  orders:0,  date:'2026-05-26'},
+  {name:'Sajjad Ali',       hours:12.5, orders:40, date:'2026-05-26'},
+  {name:'Sobuj Mia',        hours:13.1, orders:30, date:'2026-05-26'},
+  {name:'Suronjeet Das',    hours:8.0,  orders:17, date:'2026-05-26'},
+  {name:'Tawfeeq Aqib',     hours:11.9, orders:34, date:'2026-05-26'},
+  {name:'Usama Asaad',      hours:11.4, orders:25, date:'2026-05-26'},
+  // يوم 28
+  {name:'Fahad Soomro',     hours:11.3, orders:28, date:'2026-05-28'},
+  {name:'Farhan Haider',    hours:0.0,  orders:0,  date:'2026-05-28'},
+  {name:'Muhammad Adil',    hours:11.5, orders:26, date:'2026-05-28'},
+  {name:'Muhammad Shoaib',  hours:11.1, orders:23, date:'2026-05-28'},
+  {name:'Muhammed Sajid',   hours:8.8,  orders:16, date:'2026-05-28'},
+  {name:'Muhammed Mujahid', hours:11.2, orders:26, date:'2026-05-28'},
+  {name:'Muhammed Hammad',  hours:8.2,  orders:18, date:'2026-05-28'},
+  {name:'Naim Uddin',       hours:10.9, orders:23, date:'2026-05-28'},
+  {name:'Nazim Shabeer',    hours:12.3, orders:27, date:'2026-05-28'},
+  {name:'Omar Arish',       hours:7.6,  orders:16, date:'2026-05-28'},
+  {name:'Rana Molla',       hours:12.5, orders:26, date:'2026-05-28'},
+  {name:'Rasel Islam',      hours:0.0,  orders:0,  date:'2026-05-28'},
+  {name:'Sagar Hossain',    hours:5.1,  orders:4,  date:'2026-05-28'},
+  {name:'Sajjad Ali',       hours:8.5,  orders:28, date:'2026-05-28'},
+  {name:'Sobuj Mia',        hours:12.6, orders:27, date:'2026-05-28'},
+  {name:'Suronjeet Das',    hours:6.8,  orders:15, date:'2026-05-28'},
+  {name:'Tawfeeq Aqib',     hours:11.5, orders:22, date:'2026-05-28'},
+  {name:'Usama Asaad',      hours:0.0,  orders:0,  date:'2026-05-28'},
+  // يوم 31
+  {name:'Farhan Haider',    hours:2.5,  orders:6,  date:'2026-05-31'},
+  {name:'Muhammad Adil',    hours:4.5,  orders:11, date:'2026-05-31'},
+  {name:'Muhammad Shoaib',  hours:0.0,  orders:0,  date:'2026-05-31'},
+  {name:'Muhammed Sajid',   hours:7.5,  orders:19, date:'2026-05-31'},
+  {name:'Muhammed Hammad',  hours:2.5,  orders:7,  date:'2026-05-31'},
+  {name:'Muhammed Mujahid', hours:2.0,  orders:4,  date:'2026-05-31'},
+  {name:'Naim Uddin',       hours:0.0,  orders:0,  date:'2026-05-31'},
+  {name:'Nazim Shabeer',    hours:0.0,  orders:0,  date:'2026-05-31'},
+  {name:'Omar Arish',       hours:5.6,  orders:13, date:'2026-05-31'},
+  {name:'Rana Molla',       hours:7.4,  orders:8,  date:'2026-05-31'},
+  {name:'Rasel Islam',      hours:5.5,  orders:11, date:'2026-05-31'},
+  {name:'Sabbir Hossain',   hours:3.1,  orders:7,  date:'2026-05-31'},
+  {name:'Sagar Hossain',    hours:0.0,  orders:0,  date:'2026-05-31'},
+  {name:'Sajjad Ali',       hours:0.0,  orders:0,  date:'2026-05-31'},
+  {name:'Sobuj Mia',        hours:6.7,  orders:13, date:'2026-05-31'},
+  {name:'Suronjeet Das',    hours:6.0,  orders:10, date:'2026-05-31'},
+  {name:'Tawfeeq Aqib',     hours:0.0,  orders:0,  date:'2026-05-31'},
+  {name:'Usama Asaad',      hours:1.2,  orders:3,  date:'2026-05-31'},
+  {name:'Fahad Soomro',     hours:0.0,  orders:0,  date:'2026-05-31'},
+  // يوم 30
+  {name:'Fahad Soomro',     hours:10.0, orders:23, date:'2026-05-30'},
+  {name:'Farhan Haider',    hours:0.0,  orders:0,  date:'2026-05-30'},
+  {name:'Muhammad Adil',    hours:10.4, orders:24, date:'2026-05-30'},
+  {name:'Muhammad Shoaib',  hours:11.0, orders:27, date:'2026-05-30'},
+  {name:'Muhammed Sajid',   hours:9.2,  orders:20, date:'2026-05-30'},
+  {name:'Muhammed Hammad',  hours:7.9,  orders:20, date:'2026-05-30'},
+  {name:'Muhammed Mujahid', hours:7.4,  orders:16, date:'2026-05-30'},
+  {name:'Naim Uddin',       hours:2.8,  orders:9,  date:'2026-05-30'},
+  {name:'Nazim Shabeer',    hours:4.8,  orders:14, date:'2026-05-30'},
+  {name:'Omar Arish',       hours:4.9,  orders:15, date:'2026-05-30'},
+  {name:'Rana Molla',       hours:11.0, orders:24, date:'2026-05-30'},
+  {name:'Rasel Islam',      hours:6.2,  orders:8,  date:'2026-05-30'},
+  {name:'Sabbir Hossain',   hours:6.6,  orders:11, date:'2026-05-30'},
+  {name:'Sagar Hossain',    hours:5.7,  orders:0,  date:'2026-05-30'},
+  {name:'Sajjad Ali',       hours:6.7,  orders:23, date:'2026-05-30'},
+  {name:'Sobuj Mia',        hours:12.1, orders:27, date:'2026-05-30'},
+  {name:'Suronjeet Das',    hours:8.6,  orders:19, date:'2026-05-30'},
+  {name:'Tawfeeq Aqib',     hours:5.8,  orders:16, date:'2026-05-30'},
+  {name:'Usama Asaad',      hours:0.0,  orders:0,  date:'2026-05-30'},
+  // يوم 29
+  {name:'Fahad Soomro',     hours:9.5,  orders:21, date:'2026-05-29'},
+  {name:'Farhan Haider',    hours:0.0,  orders:0,  date:'2026-05-29'},
+  {name:'Muhammad Adil',    hours:11.2, orders:28, date:'2026-05-29'},
+  {name:'Muhammad Shoaib',  hours:9.1,  orders:16, date:'2026-05-29'},
+  {name:'Muhammed Sajid',   hours:8.3,  orders:18, date:'2026-05-29'},
+  {name:'Muhammed Hammad',  hours:4.3,  orders:11, date:'2026-05-29'},
+  {name:'Muhammed Mujahid', hours:11.0, orders:28, date:'2026-05-29'},
+  {name:'Naim Uddin',       hours:12.6, orders:29, date:'2026-05-29'},
+  {name:'Nazim Shabeer',    hours:11.2, orders:30, date:'2026-05-29'},
+  {name:'Omar Arish',       hours:6.3,  orders:15, date:'2026-05-29'},
+  {name:'Rana Molla',       hours:12.7, orders:33, date:'2026-05-29'},
+  {name:'Rasel Islam',      hours:6.8,  orders:7,  date:'2026-05-29'},
+  {name:'Sabbir Hossain',   hours:4.0,  orders:5,  date:'2026-05-29'},
+  {name:'Sagar Hossain',    hours:0.0,  orders:0,  date:'2026-05-29'},
+  {name:'Sajjad Ali',       hours:8.9,  orders:27, date:'2026-05-29'},
+  {name:'Sobuj Mia',        hours:12.5, orders:29, date:'2026-05-29'},
+  {name:'Suronjeet Das',    hours:9.1,  orders:20, date:'2026-05-29'},
+  {name:'Tawfeeq Aqib',     hours:8.2,  orders:12, date:'2026-05-29'},
+  {name:'Usama Asaad',      hours:2.0,  orders:5,  date:'2026-05-29'},
+  // يوم 26
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // يوم 25
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // يوم 26
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  {name:'Muhammed Sajid',   hours:8.3,  orders:15, date:'2026-05-17'},
+  {name:'Muhammed Mujahid', hours:1.0,  orders:1,  date:'2026-05-17'},
+  {name:'Rana Molla',       hours:2.3,  orders:6,  date:'2026-05-17'},
+  {name:'Sobuj Mia',        hours:8.0,  orders:16, date:'2026-05-17'},
+  {name:'Tawfeeq Aqib',     hours:1.0,  orders:1,  date:'2026-05-17'},
+  {name:'Muhammad Adil',    hours:8.0,  orders:15, date:'2026-05-17'},
+  {name:'Naim Uddin',       hours:9.0,  orders:19, date:'2026-05-17'},
+];
+
+let activeMonth='2026-05';
+let selectedCourier='';
+let sortCol='total';
+let sortDir=-1; // -1=desc, 1=asc always
+let searchQuery='';
+let activeTab='orders'; // 'orders' | 'gps'
+
+function getMonths(){return[...new Set(allData.filter(r=>r.date&&r.date.includes('-')).map(r=>mk(r.date)))].filter(m=>m!=='unknown').sort((a,b)=>b.localeCompare(a));}
+
+function renderSidebar(){
+  // restore table, hide summary div if visible
+  const sumDiv=document.getElementById('sum-content');
+  if(sumDiv) sumDiv.remove();
+  const mt2=document.getElementById('main-table');
+  if(mt2) mt2.style.display='';
+  const rows=allData.filter(r=>mk(r.date)===activeMonth);
+  const totalO=rows.reduce((s,r)=>s+r.orders,0);
+  const totalH=rows.reduce((s,r)=>s+r.hours,0);
+  const days=[...new Set(rows.map(r=>r.date))].length;
+  const allKm=Object.values(KM_DATA).flatMap(d=>Object.values(d));
+  const totalKm=allKm.reduce((s,v)=>s+v,0);
+  document.getElementById('sb-stats').innerHTML=`
+    <div class="stat-card"><div class="lbl">الأيام</div><div class="val">${days}</div></div>
+    <div class="stat-card"><div class="lbl">الأوردرات</div><div class="val">${totalO}</div></div>
+    <div class="stat-card"><div class="lbl">الساعات</div><div class="val">${totalH.toFixed(0)}h</div></div>
+    <div class="stat-card"><div class="lbl">الكيلومترات</div><div class="val">${totalKm.toFixed(0)}</div></div>
+  `;
+
+  // aggregate km per courier across all days
+  const kmTotals={};
+  for(const [date,dayKm] of Object.entries(KM_DATA)){
+    for(const [name,km] of Object.entries(dayKm)){
+      kmTotals[name]=(kmTotals[name]||0)+km;
+    }
+  }
+  const maxKm=Math.max(...Object.values(kmTotals));
+  document.getElementById('km-sidebar').innerHTML=Object.entries(kmTotals).filter(([n])=>n&&n!=='undefined').sort((a,b)=>b[1]-a[1]).map(([n,km])=>`
+    <div class="km-item">
+      <div class="km-row"><span class="km-name">${(n||'').split(' ')[0]}</span><span class="km-val">${km.toFixed(1)} كم</span></div>
+      <div class="km-bar-bg"><div class="km-bar-fill" style="width:${Math.round(km/maxKm*100)}%"></div></div>
+    </div>`).join('');
+}
+
+function render(){
+  document.getElementById('month-pills').innerHTML=getMonths().map(m=>
+    `<button class="mpill ${m===activeMonth?'active':''}" onclick="setMonth('${m}')">${ml(m)}</button>`
+  ).join('');
+
+  const rows=allData.filter(r=>mk(r.date)===activeMonth);
+  const days=[...new Set(rows.map(r=>r.date))].sort();
+  const maxO=Math.max(...rows.map(r=>r.orders),1);
+  // apply search
+  const allNames=[...new Set(rows.map(r=>r.name))];
+  const filteredNames=searchQuery
+    ? allNames.filter(n=>n.toLowerCase().includes(searchQuery.toLowerCase()))
+    : allNames;
+
+  // sort — always total desc, zeros always at bottom
+  const namesSorted=filteredNames.sort((a,b)=>{
+    if(activeTab==='gps'){
+      // GPS tab: sort by total km desc, zeros at bottom
+      const ka=Object.values(KM_DATA).reduce((s,d)=>s+(d[a]||0),0);
+      const kb=Object.values(KM_DATA).reduce((s,d)=>s+(d[b]||0),0);
+      if(ka===0 && kb===0) return a.localeCompare(b);
+      if(ka===0) return 1;
+      if(kb===0) return -1;
+      return kb-ka;
+    }
+    // Orders tab
+    const oa=rows.filter(r=>r.name===a).reduce((s,r)=>s+r.orders,0);
+    const ob=rows.filter(r=>r.name===b).reduce((s,r)=>s+r.orders,0);
+    if(oa===0 && ob===0) return a.localeCompare(b);
+    if(oa===0) return 1;
+    if(ob===0) return -1;
+    return ob-oa; // always desc
+  });
+
+  // build day-km columns: show km for days that have km data
+  const kmDays=days.filter(d=>KM_DATA[d]);
+
+  const si=(col)=>{
+    const active=sortCol===col;
+    const arrow=active?(sortDir===-1?'▼':'▲'):'⇅';
+    return `<span class="sort-ico ${active?'sort-active':''}">${arrow}</span>`;
+  };
+
+  let html='';
+  if(activeTab==='orders'){
+    html=`<thead>
+      <tr class="h1">
+        <th class="name-col sortable" onclick="setSort('name')">المندوب ${si('name')}</th>
+        ${days.map(d=>`<th class="sortable" onclick="setSort('${d}')">${fd(d)} ${si(d)}</th>`).join('')}
+        <th class="sortable" onclick="setSort('total')">الإجمالي ${si('total')}</th>
+      </tr>
+      <tr class="h2">
+        <th class="name-col"></th>
+        ${days.map(()=>`<th>أوردر / ساعة</th>`).join('')}
+        <th></th>
+      </tr>
+    </thead><tbody>`;
+  } else {
+    html=`<thead>
+      <tr class="h1">
+        <th class="name-col">المندوب</th>
+        ${kmDays.map(d=>`<th class="km-hd">${fd(d)}</th>`).join('')}
+        <th class="km-hd">إجمالي كم</th>
+      </tr>
+      <tr class="h2">
+        <th class="name-col"></th>
+        ${kmDays.map(d=>`<th class="km-sub">كم / أوردر/كم</th>`).join('')}
+        <th class="km-sub">GPS</th>
+      </tr>
+    </thead><tbody>`;
+  }
+
+  for(const name of namesSorted){
+    const nr=rows.filter(r=>r.name===name);
+    if(!nr.length) continue;
+    const totalO=nr.reduce((s,r)=>s+r.orders,0);
+    const totalH=nr.reduce((s,r)=>s+r.hours,0);
+    const bike=BIKES[name]||'';
+    const totalKmN=Object.values(KM_DATA).reduce((s,d)=>s+(d[name]||0),0);
+
+    if(activeTab==='orders'){
+      const orderCells=days.map(d=>{
+        const rec=nr.find(r=>r.date===d);
+        const v=rec?rec.orders:'-';
+        const cls=v===0?'cell-0':v==='-'?'cell-0':v>=maxO*0.7?'cell-hi':'';
+        return`<td class="${cls}">${v}</td>`;
+      }).join('');
+      const hourCells=days.map(d=>{
+        const rec=nr.find(r=>r.date===d);
+        const v=rec?rec.hours:null;
+        return`<td class="hours-cell">${!v?'-':v.toFixed(1)+'h'}</td>`;
+      }).join('');
+      html+=`<tr class="ord-row">
+        <td class="name-col" rowspan="2">
+          <div class="c-name" onclick="showHistory('${name}')">${name}</div>
+          ${bike?`<div class="bike-tag">🏍 ${bike}</div>`:''}
+        </td>
+        ${orderCells}
+        <td class="total-col" rowspan="2" style="vertical-align:middle">
+          ${totalO}<div style="font-size:10px;color:#12A872;margin-top:2px">${totalH.toFixed(1)}h</div>
+        </td>
+      </tr>
+      <tr class="hr-row">${hourCells}</tr>`;
+    } else {
+      // GPS tab
+      const kmCells=kmDays.map(d=>{
+        const km=KM_DATA[d]?.[name];
+        const rec=nr.find(r=>r.date===d);
+        const ord=rec?rec.orders:0;
+        const avg=(km!=null&&km>0&&ord>0)?(km/ord).toFixed(1):null;
+        return`<td class="km-td-day">${km!=null&&km>0?km.toFixed(1)+' كم':'—'}${avg?`<div class="km-avg">${avg} كم/طلب</div>`:''}</td>`;
+      }).join('');
+      const totalKmDay=Object.entries(KM_DATA).reduce((s,[d,v])=>s+(v[name]||0),0);
+      html+=`<tr class="ord-row">
+        <td class="name-col">
+          <div class="c-name" onclick="showHistory('${name}')">${name}</div>
+          ${bike?`<div class="bike-tag">🏍 ${bike}</div>`:''}
+        </td>
+        ${kmCells}
+        <td class="km-td">${totalKmDay>0?totalKmDay.toFixed(0)+' كم':'—'}</td>
+      </tr>`;
+    }
+  }
+
+  // footer
+  const dayOT=days.map(d=>rows.filter(r=>r.date===d).reduce((s,r)=>s+r.orders,0));
+  const dayHT=days.map(d=>rows.filter(r=>r.date===d).reduce((s,r)=>s+r.hours,0));
+  const grandO=rows.reduce((s,r)=>s+r.orders,0);
+  const grandH=rows.reduce((s,r)=>s+r.hours,0);
+
+  if(activeTab==='orders'){
+    html+=`
+      <tr class="foot-row ord-row"><td class="name-col">إجمالي أوردرات</td>${dayOT.map(t=>`<td>${t}</td>`).join('')}<td class="total-col">${grandO}</td></tr>
+      <tr class="foot-row hr-row"><td class="name-col" style="color:#12A872">إجمالي ساعات</td>${dayHT.map(t=>`<td style="color:#12A872">${t.toFixed(1)}h</td>`).join('')}<td style="background:rgba(15,138,95,0.15);color:#12A872;font-weight:600">${grandH.toFixed(1)}h</td></tr>
+    `;
+  } else {
+    const footKm=kmDays.map(d=>{
+      const t=Object.values(KM_DATA[d]||{}).reduce((s,v)=>s+v,0);
+      return`<td class="km-td">${t.toFixed(0)} كم</td>`;
+    }).join('');
+    const grandKm=Object.values(KM_DATA).reduce((s,d)=>s+Object.values(d).reduce((a,v)=>a+v,0),0);
+    html+=`<tr class="foot-row ord-row"><td class="name-col">إجمالي كم</td>${footKm}<td class="km-td">${grandKm.toFixed(0)} كم</td></tr>`;
+  }
+  if(activeTab==='summary'){
+    const allN=[...new Set(allData.map(r=>r.name))];
+    // compute totals per courier
+    const couriers=allN.map(name=>{
+      const recs=allData.filter(r=>r.name===name);
+      const totalO=recs.reduce((s,r)=>s+r.orders,0);
+      const totalH=recs.reduce((s,r)=>s+r.hours,0);
+      const totalKm=Object.values(KM_DATA).reduce((s,d)=>s+(d[name]||0),0);
+      const lic=LICENSE[name];
+      return {name,totalO,totalH,totalKm,lic};
+    }).sort((a,b)=>b.totalO-a.totalO);
+
+    const grandO=couriers.reduce((s,c)=>s+c.totalO,0);
+    const grandH=couriers.reduce((s,c)=>s+c.totalH,0);
+    const grandKm=couriers.reduce((s,c)=>s+c.totalKm,0);
+    const maxO=Math.max(...couriers.map(c=>c.totalO));
+    const maxH=Math.max(...couriers.map(c=>c.totalH));
+    const maxKm=Math.max(...couriers.map(c=>c.totalKm));
+
+    let sv=`<div class="sum-wrap">
+      <!-- KPI row -->
+      <div class="sum-kpi-row">
+        <div class="sum-kpi blue"><div class="sum-kpi-ico">📦</div><div class="sum-kpi-val">${grandO}</div><div class="sum-kpi-lbl">إجمالي الأوردرات</div></div>
+        <div class="sum-kpi green"><div class="sum-kpi-ico">⏱</div><div class="sum-kpi-val">${grandH.toFixed(0)}h</div><div class="sum-kpi-lbl">إجمالي الساعات</div></div>
+        <div class="sum-kpi gold"><div class="sum-kpi-ico">🏍</div><div class="sum-kpi-val">${grandKm.toFixed(0)}</div><div class="sum-kpi-lbl">إجمالي كم GPS</div></div>
+        <div class="sum-kpi purple"><div class="sum-kpi-ico">✅</div><div class="sum-kpi-val">${couriers.filter(c=>c.lic).length}</div><div class="sum-kpi-lbl">عندهم تفويض</div></div>
+        <div class="sum-kpi red"><div class="sum-kpi-ico">❌</div><div class="sum-kpi-val">${couriers.filter(c=>!c.lic).length}</div><div class="sum-kpi-lbl">بدون تفويض</div></div>
+      </div>
+
+      <!-- Charts -->
+      <div class="sum-charts">
+        <!-- Orders chart -->
+        <div class="sum-chart-card">
+          <div class="sum-chart-title">📦 الأوردرات</div>
+          ${couriers.filter(c=>c.totalO>0).map(c=>{
+            const w=Math.round((c.totalO/maxO)*100);
+            return `<div class="sum-bar-row">
+              <div class="sum-bar-name">${(c.name||'').split(' ')[0]}</div>
+              <div class="sum-bar-bg"><div class="sum-bar-fill blue-bar" style="width:${w}%"></div></div>
+              <div class="sum-bar-val">${c.totalO}</div>
+            </div>`;
+          }).join('')}
+        </div>
+
+        <!-- Hours chart -->
+        <div class="sum-chart-card">
+          <div class="sum-chart-title">⏱ الساعات</div>
+          ${couriers.filter(c=>c.totalH>0).map(c=>{
+            const w=Math.round((c.totalH/maxH)*100);
+            return `<div class="sum-bar-row">
+              <div class="sum-bar-name">${(c.name||'').split(' ')[0]}</div>
+              <div class="sum-bar-bg"><div class="sum-bar-fill green-bar" style="width:${w}%"></div></div>
+              <div class="sum-bar-val">${c.totalH.toFixed(1)}h</div>
+            </div>`;
+          }).join('')}
+        </div>
+
+        <!-- KM chart -->
+        <div class="sum-chart-card">
+          <div class="sum-chart-title">🏍 كيلومترات GPS</div>
+          ${couriers.filter(c=>c.totalKm>0).map(c=>{
+            const w=Math.round((c.totalKm/maxKm)*100);
+            return `<div class="sum-bar-row">
+              <div class="sum-bar-name">${(c.name||'').split(' ')[0]}</div>
+              <div class="sum-bar-bg"><div class="sum-bar-fill gold-bar" style="width:${w}%"></div></div>
+              <div class="sum-bar-val">${c.totalKm.toFixed(0)}</div>
+            </div>`;
+          }).join('')}
+        </div>
+
+        <!-- License chart -->
+        <div class="sum-chart-card">
+          <div class="sum-chart-title">📋 التفاويض</div>
+          <div class="sum-donut-wrap">
+            <svg viewBox="0 0 120 120" width="120" height="120">
+              ${(()=>{
+                const tot=couriers.length;
+                const lic=couriers.filter(c=>c.lic).length;
+                const pct=lic/tot;
+                const r=46;const cx=60;const cy=60;
+                const circ=2*Math.PI*r;
+                const dash=pct*circ;
+                return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(220,38,38,.25)" stroke-width="18"/>
+                  <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#34D399" stroke-width="18"
+                    stroke-dasharray="${dash} ${circ}" stroke-dashoffset="${circ*0.25}" stroke-linecap="round"/>
+                  <text x="${cx}" y="${cy-6}" text-anchor="middle" font-size="20" font-weight="900" fill="#F1F5F9">${lic}</text>
+                  <text x="${cx}" y="${cy+12}" text-anchor="middle" font-size="10" fill="#94A3B8">من ${tot}</text>`;
+              })()}
+            </svg>
+            <div class="sum-donut-legend">
+              <div style="color:#34D399;font-size:15px;font-weight:700;margin-bottom:6px">✅ ${couriers.filter(c=>c.lic).length} مرخص</div>
+              <div style="color:#F87171;font-size:15px;font-weight:700">❌ ${couriers.filter(c=>!c.lic).length} بدون تفويض</div>
+            </div>
+          </div>
+          <div class="lic-grid">
+            ${couriers.map(c=>`
+              <div class="lic-card ${c.lic?'lic-yes':'lic-no'}">
+                <div class="lic-card-name">${(c.name||'').split(' ')[0]}<br><span style="font-size:9px;opacity:.7">${c.name.split(' ')[1]||''}</span></div>
+                <div class="lic-card-badge">${c.lic?'✅':'❌'}</div>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+    const mt=document.getElementById('main-table');
+    mt.innerHTML=''; mt.style.display='block';
+    mt.insertAdjacentHTML('afterend','<div id="sum-content">'+sv+'</div>');
+    mt.style.display='none';
+    return;
+  }
+
+  if(activeTab==='hs'){
+    // Restore table
+    const s2=document.getElementById('sum-content'); if(s2) s2.remove();
+    const mt3=document.getElementById('main-table'); if(mt3) mt3.style.display='';
+
+    const maxComp=Math.max(...HS_DATA.map(r=>r.completed));
+
+    let html=`<thead>
+      <tr class="h1">
+        <th class="name-col">المندوب / ID</th>
+        <th>🔔 الأوردرات المرسلة</th>
+        <th>✅ الأوردرات المسلمة</th>
+        <th>❌ المرفوضة</th>
+        <th>⏸ بريك</th>
+        <th>⏱ ساعات ضائعة</th>
+        <th>📊 Acceptance Rate</th>
+      </tr>
+    </thead><tbody>`;
+
+    for(const r of [...HS_DATA].sort((a,b)=>b.completed-a.completed)){
+      const name=HS_MAP[r.id]||'—';
+      const pct=Math.round((r.completed/r.notified)*100);
+      const accPct=Math.round(r.acceptance*100);
+      const barW=maxComp>0?Math.round((r.completed/maxComp)*100):0;
+      html+=`<tr class="ord-row">
+        <td class="name-col">
+          <div class="c-name">${name}</div>
+          <div class="bike-tag" style="background:rgba(245,120,0,.12);border-color:rgba(245,120,0,.3);color:#FB923C">🆔 ${r.id}</div>
+        </td>
+        <td style="text-align:center;color:var(--text2)">${r.notified}</td>
+        <td style="text-align:center">
+          <div style="display:flex;align-items:center;gap:8px;justify-content:center">
+            <div style="width:80px;height:7px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden">
+              <div style="width:${barW}%;height:100%;background:linear-gradient(90deg,#059669,#34D399);border-radius:4px"></div>
+            </div>
+            <span style="color:#34D399;font-weight:700">${r.completed}</span>
+          </div>
+        </td>
+        <td style="text-align:center;color:${r.declined>0?'#F87171':'var(--text3)'};font-weight:${r.declined>0?'700':'400'}">${r.declined}</td>
+        <td style="text-align:center;color:var(--text3)">${r.breaks>0?r.breaks.toFixed(1)+'h':'—'}</td>
+        <td style="text-align:center;color:${r.lost>1?'#F87171':'var(--text3)'}">${r.lost>0?r.lost.toFixed(2)+'h':'—'}</td>
+        <td style="text-align:center">
+          <span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;
+            background:${accPct>=90?'rgba(5,150,105,.2)':accPct>=75?'rgba(245,158,11,.2)':'rgba(220,38,38,.2)'};
+            color:${accPct>=90?'#34D399':accPct>=75?'#FCD34D':'#F87171'};
+            border:1px solid ${accPct>=90?'rgba(52,211,153,.3)':accPct>=75?'rgba(252,211,77,.3)':'rgba(248,113,113,.3)'}">
+            ${accPct}%
+          </span>
+        </td>
+      </tr>`;
+    }
+
+    // Footer
+    const totN=HS_DATA.reduce((s,r)=>s+r.notified,0);
+    const totC=HS_DATA.reduce((s,r)=>s+r.completed,0);
+    const totD=HS_DATA.reduce((s,r)=>s+r.declined,0);
+    html+=`<tr class="foot-row ord-row">
+      <td class="name-col">الإجمالي</td>
+      <td style="text-align:center">${totN}</td>
+      <td style="text-align:center;color:#34D399;font-weight:700">${totC}</td>
+      <td style="text-align:center;color:#F87171;font-weight:700">${totD}</td>
+      <td colspan="3"></td>
+    </tr>`;
+    html+='</tbody>';
+    document.getElementById('main-table').innerHTML=html;
+
+    // Add ID-name mapping UI below table
+    let mapDiv=document.getElementById('hs-map-ui');
+    if(!mapDiv){
+      mapDiv=document.createElement('div');
+      mapDiv.id='hs-map-ui';
+      mapDiv.style.cssText='margin-top:16px;background:var(--card);border:1px solid var(--border2);border-radius:var(--r);padding:16px;';
+      document.getElementById('main-table').insertAdjacentElement('afterend',mapDiv);
+    }
+    const allN=[...new Set(allData.map(r=>r.name))].sort();
+    mapDiv.innerHTML=`<div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:12px">🔗 ربط ID بالمندوب</div>`+
+      HS_DATA.map(r=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="font-size:12px;color:#FB923C;width:80px;flex-shrink:0">🆔 ${r.id}</div>
+        <select onchange="HS_MAP['${r.id}']=this.value;switchTab('hs')"
+          style="flex:1;padding:6px 8px;background:var(--card);border:1px solid var(--border2);color:var(--text1);border-radius:4px;font-family:'Cairo',sans-serif;font-size:12px">
+          <option value="">— اختر المندوب —</option>
+          ${allN.map(n=>`<option value="${n}" ${HS_MAP['${r.id}']===n?'selected':''}>${n}</option>`).join('')}
+        </select>
+      </div>`).join('');
+    return;
+  }
+
+  if(activeTab==='license'){
+    // get all unique names from allData
+    const allN=[...new Set(allData.map(r=>r.name))].sort();
+    const licensed=allN.filter(n=>LICENSE[n]===true);
+    const unlicensed=allN.filter(n=>LICENSE[n]!==true);
+
+    html=`<thead><tr class="h1">
+      <th class="name-col">المندوب</th>
+      <th>البايك</th>
+      <th>حالة التفويض</th>
+      <th>إجمالي الأوردرات</th>
+      <th>إجمالي كم GPS</th>
+    </tr></thead><tbody>`;
+
+    const renderLicRow=(name,hasL)=>{
+      const bike=BIKES[name]||'—';
+      const totalO=allData.filter(r=>r.name===name).reduce((s,r)=>s+r.orders,0);
+      const totalKm=Object.values(KM_DATA).reduce((s,d)=>s+(d[name]||0),0);
+      const badge=hasL
+        ? `<span style="background:rgba(5,150,105,.2);border:1px solid rgba(52,211,153,.4);color:#34D399;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;">✅ مرخص</span>`
+        : `<span style="background:rgba(220,38,38,.15);border:1px solid rgba(248,113,113,.3);color:#F87171;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;">❌ بدون تفويض</span>`;
+      return `<tr class="ord-row">
+        <td class="name-col"><div class="c-name" onclick="showHistory('${name}')">${name}</div></td>
+        <td><div class="bike-tag">🏍 ${bike}</div></td>
+        <td style="text-align:center">
+          <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;">
+            <input type="checkbox" ${hasL?'checked':''} onchange="toggleLicense('${name.replace(/'/g,"\'")}',this.checked)"
+              style="width:16px;height:16px;cursor:pointer;accent-color:var(--green2);" />
+            ${badge}
+          </label>
+        </td>
+        <td style="text-align:center;color:var(--blue3);font-weight:700">${totalO}</td>
+        <td style="text-align:center;color:var(--gold);font-weight:700">${totalKm>0?totalKm.toFixed(0)+' كم':'—'}</td>
+      </tr>`;
+    };
+
+    licensed.forEach(n=>{ html+=renderLicRow(n,true); });
+    unlicensed.forEach(n=>{ html+=renderLicRow(n,false); });
+
+    html+=`<tr class="foot-row ord-row">
+      <td class="name-col" colspan="2">الإجمالي</td>
+      <td style="text-align:center">
+        <span style="color:#34D399;font-weight:700">✅ ${licensed.length} مرخص</span> &nbsp;
+        <span style="color:#F87171;font-weight:700">❌ ${unlicensed.length} بدون</span>
+      </td>
+      <td colspan="2"></td>
+    </tr>`;
+    html+='</tbody>';
+    document.getElementById('main-table').innerHTML=html;
+    return;
+  }
+
+  if(activeTab==='bikes'){
+    const allBikes=Object.entries(BIKES).sort((a,b)=>a[0].localeCompare(b[0]));
+    const licensed=allBikes.filter(([n])=>LICENSE[n]===true);
+    const unlicensed=allBikes.filter(([n])=>LICENSE[n]!==true);
+
+    const renderBikeRow=([name,bike])=>{
+      const hasL=LICENSE[name]===true;
+      const badge=hasL
+        ? `<span style="background:rgba(5,150,105,.2);border:1px solid rgba(52,211,153,.4);color:#059669;padding:3px 14px;border-radius:20px;font-size:12px;font-weight:700;">✅ عنده تفويض</span>`
+        : `<span style="background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.25);color:#DC2626;padding:3px 14px;border-radius:20px;font-size:12px;font-weight:700;">❌ بدون تفويض</span>`;
+      return `<tr class="ord-row">
+        <td class="name-col"><div class="c-name" onclick="showHistory('${name}')">${name}</div></td>
+        <td style="text-align:center"><div class="bike-tag">🏍 ${bike}</div></td>
+        <td style="text-align:center">
+          <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;">
+            <input type="checkbox" ${hasL?'checked':''} onchange="toggleLicense('${name.replace(/'/g,"\\'")}',this.checked)"
+              style="width:16px;height:16px;cursor:pointer;accent-color:var(--green2);" />
+            ${badge}
+          </label>
+        </td>
+      </tr>`;
+    };
+
+    html=`<thead><tr class="h1">
+      <th class="name-col">المندوب</th>
+      <th style="text-align:center">رقم البايك</th>
+      <th style="text-align:center">التفويض</th>
+    </tr></thead><tbody>`;
+    licensed.forEach(e=>{ html+=renderBikeRow(e); });
+    unlicensed.forEach(e=>{ html+=renderBikeRow(e); });
+    html+=`<tr class="foot-row ord-row">
+      <td class="name-col" colspan="2">الإجمالي — ${allBikes.length} بايك</td>
+      <td style="text-align:center">
+        <span style="color:#059669;font-weight:700">✅ ${licensed.length}</span> &nbsp;
+        <span style="color:#DC2626;font-weight:700">❌ ${unlicensed.length}</span>
+      </td>
+    </tr>`;
+    html+='</tbody>';
+    document.getElementById('main-table').innerHTML=html;
+    return;
+  }
+
+  html+='</tbody>';
+  document.getElementById('main-table').innerHTML=html;
+  renderSidebar();
+  if(selectedCourier) showHistory(selectedCourier);
+}
+
+function showHistory(name){
+  selectedCourier=name;
+  const rows=allData.filter(r=>r.name===name).sort((a,b)=>a.date.localeCompare(b.date));
+  if(!rows.length){document.getElementById('history-area').innerHTML='';return;}
+  const av=ac(name);
+  const totalO=rows.reduce((s,r)=>s+r.orders,0);
+  const totalH=rows.reduce((s,r)=>s+r.hours,0);
+  const maxO=Math.max(...rows.map(r=>r.orders),1);
+  const bike=BIKES[name]||'';
+
+  // km total for this courier
+  const kmTotal=Object.values(KM_DATA).reduce((s,d)=>s+(d[name]||0),0);
+  const allKmTotals=Object.keys(BIKES).map(n=>Object.values(KM_DATA).reduce((s,d)=>s+(d[n]||0),0));
+  const maxKmTotal=Math.max(...allKmTotals);
+
+  document.getElementById('history-area').innerHTML=`
+  <div class="history-wrap">
+    <div class="hp-hdr">
+      <div class="hp-avatar" style="background:${av.bg};color:${av.txt}">${ini(name)}</div>
+      <div>
+        <div style="font-size:15px;font-weight:700;color:#fff">${name}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.6)">${bike?'🏍 بايك: '+bike:''}</div>
+      </div>
+      <button class="close-btn" onclick="closeHistory()">✕ إغلاق</button>
+    </div>
+    <div class="hp-body">
+      <div class="summary-row">
+        <div class="s-card"><div class="s-lbl">إجمالي الأوردرات</div><div class="s-val" style="color:#7BC4F5">${totalO}</div></div>
+        <div class="s-card"><div class="s-lbl">إجمالي الساعات</div><div class="s-val" style="color:#12A872">${totalH.toFixed(1)}h</div></div>
+        <div class="s-card"><div class="s-lbl">معدل يومي</div><div class="s-val">${(totalO/rows.length).toFixed(1)}</div></div>
+        <div class="s-card s-km"><div class="s-lbl">إجمالي الكيلومترات</div><div class="s-val">${kmTotal.toFixed(1)} كم</div></div>
+      </div>
+      ${kmTotal>0?`<div class="km-compare">
+        <div class="km-compare-lbl">مقارنة الكيلومترات الإجمالية مع باقي المندوبين</div>
+        <div class="km-cbar">
+          <div class="km-cbar-bg"><div class="km-cbar-fill" style="width:${Math.round(kmTotal/maxKmTotal*100)}%"></div></div>
+          <div class="km-cbar-val">${kmTotal.toFixed(1)} كم</div>
+        </div>
+      </div>`:''}
+      <div class="hp-days-title">الأوردرات والساعات لكل يوم — الأزرق = أعلى يوم</div>
+      <div class="days-grid">${rows.map(r=>{
+        const best=r.orders===maxO&&r.orders>0;
+        const dayKm=Object.entries(KM_DATA).find(([d])=>d===r.date)?.[1]?.[name];
+        return`<div class="day-card ${best?'best':''}">
+          <div class="day-date">${fd(r.date)}</div>
+          <div class="day-orders">${r.orders}</div>
+          <div class="day-lbl">أوردر</div>
+          <div class="day-hours">${r.hours>0?r.hours.toFixed(1)+'h':'-'}</div>
+          ${dayKm!=null?`<div style="font-size:10px;color:#D4A017;margin-top:2px">${dayKm} كم</div>`:''}
+        </div>`;
+      }).join('')}</div>
+    </div>
+  </div>`;
+}
+
+function closeHistory(){selectedCourier='';document.getElementById('history-area').innerHTML='';}
+function setSort(col){
+  // sort is always fixed: most to least, zeros at bottom
+  render();
+}
+function applySearch(val){
+  searchQuery=val.trim();
+  document.getElementById('search-clear').style.display=val?'flex':'none';
+  render();
+}
+function clearSearch(){
+  searchQuery='';
+  document.getElementById('courier-search').value='';
+  document.getElementById('search-clear').style.display='none';
+  sortCol='total';sortDir=-1;
+  render();
+}
+
+function switchTab(tab){
+  activeTab=tab;
+  document.getElementById('tab-orders').classList.toggle('active', tab==='orders');
+  document.getElementById('tab-gps').classList.toggle('active', tab==='gps');
+  document.getElementById('tab-license').classList.toggle('active', tab==='license');
+  document.getElementById('tab-summary').classList.toggle('active', tab==='summary');
+  document.getElementById('tab-hs').classList.toggle('active', tab==='hs');
+  document.getElementById('tab-bikes').classList.toggle('active', tab==='bikes');
+  sortCol='total'; sortDir=-1;
+  render();
+}
+function toggleLicense(name, val){
+  LICENSE[name] = val;
+  render();
+}
+function setMonth(m){activeMonth=m;sortCol='total';sortDir=-1;render();}
+
+function exportData(){
+  // افتح modal اختيار التاريخ
+  document.getElementById('export-modal').classList.add('open');
+  // حدد أقل وأكبر تاريخ موجود
+  const validData=allData.filter(r=>r&&r.date);
+  const dates=validData.map(r=>r.date).sort();
+  document.getElementById('exp-from').value=dates[0]||'';
+  document.getElementById('exp-to').value=dates[dates.length-1]||'';
+}
+
+function doExport(){
+  const from=document.getElementById('exp-from').value;
+  const to=document.getElementById('exp-to').value;
+  if(!from||!to){ alert('اختر التاريخ'); return; }
+
+  const validData=allData.filter(r=>r&&r.name&&r.date&&r.date>=from&&r.date<=to);
+  const dates=[...new Set(validData.map(r=>r.date))].sort();
+  const names=[...new Set(validData.map(r=>r.name))].sort();
+
+  const headers=['المندوب','التاريخ','الأوردرات','الساعات','كيلومترات GPS'];
+  const rows=[headers];
+
+  dates.forEach(date=>{
+    names.forEach(name=>{
+      const rec=validData.find(r=>r.name===name&&r.date===date);
+      if(!rec) return;
+      const km=(KM_DATA[date]&&KM_DATA[date][name]!=null)?KM_DATA[date][name]:'';
+      rows.push([name, date, rec.orders, rec.hours, km]);
+    });
+  });
+
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='keeta_'+from+'_'+to+'.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  document.getElementById('export-modal').classList.remove('open');
+}
+
+const ALL_NAMES=['Fahad Soomro','Farhan Haider','Muhammad Adil','Muhammad Shoaib','Muhammed Hammad','Muhammed Mujahid','Muhammed Sajid','Naim Uddin','Nazim Shabeer','Omar Arish','Rana Molla','Sajjad Ali','Sobuj Mia','Suronjeet Das','Tawfeeq Aqib','Usama Asaad'];
+
+function openAddModal(){
+  document.getElementById('modal-rows').innerHTML=ALL_NAMES.map(n=>{
+    const hasBike=!!BIKES[n];
+    return`<div class="modal-grid">
+      <div class="modal-name-lbl">${n}</div>
+      <input class="modal-inp" type="number" min="0" placeholder="0" id="mo_${n}_o">
+      <input class="modal-inp" type="number" min="0" step="0.1" placeholder="0.0" id="mo_${n}_h">
+      ${hasBike?`<input class="modal-inp" type="number" min="0" step="0.1" placeholder="—" id="mo_${n}_k">`:'<div style="text-align:center;color:var(--text-muted);font-size:11px">—</div>'}
+    </div>`;
+  }).join('');
+  document.getElementById('add-modal').classList.add('open');
+}
+function closeAddModal(){ document.getElementById('add-modal').classList.remove('open'); }
+
+function saveNewDay(){
+  const dateVal=document.getElementById('modal-date').value;
+  if(!dateVal){ alert('اختر التاريخ أولاً'); return; }
+  if(allData.find(r=>r.date===dateVal)){ if(!confirm('اليوم ده موجود، تبي تضيف عليه؟'))return; }
+  const dayKm={};
+  for(const n of ALL_NAMES){
+    const o=parseFloat(document.getElementById('mo_'+n+'_o')?.value)||0;
+    const h=parseFloat(document.getElementById('mo_'+n+'_h')?.value)||0;
+    allData.push({name:n, orders:o, hours:h, date:dateVal});
+    if(BIKES[n]){
+      const k=parseFloat(document.getElementById('mo_'+n+'_k')?.value);
+      if(!isNaN(k)) dayKm[n]=k;
+    }
+  }
+  if(Object.keys(dayKm).length) KM_DATA[dateVal]=dayKm;
+  closeAddModal();
+  render();
+}
+
+// ── IMAGE UPLOAD DAY ──
+async function uploadDayImage(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  event.target.value='';
+
+  // Convert to base64
+  const base64 = await new Promise((res,rej)=>{
+    const r = new FileReader();
+    r.onload = ()=>res(r.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+
+  // Show loading toast
+  showToast('⏳ جاري تحليل الصورة...');
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{
+          role:'user',
+          content:[
+            { type:'image', source:{ type:'base64', media_type:file.type||'image/jpeg', data:base64 }},
+            { type:'text', text:`Extract courier data from this Keeta dashboard screenshot.
+Return ONLY a JSON object like:
+{
+  "date": "YYYY-MM-DD",
+  "couriers": [
+    {"name": "Barbar Anwar", "hours": 0.0, "orders": 0},
+    ...
+  ]
+}
+For date: look for any date clue; if none found use today's date in format YYYY-MM-DD.
+For each courier extract: name (exact), Online hours (number), Completed orders (number).
+No explanation, no markdown, only raw JSON.`
+          }]
+        }]
+      })
+    });
+    const data = await response.json();
+    const text = data.content.map(i=>i.text||'').join('');
+    const clean = text.replace(/\`\`\`json|\`\`\`/g,'').trim();
+    const parsed = JSON.parse(clean);
+
+    // Confirm with user
+    const date = parsed.date;
+    const lines = parsed.couriers.map(c=>`${c.name}: ${c.orders} أوردر، ${c.hours}h`).join('\n');
+    if(!confirm(`تم التعرف على البيانات ليوم ${date}:\n\n${lines}\n\nتضيفه للداش؟`)) return;
+
+    // Add to allData
+    for(const c of parsed.couriers){
+      if(!allData.find(r=>r.name===c.name && r.date===date)){
+        allData.push({name:c.name, hours:c.hours, orders:c.orders, date});
+      }
+      if(!ALL_NAMES.includes(c.name)) ALL_NAMES.push(c.name);
+    }
+    render();
+    showToast('✅ تم إضافة يوم '+date);
+  } catch(e) {
+    console.error(e);
+    showToast('❌ فشل تحليل الصورة، حاول تاني');
+  }
+}
+
+function showToast(msg){
+  let t = document.getElementById('toast-msg');
+  if(!t){
+    t = document.createElement('div');
+    t.id='toast-msg';
+    t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 20px;border-radius:8px;font-family:Cairo,sans-serif;font-size:13px;z-index:999;border:1px solid #334155;';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg;
+  t.style.display='block';
+  clearTimeout(t._to);
+  t._to=setTimeout(()=>t.style.display='none', 3500);
+}
+
+// ── MANAGE COURIERS ──
+let mcEdits = {}; // name -> {newName, bike}
+
+function openManageModal(){
+  mcEdits={};
+  renderMcList();
+  document.getElementById('manage-modal').classList.add('open');
+}
+function closeManageModal(){ document.getElementById('manage-modal').classList.remove('open'); }
+
+function getCourierList(){
+  return [...new Set(allData.map(r=>r.name))].sort();
+}
+
+function renderMcList(){
+  const list = getCourierList();
+  document.getElementById('mc-list').innerHTML = list.map(n=>{
+    const bike = BIKES[n]||'';
+    return `<div class="mc-row" id="mcrow_${CSS.escape(n)}">
+      <input class="mc-inp" value="${n}" id="mc_name_${CSS.escape(n)}" placeholder="الاسم" />
+      <input class="mc-inp mc-inp-sm" value="${bike}" id="mc_bike_${CSS.escape(n)}" placeholder="—" />
+      <button class="mc-del" onclick="deleteCourier('${n.replace(/'/g,"\'")}')">🗑</button>
+    </div>`;
+  }).join('');
+}
+
+function addCourier(){
+  const nameEl=document.getElementById('mc-new-name');
+  const bikeEl=document.getElementById('mc-new-bike');
+  const name=nameEl.value.trim();
+  if(!name){ nameEl.style.borderColor='#E74C3C'; return; }
+  nameEl.style.borderColor='';
+  const bike=bikeEl.value.trim();
+  // add to allData for current month days
+  const dates=[...new Set(allData.map(r=>r.date))];
+  dates.forEach(d=>{ if(!allData.find(r=>r.name===name&&r.date===d)) allData.push({name,orders:0,hours:0,date:d}); });
+  if(bike) BIKES[name]=bike;
+  // update ALL_NAMES
+  if(!ALL_NAMES.includes(name)) ALL_NAMES.push(name);
+  nameEl.value=''; bikeEl.value='';
+  renderMcList();
+}
+
+function deleteCourier(name){
+  if(!confirm(`حذف "${name}" وكل بياناته؟`)) return;
+  for(let i=allData.length-1;i>=0;i--){ if(allData[i].name===name) allData.splice(i,1); }
+  delete BIKES[name];
+  const idx=ALL_NAMES.indexOf(name);
+  if(idx>-1) ALL_NAMES.splice(idx,1);
+  for(const day of Object.values(KM_DATA)){ delete day[name]; }
+  renderMcList();
+}
+
+function saveManage(){
+  const list=getCourierList();
+  for(const oldName of list){
+    const newNameEl=document.getElementById('mc_name_'+CSS.escape(oldName));
+    const bikeEl=document.getElementById('mc_bike_'+CSS.escape(oldName));
+    if(!newNameEl) continue;
+    const newName=newNameEl.value.trim()||oldName;
+    const bike=bikeEl.value.trim();
+    // rename in allData
+    if(newName!==oldName){
+      allData.forEach(r=>{ if(r.name===oldName) r.name=newName; });
+      if(BIKES[oldName]!==undefined){ BIKES[newName]=BIKES[oldName]; delete BIKES[oldName]; }
+      for(const day of Object.values(KM_DATA)){
+        if(day[oldName]!==undefined){ day[newName]=day[oldName]; delete day[oldName]; }
+      }
+      const idx=ALL_NAMES.indexOf(oldName);
+      if(idx>-1) ALL_NAMES[idx]=newName;
+    }
+    // update bike
+    if(bike) BIKES[newName]=bike;
+    else delete BIKES[newName];
+  }
+  closeManageModal();
+  render();
+}
+
+
+// ── IMPORT FROM KEETA ──
+function openImportModal(){
+  // Set bookmarklet href
+  var bm = document.getElementById('keeta-bookmarklet');
+  if(bm) bm.href = `javascript:(function(){var lines=document.body.innerText.split('\n').map(s=>s.trim()).filter(Boolean);var result=[];for(var i=0;i<lines.length;i++){var line=lines[i];if(line.match(/^Online:/)){var online=line.match(/Online:\s*([\d.]+)/)?.[1]||'0';var completed=lines[i+1]?.match(/Completed:\s*(\d+)/)?.[1]||'0';var name='';for(var j=i-1;j>=Math.max(0,i-4);j--){if(lines[j]&&!lines[j].match(/^\+966/)&&!lines[j].match(/^Car-/)&&lines[j].length>3&&lines[j].length<40){name=lines[j];break;}}if(name)result.push(name+'|'+online+'|'+completed);}}if(result.length>0){navigator.clipboard.writeText(result.join('\n')).then(()=>alert('✅ '+result.length+' مندوب - ارجع للداش بورد والصق'));}else{alert('مش لاقي بيانات');}})();`;
+  document.getElementById('import-modal').classList.add('open');
+}
+function closeImportModal(){
+  document.getElementById('import-modal').classList.remove('open');
+}
+function processImport(){
+  const raw = document.getElementById('import-paste').value.trim();
+  const dateVal = document.getElementById('import-date').value;
+  if(!raw){ alert('الصق البيانات أولاً'); return; }
+  if(!dateVal){ alert('اختر التاريخ'); return; }
+  
+  const lines = raw.split('\n').filter(l=>l.trim());
+  let added=0;
+  for(const line of lines){
+    const parts = line.split('|');
+    if(parts.length>=3){
+      const name=parts[0].trim();
+      const hours=parseFloat(parts[1])||0;
+      const orders=parseInt(parts[2])||0;
+      if(name && !allData.find(r=>r.name===name&&r.date===dateVal)){
+        allData.push({name,hours,orders,date:dateVal});
+        if(!ALL_NAMES.includes(name)) ALL_NAMES.push(name);
+        added++;
+      }
+    }
+  }
+  closeImportModal();
+  render();
+  showToast('✅ تم استيراد '+added+' مندوب ليوم '+dateVal);
+}
+
+window.addEventListener('DOMContentLoaded', function(){ render(); });
+
+</script>
+</body>
+</html>
