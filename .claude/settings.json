@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"C:\\Users\\2025\\Documents\\Claude\\Projects\\keeta dashboard\" && cp \"courier_dashboard (1).html\" index.html && git add . && git commit -m \"auto-sync dashboard\" && git push 2>/dev/null || true",
+            "shell": "bash",
+            "statusMessage": "جاري رفع التحديثات على GitHub...",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}
