@@ -1267,7 +1267,7 @@ function render(){
     const totalO=nr.reduce((s,r)=>s+r.orders,0);
     const totalH=nr.reduce((s,r)=>s+r.hours,0);
     const bike=BIKES[name]||'';
-    const totalKmN=Object.values(KM_DATA).reduce((s,d)=>s+(d[name]||0),0);
+    const totalKmN=Object.entries(KM_DATA).filter(([d])=>mk(d)===activeMonth).reduce((s,[,d])=>s+(d[name]||0),0);
 
     if(activeTab==='orders'){
       const orderCells=days.map(d=>{
@@ -1301,7 +1301,7 @@ function render(){
         const avg=(km!=null&&km>0&&ord>0)?(km/ord).toFixed(1):null;
         return`<td class="km-td-day">${km!=null&&km>0?km.toFixed(1)+' كم':'—'}${avg?`<div class="km-avg">${avg} كم/طلب</div>`:''}</td>`;
       }).join('');
-      const totalKmDay=Object.entries(KM_DATA).reduce((s,[d,v])=>s+(v[name]||0),0);
+      const totalKmDay=Object.entries(KM_DATA).filter(([d])=>mk(d)===activeMonth).reduce((s,[,v])=>s+(v[name]||0),0);
       html+=`<tr class="ord-row">
         <td class="name-col">
           <div class="c-name" onclick="showHistory('${name}')">${name}</div>
@@ -1329,17 +1329,17 @@ function render(){
       const t=Object.values(KM_DATA[d]||{}).reduce((s,v)=>s+v,0);
       return`<td class="km-td">${t.toFixed(0)} كم</td>`;
     }).join('');
-    const grandKm=Object.values(KM_DATA).reduce((s,d)=>s+Object.values(d).reduce((a,v)=>a+v,0),0);
+    const grandKm=Object.entries(KM_DATA).filter(([d])=>mk(d)===activeMonth).reduce((s,[,d])=>s+Object.values(d).reduce((a,v)=>a+v,0),0);
     html+=`<tr class="foot-row ord-row"><td class="name-col">إجمالي كم</td>${footKm}<td class="km-td">${grandKm.toFixed(0)} كم</td></tr>`;
   }
   if(activeTab==='summary'){
     const allN=[...new Set(allData.map(r=>r.name))];
     // compute totals per courier
     const couriers=allN.map(name=>{
-      const recs=allData.filter(r=>r.name===name);
+      const recs=allData.filter(r=>r.name===name&&mk(r.date)===activeMonth);
       const totalO=recs.reduce((s,r)=>s+r.orders,0);
       const totalH=recs.reduce((s,r)=>s+r.hours,0);
-      const totalKm=Object.values(KM_DATA).reduce((s,d)=>s+(d[name]||0),0);
+      const totalKm=Object.entries(KM_DATA).filter(([d])=>mk(d)===activeMonth).reduce((s,[,d])=>s+(d[name]||0),0);
       const lic=LICENSE[name];
       return {name,totalO,totalH,totalKm,lic};
     }).sort((a,b)=>b.totalO-a.totalO);
