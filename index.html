@@ -370,6 +370,7 @@
   .btn-add-c{background:var(--green);color:#fff;border:none;border-radius:var(--r3);padding:8px 16px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s;}
   .btn-add-c:hover{background:var(--green2);color:#000;}
 </style>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -536,7 +537,7 @@
         <input id="exp-to" type="date" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--card);color:var(--text1);font-family:'Cairo',sans-serif;font-size:13px;" />
       </div>
       <div style="display:flex;gap:10px;margin-top:4px;">
-        <button onclick="doExport()" style="flex:1;padding:11px;background:linear-gradient(135deg,#1565C0,#1976D2);color:#fff;border:none;border-radius:8px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">⬇️ تحميل CSV</button>
+        <button onclick="doExport()" style="flex:1;padding:11px;background:linear-gradient(135deg,#1565C0,#1976D2);color:#fff;border:none;border-radius:8px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">⬇️ تحميل Excel</button>
         <button onclick="document.getElementById('export-modal').classList.remove('open')" style="padding:11px 16px;background:var(--card2);color:var(--text2);border:1px solid var(--border2);border-radius:8px;font-family:'Cairo',sans-serif;font-size:13px;cursor:pointer;">إلغاء</button>
       </div>
     </div>
@@ -1741,26 +1742,80 @@ function doExport(){
   const dates=[...new Set(validData.map(r=>r.date))].sort();
   const names=[...new Set(validData.map(r=>r.name))].sort();
 
-  const headers=['المندوب','التاريخ','الأوردرات','الساعات','كيلومترات GPS'];
-  const rows=[headers];
+  const wb=XLSX.utils.book_new();
 
+  /* ── Sheet 1: تفصيلي (صف لكل مندوب لكل يوم) ── */
+  const detail=[['المندوب','التاريخ','الأوردرات','الساعات','كيلومترات GPS','Avg أوردر/ساعة','Avg كم/أوردر']];
   dates.forEach(date=>{
     names.forEach(name=>{
       const rec=validData.find(r=>r.name===name&&r.date===date);
       if(!rec) return;
-      const km=(KM_DATA[date]&&KM_DATA[date][name]!=null)?KM_DATA[date][name]:'';
-      rows.push([name, date, rec.orders, rec.hours, km]);
+      const km=(KM_DATA[date]&&KM_DATA[date][name]!=null)?KM_DATA[date][name]:0;
+      const avgOH=rec.hours>0?+(rec.orders/rec.hours).toFixed(2):0;
+      const avgKO=rec.orders>0?+(km/rec.orders).toFixed(2):0;
+      detail.push([name, date, rec.orders, rec.hours, km, avgOH, avgKO]);
     });
   });
+  const ws1=XLSX.utils.aoa_to_sheet(detail);
+  ws1['!cols']=[{wch:20},{wch:12},{wch:12},{wch:12},{wch:14},{wch:16},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws1,'تفصيلي');
 
-  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
-  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  a.download='keeta_'+from+'_'+to+'.csv';
-  a.click();
-  URL.revokeObjectURL(url);
+  /* ── Sheet 2: ملخص لكل مندوب ── */
+  const summary=[['المندوب','إجمالي أوردرات','إجمالي ساعات','إجمالي كيلومترات','Avg أوردر/يوم','Avg ساعة/يوم','Avg كم/يوم','Avg كم/أوردر']];
+  names.forEach(name=>{
+    const recs=validData.filter(r=>r.name===name);
+    const totalO=recs.reduce((s,r)=>s+r.orders,0);
+    const totalH=recs.reduce((s,r)=>s+r.hours,0);
+    const totalKm=dates.reduce((s,d)=>{
+      const k=KM_DATA[d]&&KM_DATA[d][name]!=null?KM_DATA[d][name]:0;
+      return s+k;
+    },0);
+    const workDays=recs.filter(r=>r.hours>0||r.orders>0).length||1;
+    summary.push([
+      name,
+      totalO,
+      +totalH.toFixed(1),
+      +totalKm.toFixed(1),
+      +(totalO/workDays).toFixed(1),
+      +(totalH/workDays).toFixed(1),
+      +(totalKm/workDays).toFixed(1),
+      totalO>0?+(totalKm/totalO).toFixed(2):0
+    ]);
+  });
+  // sort by total orders desc
+  const summaryHeader=summary.shift();
+  summary.sort((a,b)=>b[1]-a[1]);
+  summary.unshift(summaryHeader);
+  const ws2=XLSX.utils.aoa_to_sheet(summary);
+  ws2['!cols']=[{wch:20},{wch:16},{wch:14},{wch:18},{wch:16},{wch:14},{wch:14},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws2,'ملخص');
+
+  /* ── Sheet 3: بيفوت أوردرات (مندوب × يوم) ── */
+  const pivotO=[['المندوب',...dates,'الإجمالي','Avg/يوم']];
+  names.forEach(name=>{
+    const recs=validData.filter(r=>r.name===name);
+    const dayVals=dates.map(d=>{const r=recs.find(x=>x.date===d);return r?r.orders:0;});
+    const total=dayVals.reduce((s,v)=>s+v,0);
+    const wdays=dayVals.filter(v=>v>0).length||1;
+    pivotO.push([name,...dayVals,total,+(total/wdays).toFixed(1)]);
+  });
+  const ws3=XLSX.utils.aoa_to_sheet(pivotO);
+  ws3['!cols']=[{wch:20},...dates.map(()=>({wch:8})),{wch:10},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,ws3,'أوردرات');
+
+  /* ── Sheet 4: بيفوت كيلومترات (مندوب × يوم) ── */
+  const pivotKm=[['المندوب',...dates,'الإجمالي','Avg/يوم']];
+  names.forEach(name=>{
+    const dayVals=dates.map(d=>KM_DATA[d]&&KM_DATA[d][name]!=null?+KM_DATA[d][name].toFixed(1):0);
+    const total=+dayVals.reduce((s,v)=>s+v,0).toFixed(1);
+    const wdays=dayVals.filter(v=>v>0).length||1;
+    pivotKm.push([name,...dayVals,total,+(total/wdays).toFixed(1)]);
+  });
+  const ws4=XLSX.utils.aoa_to_sheet(pivotKm);
+  ws4['!cols']=[{wch:20},...dates.map(()=>({wch:8})),{wch:10},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,ws4,'كيلومترات');
+
+  XLSX.writeFile(wb,'keeta_'+from+'_'+to+'.xlsx');
   document.getElementById('export-modal').classList.remove('open');
 }
 
