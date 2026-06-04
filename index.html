@@ -1165,7 +1165,7 @@ function renderSidebar(){
   const totalO=rows.reduce((s,r)=>s+r.orders,0);
   const totalH=rows.reduce((s,r)=>s+r.hours,0);
   const days=[...new Set(rows.map(r=>r.date))].length;
-  const allKm=Object.values(KM_DATA).flatMap(d=>Object.values(d));
+  const allKm=Object.entries(KM_DATA).filter(([d])=>mk(d)===activeMonth).flatMap(([,d])=>Object.values(d));
   const totalKm=allKm.reduce((s,v)=>s+v,0);
   document.getElementById('sb-stats').innerHTML=`
     <div class="stat-card"><div class="lbl">الأيام</div><div class="val">${days}</div></div>
@@ -1174,9 +1174,10 @@ function renderSidebar(){
     <div class="stat-card"><div class="lbl">الكيلومترات</div><div class="val">${totalKm.toFixed(0)}</div></div>
   `;
 
-  // aggregate km per courier across all days
+  // aggregate km per courier for active month only
   const kmTotals={};
   for(const [date,dayKm] of Object.entries(KM_DATA)){
+    if(mk(date)!==activeMonth) continue;
     for(const [name,km] of Object.entries(dayKm)){
       kmTotals[name]=(kmTotals[name]||0)+km;
     }
@@ -1207,8 +1208,8 @@ function render(){
   const namesSorted=filteredNames.sort((a,b)=>{
     if(activeTab==='gps'){
       // GPS tab: sort by total km desc, zeros at bottom
-      const ka=Object.values(KM_DATA).reduce((s,d)=>s+(d[a]||0),0);
-      const kb=Object.values(KM_DATA).reduce((s,d)=>s+(d[b]||0),0);
+      const ka=Object.entries(KM_DATA).filter(([d])=>mk(d)===activeMonth).reduce((s,[,d])=>s+(d[a]||0),0);
+      const kb=Object.entries(KM_DATA).filter(([d])=>mk(d)===activeMonth).reduce((s,[,d])=>s+(d[b]||0),0);
       if(ka===0 && kb===0) return a.localeCompare(b);
       if(ka===0) return 1;
       if(kb===0) return -1;
