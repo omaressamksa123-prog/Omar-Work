@@ -595,6 +595,27 @@ const HS_MAP={
   '2489548':'Falak Sher Qadeer Ahmed',
   '2494607':'MD AL Amin',
 };
+const IQAMA={
+  'Rasel Islam':    '2574916587',
+  'Sagar Hossain':  '2609947094',
+  'Muhammed Sajid': '2600027219',
+  'Muhammed Mujahid':'2599996275',
+  'Tawfeeq Aqib':   '2587362076',
+  'Muhammad Adil':  '2594330751',
+  'Farhan Haider':  '2597943303',
+  'Suronjeet Das':  '2604941563',
+  'Sajjad Ali':     '2598715163',
+  'Muhammed Hammad':'2600030569',
+  'Sabbir Hossain': '2579715786',
+  'Rana Molla':     '2567554494',
+  'Fahad Soomro':   '2598714794',
+  'Omar Arish':     '2590242539',
+  'Usama Asaad':    '2591221169',
+  'Muhammad Shoaib':'2590241986',
+  'Nazim Shabeer':  '2598961429',
+  'Sobuj Mia':      '2572090468',
+  'Naim Uddin':     '2609749706',
+};
 const BIKES={
   'Sajjad Ali':'8199','Fahad Soomro':'8465','Suronjeet Das':'8245',
   'Farhan Haider':'3516','Omar Arish':'3154','Usama Asaad':'9910',
@@ -1309,9 +1330,11 @@ function render(){
         const v=rec?rec.hours:null;
         return`<td class="hours-cell">${!v?'-':v.toFixed(1)+'h'}</td>`;
       }).join('');
+      const iqama=IQAMA[name]||'';
       html+=`<tr class="ord-row">
         <td class="name-col" rowspan="2">
           <div class="c-name" onclick="showHistory('${name}')">${name}</div>
+          ${iqama?`<div class="bike-tag" style="color:#7C3AED;font-size:10px">🪪 ${iqama}</div>`:''}
           ${bike?`<div class="bike-tag">🏍 ${bike}</div>`:''}
         </td>
         ${orderCells}
@@ -1333,6 +1356,7 @@ function render(){
       html+=`<tr class="ord-row">
         <td class="name-col">
           <div class="c-name" onclick="showHistory('${name}')">${name}</div>
+          ${iqama?`<div class="bike-tag" style="color:#7C3AED;font-size:10px">🪪 ${iqama}</div>`:''}
           ${bike?`<div class="bike-tag">🏍 ${bike}</div>`:''}
         </td>
         ${kmCells}
