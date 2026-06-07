@@ -2893,7 +2893,7 @@ function parseMuqeemExcel(file){
       const cLt=c('خفيف')||'كارت سائق خفيف';
       const parsed=rows.map(r=>{
         const iq=r[cIq]; let iqStr='';
-        try{ iqStr=iq!==''&&iq!=null?String(Math.round(Number(iq))):''; }catch(){ iqStr=String(iq); }
+        try{ iqStr=iq!==''&&iq!=null?String(Math.round(Number(iq))):''; }catch(_){ iqStr=String(iq); }
         return { iqama:iqStr, name:String(r[cNm]||''), outside:String(r[cOut]||'لا'), status:String(r[cSt]||''), sanad:String(r[cSn]||'False'), job:String(r[cJob]||''), heavy:String(r[cHv]||''), light:String(r[cLt]||'') };
       }).filter(r=>r.iqama&&r.iqama!='NaN'&&r.iqama.length>5&&r.name);
       MUQEEM_DATA=parsed;
