@@ -7,27 +7,41 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --navy:    #EEF2F7;
-    --navy2:   #FFFFFF;
-    --navy3:   #E2E8F0;
-    --navy4:   #CBD5E1;
-    --blue:    #1565C0;
-    --blue2:   #1976D2;
-    --blue3:   #2563EB;
-    --gold:    #D97706;
-    --gold2:   #F59E0B;
-    --green:   #059669;
-    --green2:  #10B981;
-    --red:     #DC2626;
-    --purple:  #7C3AED;
-    --purple2: #8B5CF6;
-    --text1:   #1E293B;
-    --text2:   #475569;
-    --text3:   #94A3B8;
-    --border:  rgba(0,0,0,0.07);
-    --border2: rgba(0,0,0,0.12);
-    --card:    #FFFFFF;
-    --card2:   rgba(0,0,0,0.03);
+    /* Dark theme palette */
+    --bg:      #0B0F1E;
+    --bg2:     #111827;
+    --navy:    #0B0F1E;
+    --navy2:   #131929;
+    --navy3:   #1A2238;
+    --navy4:   #222B42;
+
+    /* Neon accents */
+    --cyan:    #00D4FF;
+    --cyan2:   #38BDF8;
+    --purple:  #A855F7;
+    --purple2: #C084FC;
+    --pink:    #F472B6;
+    --pink2:   #EC4899;
+
+    /* Keep these aliases for compat */
+    --blue:    #6366F1;
+    --blue2:   #818CF8;
+    --blue3:   #A5B4FC;
+    --gold:    #FBBF24;
+    --gold2:   #FCD34D;
+    --green:   #10B981;
+    --green2:  #34D399;
+    --red:     #F87171;
+    --purple2-old: #C084FC;
+
+    --text1:   #F1F5F9;
+    --text2:   #94A3B8;
+    --text3:   #475569;
+    --border:  rgba(255,255,255,0.05);
+    --border2: rgba(255,255,255,0.09);
+    --text-muted: #64748B;
+    --card:    #1A2238;
+    --card2:   rgba(255,255,255,0.04);
     --r:  12px;
     --r2: 8px;
     --r3: 6px;
@@ -36,40 +50,48 @@
   html,body{height:100%;overflow:hidden;}
   body{
     font-family:'Cairo',sans-serif;
-    background:var(--navy);
+    background:var(--bg);
     color:var(--text1);
     font-size:14px;
   }
   body::before{
     content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
     background:
-      radial-gradient(ellipse 70% 50% at 15% 0%,   rgba(21,101,192,.06) 0%,transparent 65%),
-      radial-gradient(ellipse 50% 40% at 85% 100%,  rgba(245,158,11,.04) 0%,transparent 55%);
+      radial-gradient(ellipse 60% 50% at 10% 0%,  rgba(168,85,247,.12) 0%,transparent 60%),
+      radial-gradient(ellipse 50% 40% at 90% 100%, rgba(0,212,255,.08) 0%,transparent 55%),
+      radial-gradient(ellipse 40% 30% at 50% 50%,  rgba(99,102,241,.06) 0%,transparent 60%);
   }
 
   /* ══ LAYOUT ══ */
   .app{display:flex;height:100vh;position:relative;z-index:1;}
-  /* sticky top area */
   .topbar{position:sticky;top:0;z-index:10;}
   #kpi-bar{position:sticky;top:0;z-index:9;}
 
   /* ══ SIDEBAR ══ */
   .sidebar{
-    width:280px;flex-shrink:0;
-    background:linear-gradient(180deg,var(--navy2) 0%,var(--navy) 100%);
+    width:270px;flex-shrink:0;
+    background:linear-gradient(180deg,#141B2D 0%,#0D1220 100%);
     border-left:1px solid var(--border2);
     display:flex;flex-direction:column;
     overflow-y:auto;
   }
   .sidebar-header{
     padding:22px 20px 18px;
-    background:linear-gradient(135deg,#1565C0,#1976D2);
-    border-bottom:1px solid var(--border2);
+    background:linear-gradient(135deg,#1E1B4B,#312E81);
+    border-bottom:1px solid rgba(168,85,247,.2);
+    position:relative;overflow:hidden;
   }
-  .brand{font-size:11px;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px;}
-  .brand-title{font-size:22px;font-weight:900;color:var(--text1);}
-  .brand-title span{color:var(--gold);}
-  .brand-sub{font-size:11px;color:var(--text2);margin-top:4px;}
+  .sidebar-header::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse at 80% 20%,rgba(168,85,247,.3),transparent 60%);
+  }
+  .brand{font-size:10px;color:var(--purple2);letter-spacing:.15em;text-transform:uppercase;margin-bottom:5px;position:relative;}
+  .brand-title{font-size:22px;font-weight:900;color:#fff;position:relative;}
+  .brand-title span{
+    background:linear-gradient(135deg,var(--cyan),var(--purple2));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  }
+  .brand-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:4px;position:relative;}
 
   /* sidebar actions */
   .sb-actions{padding:14px 16px 6px;display:flex;flex-direction:column;gap:7px;}
@@ -79,13 +101,13 @@
     font-size:13px;font-weight:600;font-family:'Cairo',sans-serif;
     cursor:pointer;border:none;transition:all .2s;
   }
-  .btn-primary{background:linear-gradient(135deg,var(--blue2),var(--blue));color:#fff;}
-  .btn-primary:hover{background:linear-gradient(135deg,var(--blue3),var(--blue2));transform:translateY(-1px);box-shadow:0 4px 12px rgba(21,101,192,.4);}
-  .btn-secondary{background:var(--card2);color:var(--text2);border:1px solid var(--border2);}
-  .btn-secondary:hover{background:rgba(0,0,0,.06);color:var(--text1);}
+  .btn-primary{background:linear-gradient(135deg,var(--purple),var(--blue));color:#fff;}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(168,85,247,.4);}
+  .btn-secondary{background:rgba(255,255,255,.05);color:var(--text2);border:1px solid var(--border2);}
+  .btn-secondary:hover{background:rgba(255,255,255,.09);color:var(--text1);}
 
   .sb-section{padding:14px 18px;border-bottom:1px solid var(--border);}
-  .sb-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;}
+  .sb-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px;}
 
   /* kpi cards in sidebar */
   .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
@@ -107,15 +129,19 @@
     border:1px solid var(--border2);background:transparent;color:var(--text2);
     font-family:'Cairo',sans-serif;transition:all .15s;
   }
-  .mpill.active{background:var(--blue2);color:#fff;border-color:var(--blue2);box-shadow:0 2px 8px rgba(25,118,210,.4);}
+  .mpill.active{
+    background:linear-gradient(135deg,var(--purple),var(--blue));
+    color:#fff;border-color:transparent;
+    box-shadow:0 2px 12px rgba(168,85,247,.4);
+  }
 
   /* km bars */
   .km-item{margin-bottom:10px;}
   .km-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;}
   .km-name{color:var(--text2);}
-  .km-val{color:var(--gold);font-weight:700;}
-  .km-bar-bg{height:5px;background:rgba(0,0,0,.09);border-radius:3px;overflow:hidden;}
-  .km-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .5s cubic-bezier(.4,0,.2,1);}
+  .km-val{color:var(--cyan);font-weight:700;}
+  .km-bar-bg{height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;}
+  .km-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--cyan),var(--purple2));transition:width .5s cubic-bezier(.4,0,.2,1);}
 
   /* ══ MAIN ══ */
   .main{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;}
@@ -124,7 +150,8 @@
     padding:10px 20px;
     border-bottom:1px solid var(--border2);
     display:flex;align-items:center;justify-content:space-between;gap:16px;
-    background:rgba(255,255,255,.97);backdrop-filter:blur(8px);box-shadow:0 1px 4px rgba(0,0,0,.08);
+    background:rgba(13,18,32,.97);backdrop-filter:blur(12px);
+    box-shadow:0 1px 0 var(--border2),0 4px 20px rgba(0,0,0,.4);
     flex-shrink:0;
   }
   .topbar-left{display:flex;flex-direction:column;gap:2px;}
@@ -132,16 +159,15 @@
   .page-sub{font-size:12px;color:var(--text3);}
   .topbar-right{display:flex;align-items:center;gap:12px;}
 
-  /* search in topbar */
+  /* search */
   .search-wrap{position:relative;display:flex;align-items:center;}
   #courier-search{
     width:180px;padding:7px 32px 7px 12px;
-    background:var(--card2);border:1px solid var(--border2);
+    background:rgba(255,255,255,.05);border:1px solid var(--border2);
     border-radius:var(--r2);color:var(--text1);
-    font-family:'Cairo',sans-serif;font-size:12px;
-    transition:all .2s;
+    font-family:'Cairo',sans-serif;font-size:12px;transition:all .2s;
   }
-  #courier-search:focus{outline:none;border-color:var(--blue3);box-shadow:0 0 0 3px rgba(66,165,245,.15);width:220px;}
+  #courier-search:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 3px rgba(168,85,247,.2);width:220px;}
   #courier-search::placeholder{color:var(--text3);}
   .search-clear{
     position:absolute;left:10px;top:50%;transform:translateY(-50%);
@@ -151,127 +177,141 @@
   }
   .search-clear:hover{color:var(--text1);}
 
-  /* KPI bar below topbar */
+  /* KPI bar */
   .kpi-bar{
     display:flex;gap:8px;
     padding:8px 20px;border-bottom:1px solid var(--border);
     flex-shrink:0;
-    background:rgba(255,255,255,.97);backdrop-filter:blur(8px);box-shadow:0 1px 4px rgba(0,0,0,.08);
+    background:rgba(13,18,32,.97);backdrop-filter:blur(12px);
     overflow-x:auto;
   }
   .kpi-card{
     background:var(--card);border:1px solid var(--border2);
-    border-radius:var(--r2);padding:8px 14px;
+    border-radius:var(--r2);padding:8px 16px;
     display:flex;align-items:center;gap:10px;white-space:nowrap;
-    flex-shrink:0;
+    flex-shrink:0;transition:transform .2s,box-shadow .2s;
+    position:relative;overflow:hidden;
   }
+  .kpi-card::before{
+    content:'';position:absolute;inset:0;opacity:0;
+    transition:opacity .2s;
+    background:radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.06),transparent 70%);
+  }
+  .kpi-card:hover{transform:translateY(-2px);}
+  .kpi-card:hover::before{opacity:1;}
   .kpi-icon{font-size:16px;}
   .kpi-lbl{font-size:10px;color:var(--text3);font-weight:600;}
   .kpi-val{font-size:20px;font-weight:900;line-height:1;}
   .kpi-sub{font-size:10px;color:var(--text3);}
-  .kpi-blue .kpi-val{color:var(--blue3);}
+  .kpi-blue  .kpi-val{color:var(--cyan);}
+  .kpi-blue  {border-color:rgba(0,212,255,.2);box-shadow:0 0 12px rgba(0,212,255,.06);}
   .kpi-green .kpi-val{color:var(--green2);}
-  .kpi-gold .kpi-val{color:var(--gold);}
-  .kpi-purple .kpi-val{color:var(--purple2);}
-  .kpi-red .kpi-val{color:#F87171;}
+  .kpi-green {border-color:rgba(52,211,153,.2);box-shadow:0 0 12px rgba(52,211,153,.06);}
+  .kpi-gold  .kpi-val{color:var(--gold);}
+  .kpi-gold  {border-color:rgba(251,191,36,.2);box-shadow:0 0 12px rgba(251,191,36,.06);}
+  .kpi-purple.kpi-val{color:var(--purple2);}
+  .kpi-purple{border-color:rgba(192,132,252,.2);box-shadow:0 0 12px rgba(192,132,252,.06);}
+  .kpi-red   .kpi-val{color:var(--red);}
+  .kpi-red   {border-color:rgba(248,113,113,.2);box-shadow:0 0 12px rgba(248,113,113,.06);}
 
   .content{flex:1;overflow-y:auto;padding:12px 20px;}
 
   /* ══ TABLE ══ */
-  .tbl-wrap{overflow-x:auto;border:1px solid var(--border2);border-radius:var(--r);box-shadow:0 4px 24px rgba(0,0,0,.3);}
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--border2);border-radius:var(--r);box-shadow:0 8px 40px rgba(0,0,0,.5);}
   table{border-collapse:collapse;font-size:13px;min-width:100%;}
 
   thead tr.h1 th{
-    background:linear-gradient(135deg,var(--blue) 0%,#0D47A1 100%);
+    background:linear-gradient(135deg,#1E1B4B 0%,#312E81 100%);
     color:#fff;padding:12px 14px;text-align:center;
     white-space:nowrap;font-weight:700;font-size:13px;
-    border-bottom:1px solid rgba(255,255,255,.12);
+    border-bottom:1px solid rgba(168,85,247,.25);
   }
-  thead tr.h1 th.name-col{text-align:right;min-width:170px;padding-right:18px;position:sticky;right:0;z-index:3;}
-  thead tr.h1 th.km-hd{background:linear-gradient(135deg,#78350F,#92400E);}
+  thead tr.h1 th.name-col{text-align:right;min-width:170px;padding-right:18px;position:sticky;right:0;z-index:3;background:linear-gradient(135deg,#1E1B4B,#312E81);}
+  thead tr.h1 th.km-hd{background:linear-gradient(135deg,#1C2951,#1E3A5F);}
   thead tr.h2 th{
-    background:rgba(21,101,192,.12);color:var(--text3);
+    background:rgba(99,102,241,.08);color:var(--text3);
     padding:6px 14px;text-align:center;font-size:11px;font-weight:500;
     border-bottom:1px solid var(--border);
   }
-  thead tr.h2 th.name-col{text-align:right;padding-right:18px;position:sticky;right:0;z-index:3;}
-  thead tr.h2 th.km-sub{background:rgba(120,53,15,.15);color:var(--gold);}
+  thead tr.h2 th.name-col{text-align:right;padding-right:18px;position:sticky;right:0;z-index:3;background:#16203A;}
+  thead tr.h2 th.km-sub{background:rgba(0,212,255,.06);color:var(--cyan);}
 
   tbody td{
     padding:8px 14px;border-bottom:1px solid var(--border);
     color:var(--text1);text-align:center;white-space:nowrap;vertical-align:middle;
   }
-  tbody td.name-col{text-align:right;padding-right:18px;position:sticky;right:0;z-index:2;background:var(--navy2);border-left:1px solid var(--border2);}
-  tbody tr:hover td.name-col{background:var(--navy3);}
+  tbody td.name-col{text-align:right;padding-right:18px;position:sticky;right:0;z-index:2;background:#131929;border-left:1px solid var(--border2);}
+  tbody tr:hover td.name-col{background:#1A2238;}
   .tbl-wrap{overflow-x:auto;}
-  tbody td.total-col{background:rgba(21,101,192,.1);color:var(--blue3);font-weight:700;font-size:14px;}
-  tbody td.hours-cell{color:var(--green2);font-size:12px;background:rgba(5,150,105,.05);}
-  tbody td.km-td{background:rgba(120,53,15,.15);color:var(--gold2);font-weight:700;}
-  tbody td.km-td-day{background:rgba(245,158,11,.04);color:var(--gold);font-size:12px;}
+  tbody td.total-col{background:rgba(99,102,241,.12);color:var(--blue3);font-weight:700;font-size:14px;}
+  tbody td.hours-cell{color:var(--green2);font-size:12px;background:rgba(16,185,129,.05);}
+  tbody td.km-td{background:rgba(0,212,255,.08);color:var(--cyan);font-weight:700;}
+  tbody td.km-td-day{background:rgba(0,212,255,.03);color:var(--cyan2);font-size:12px;}
   .km-avg{font-size:10px;color:var(--text3);margin-top:2px;font-weight:400;}
   tr.ord-row td{border-bottom:none;padding-bottom:4px;}
   tr.hr-row td{padding-top:3px;}
-  tr.foot-row td{background:rgba(0,0,0,.03);font-weight:700;color:var(--text2);border-top:2px solid var(--border2);}
+  tr.foot-row td{background:rgba(255,255,255,.03);font-weight:700;color:var(--text2);border-top:2px solid var(--border2);}
   .cell-0{color:var(--text3)!important;}
-  .cell-hi{color:#60CDFF!important;font-weight:800!important;}
-  tbody tr:hover td{background:rgba(255,255,255,.04);}
-  tbody tr:hover td.total-col{background:rgba(21,101,192,.18);}
-  tbody tr:hover td.hours-cell{background:rgba(5,150,105,.1);}
-  tbody tr:hover td.km-td{background:rgba(120,53,15,.25);}
+  .cell-hi{color:#00FFCC!important;font-weight:800!important;text-shadow:0 0 10px rgba(0,255,204,.4);}
+  tbody tr:hover td{background:rgba(255,255,255,.025);}
+  tbody tr:hover td.total-col{background:rgba(99,102,241,.2);}
+  tbody tr:hover td.hours-cell{background:rgba(16,185,129,.1);}
+  tbody tr:hover td.km-td{background:rgba(0,212,255,.15);}
 
   /* name cell */
-  .c-name{font-size:14px;font-weight:700;cursor:pointer;color:var(--blue3);transition:color .15s;}
-  .c-name:hover{color:#90CAF9;text-decoration:underline;}
+  .c-name{font-size:14px;font-weight:700;cursor:pointer;color:var(--cyan2);transition:color .15s;}
+  .c-name:hover{color:var(--cyan);text-decoration:underline;text-shadow:0 0 8px rgba(0,212,255,.3);}
   .bike-tag{
     display:inline-flex;align-items:center;gap:3px;
-    background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);
-    border-radius:20px;padding:2px 8px;font-size:10px;color:var(--gold);margin-top:3px;
+    background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.25);
+    border-radius:20px;padding:2px 8px;font-size:10px;color:var(--purple2);margin-top:3px;
   }
 
   /* sort */
   th.sortable{cursor:pointer;user-select:none;transition:background .15s;}
-  th.sortable:hover{filter:brightness(1.15);}
-  .sort-ico{font-size:10px;color:rgba(255,255,255,.4);margin-right:4px;}
-  .sort-ico.sort-active{color:#90CAF9;}
+  th.sortable:hover{filter:brightness(1.2);}
+  .sort-ico{font-size:10px;color:rgba(255,255,255,.3);margin-right:4px;}
+  .sort-ico.sort-active{color:var(--cyan);}
 
   /* ══ HISTORY PANEL ══ */
   .history-wrap{
     margin-top:20px;border:1px solid var(--border2);
     border-radius:var(--r);overflow:hidden;
     animation:slideUp .3s cubic-bezier(.4,0,.2,1);
-    box-shadow:0 8px 32px rgba(0,0,0,.4);
+    box-shadow:0 12px 48px rgba(0,0,0,.6);
   }
   @keyframes slideUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
   .hp-hdr{
-    background:linear-gradient(135deg,var(--blue) 0%,#0A3D8A 100%);
+    background:linear-gradient(135deg,#1E1B4B 0%,#312E81 100%);
     padding:16px 20px;display:flex;align-items:center;gap:14px;
+    border-bottom:1px solid rgba(168,85,247,.2);
   }
   .hp-avatar{
     width:44px;height:44px;border-radius:50%;
     display:flex;align-items:center;justify-content:center;
     font-size:15px;font-weight:800;flex-shrink:0;
-    border:2px solid rgba(255,255,255,.3);
-    box-shadow:0 2px 8px rgba(0,0,0,.3);
+    border:2px solid rgba(168,85,247,.4);
+    box-shadow:0 2px 12px rgba(168,85,247,.3);
   }
   .close-btn{
-    margin-right:auto;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);
+    margin-right:auto;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
     border-radius:var(--r3);padding:6px 14px;cursor:pointer;
     font-size:12px;color:#fff;font-family:'Cairo',sans-serif;
     transition:background .15s;
   }
-  .close-btn:hover{background:rgba(255,255,255,.25);}
+  .close-btn:hover{background:rgba(255,255,255,.2);}
   .hp-body{padding:18px 20px;background:var(--navy2);}
   .summary-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
   .s-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--r2);padding:12px;text-align:center;}
   .s-card .s-lbl{font-size:11px;color:var(--text3);margin-bottom:4px;}
-  .s-card .s-val{font-size:22px;font-weight:800;}
-  .s-km{background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.2);}
-  .s-km .s-val{color:var(--gold);}
+  .s-card .s-val{font-size:22px;font-weight:800;color:var(--text1);}
+  .s-km{background:rgba(0,212,255,.06);border-color:rgba(0,212,255,.2);}
+  .s-km .s-val{color:var(--cyan);}
 
   .hp-days-title{font-size:12px;color:var(--text3);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em;}
   .days-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px;}
   .day-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:12px 8px;text-align:center;transition:border-color .2s;}
-  .day-card.best{border-color:var(--blue3);background:rgba(21,101,192,.12);}
+  .day-card.best{border-color:var(--purple);background:rgba(168,85,247,.12);}
   .day-date{font-size:10px;color:var(--text3);margin-bottom:5px;}
   .day-orders{font-size:24px;font-weight:800;color:var(--text1);}
   .day-lbl{font-size:9px;color:var(--text3);margin-bottom:3px;}
@@ -280,9 +320,9 @@
   .km-compare{margin-bottom:16px;}
   .km-compare-lbl{font-size:12px;color:var(--text3);font-weight:600;margin-bottom:8px;}
   .km-cbar{display:flex;align-items:center;gap:12px;}
-  .km-cbar-bg{flex:1;height:10px;background:rgba(255,255,255,.05);border-radius:5px;overflow:hidden;}
-  .km-cbar-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .6s cubic-bezier(.4,0,.2,1);}
-  .km-cbar-val{font-size:13px;font-weight:700;color:var(--gold);width:70px;text-align:left;}
+  .km-cbar-bg{flex:1;height:10px;background:rgba(255,255,255,.04);border-radius:5px;overflow:hidden;}
+  .km-cbar-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--cyan),var(--purple2));transition:width .6s cubic-bezier(.4,0,.2,1);}
+  .km-cbar-val{font-size:13px;font-weight:700;color:var(--cyan);width:70px;text-align:left;}
 
   /* ── SUMMARY TAB ── */
   .sum-wrap{padding:4px 0;}
@@ -291,28 +331,33 @@
   .sum-kpi-ico{font-size:22px;margin-bottom:6px;}
   .sum-kpi-val{font-size:26px;font-weight:900;line-height:1;}
   .sum-kpi-lbl{font-size:11px;color:var(--text3);margin-top:4px;}
-  .sum-kpi.blue .sum-kpi-val{color:var(--blue3);}
+  .sum-kpi.blue  .sum-kpi-val{color:var(--cyan);}
+  .sum-kpi.blue  {border-color:rgba(0,212,255,.2);}
   .sum-kpi.green .sum-kpi-val{color:var(--green2);}
-  .sum-kpi.gold .sum-kpi-val{color:var(--gold);}
-  .sum-kpi.purple .sum-kpi-val{color:var(--purple2);}
-  .sum-kpi.red .sum-kpi-val{color:#F87171;}
+  .sum-kpi.green {border-color:rgba(52,211,153,.2);}
+  .sum-kpi.gold  .sum-kpi-val{color:var(--gold);}
+  .sum-kpi.gold  {border-color:rgba(251,191,36,.2);}
+  .sum-kpi.purple.sum-kpi-val{color:var(--purple2);}
+  .sum-kpi.purple{border-color:rgba(192,132,252,.2);}
+  .sum-kpi.red   .sum-kpi-val{color:var(--red);}
+  .sum-kpi.red   {border-color:rgba(248,113,113,.2);}
   .sum-charts{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
   .sum-chart-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--r);padding:16px;}
   .sum-chart-title{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:8px;}
   .sum-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
   .sum-bar-name{width:80px;font-size:11px;color:var(--text2);text-align:right;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .sum-bar-bg{flex:1;height:8px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;}
+  .sum-bar-bg{flex:1;height:8px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden;}
   .sum-bar-fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1);}
-  .blue-bar{background:linear-gradient(90deg,var(--blue2),var(--blue3));}
+  .blue-bar {background:linear-gradient(90deg,var(--cyan),var(--purple2));}
   .green-bar{background:linear-gradient(90deg,var(--green),var(--green2));}
-  .gold-bar{background:linear-gradient(90deg,var(--gold),var(--gold2));}
+  .gold-bar {background:linear-gradient(90deg,#F59E0B,var(--gold2));}
   .sum-bar-val{width:48px;font-size:11px;color:var(--text2);font-weight:600;text-align:left;}
   .sum-donut-wrap{display:flex;align-items:center;gap:16px;justify-content:center;margin-bottom:14px;}
   .sum-donut-legend{font-size:13px;line-height:2;}
   .lic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-top:10px;}
   .lic-card{border-radius:var(--r2);padding:10px 8px;text-align:center;border:1px solid;}
-  .lic-yes{background:rgba(5,150,105,.1);border-color:rgba(52,211,153,.25);}
-  .lic-no{background:rgba(220,38,38,.1);border-color:rgba(248,113,113,.25);}
+  .lic-yes{background:rgba(16,185,129,.1);border-color:rgba(52,211,153,.25);}
+  .lic-no {background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.25);}
   .lic-card-name{font-size:11px;font-weight:700;color:var(--text1);margin-bottom:5px;}
   .lic-card-badge{font-size:18px;}
 
@@ -321,29 +366,35 @@
 
   /* ── TABS ── */
   .tab-bar{
-    display:flex;gap:0;border-bottom:2px solid var(--border2);
-    background:rgba(255,255,255,.97);backdrop-filter:blur(8px);box-shadow:0 1px 4px rgba(0,0,0,.08);
+    display:flex;gap:0;border-bottom:1px solid var(--border2);
+    background:rgba(13,18,32,.98);backdrop-filter:blur(12px);
+    box-shadow:0 1px 0 var(--border2);
     flex-shrink:0;padding:0 20px;
     position:sticky;top:0;z-index:8;
   }
   .tab-btn{
-    padding:10px 22px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;
+    padding:12px 20px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;
     background:transparent;border:none;color:var(--text3);cursor:pointer;
-    border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;
+    border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;
   }
   .tab-btn:hover{color:var(--text2);}
-  .tab-btn.active{color:var(--blue3);border-bottom-color:var(--blue3);}
+  .tab-btn.active{
+    color:var(--cyan);
+    border-bottom-color:var(--cyan);
+    text-shadow:0 0 8px rgba(0,212,255,.3);
+  }
 
   ::-webkit-scrollbar{width:5px;height:5px;}
   ::-webkit-scrollbar-track{background:transparent;}
-  ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:3px;}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.2);}
 
   /* ══ MODAL ══ */
-  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
   .modal-overlay.open{display:flex;}
-  .modal{background:var(--navy2);border:1px solid var(--border2);border-radius:var(--r);width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.6);animation:slideUp .2s ease;}
-  .modal-hdr{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-  .modal-hdr h3{font-size:16px;font-weight:700;}
+  .modal{background:#141B2D;border:1px solid var(--border2);border-radius:var(--r);width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.8),0 0 0 1px rgba(168,85,247,.1);animation:slideUp .2s ease;}
+  .modal-hdr{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#1E1B4B,#1A2238);}
+  .modal-hdr h3{font-size:16px;font-weight:700;color:var(--text1);}
   .modal-close{background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;transition:color .15s;}
   .modal-close:hover{color:var(--text1);}
   .modal-body{padding:18px;}
@@ -356,21 +407,21 @@
   .modal-inp{width:100%;padding:6px 8px;border-radius:4px;background:var(--card);border:1px solid var(--border);color:var(--text1);font-family:'Cairo',sans-serif;font-size:12px;text-align:center;}
   .modal-name-lbl{font-size:13px;color:var(--text2);text-align:right;}
   .modal-footer{padding:14px 18px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
-  .btn-save{background:linear-gradient(135deg,var(--blue2),var(--blue));color:#fff;border:none;border-radius:var(--r2);padding:9px 22px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
-  .btn-save:hover{background:linear-gradient(135deg,var(--blue3),var(--blue2));transform:translateY(-1px);}
+  .btn-save{background:linear-gradient(135deg,var(--purple),var(--blue));color:#fff;border:none;border-radius:var(--r2);padding:9px 22px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+  .btn-save:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(168,85,247,.4);}
   .btn-cancel{background:transparent;color:var(--text2);border:1px solid var(--border2);border-radius:var(--r2);padding:9px 16px;font-family:'Cairo',sans-serif;font-size:13px;cursor:pointer;}
 
   /* manage modal */
   .mc-row{display:flex;align-items:center;gap:7px;margin-bottom:7px;}
   .mc-inp{flex:1;padding:7px 9px;border-radius:var(--r3);background:var(--card);border:1px solid var(--border);color:var(--text1);font-family:'Cairo',sans-serif;font-size:13px;}
   .mc-inp-sm{width:130px;flex-shrink:0;}
-  .mc-del{background:rgba(220,38,38,.15);border:1px solid rgba(220,38,38,.3);color:#F87171;border-radius:var(--r3);padding:6px 10px;cursor:pointer;font-size:13px;flex-shrink:0;transition:background .15s;}
-  .mc-del:hover{background:rgba(220,38,38,.3);}
+  .mc-del{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.3);color:#F87171;border-radius:var(--r3);padding:6px 10px;cursor:pointer;font-size:13px;flex-shrink:0;transition:background .15s;}
+  .mc-del:hover{background:rgba(248,113,113,.25);}
   .mc-add-row{display:flex;gap:7px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
   .btn-add-c{background:var(--green);color:#fff;border:none;border-radius:var(--r3);padding:8px 16px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s;}
   .btn-add-c:hover{background:var(--green2);color:#000;}
 </style>
-<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -390,10 +441,10 @@
         </div>
         <button onclick="exportData()" style="
           display:flex;align-items:center;gap:6px;padding:8px 14px;
-          background:linear-gradient(135deg,#1565C0,#1976D2);color:#fff;
+          background:linear-gradient(135deg,#7C3AED,#6366F1);color:#fff;
           border:none;border-radius:8px;font-family:'Cairo',sans-serif;
           font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;
-          box-shadow:0 2px 8px rgba(21,101,192,.3);
+          box-shadow:0 2px 12px rgba(124,58,237,.4);
         ">⬇️ تصدير Excel</button>
       </div>
     </div>
@@ -408,6 +459,15 @@
     </div>
     <div class="content">
       <div class="tbl-wrap"><table id="main-table"></table></div>
+      <div id="chart-area" style="display:none;margin-top:14px;">
+        <div style="background:#131929;border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:20px 24px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div style="font-size:14px;font-weight:700;color:#F1F5F9;">📊 إجمالي الأوردرات يومياً</div>
+            <div id="chart-peak" style="font-size:12px;color:#94A3B8;"></div>
+          </div>
+          <canvas id="orders-chart" style="width:100%;display:block;"></canvas>
+        </div>
+      </div>
       <div id="history-area"></div>
     </div>
   </div>
@@ -431,6 +491,13 @@
     <button class="add-btn" style="background:var(--navy3);margin-top:-8px;" onclick="openManageModal()">
       ⚙ إدارة المندوبين
     </button>
+    <button class="add-btn" style="background:var(--navy3);margin-top:-8px;" onclick="openApiKeyModal()" title="مطلوب لرفع الصور">
+      🔑 API Key <span id="apikey-status" style="font-size:10px;margin-right:4px"></span>
+    </button>
+    <button class="add-btn" style="background:var(--navy3);margin-top:-8px;" onclick="document.getElementById('km-excel-input').click()" title="استيراد كيلومترات من ملف Trips Excel">
+      📁 استيراد كيلومترات Excel
+    </button>
+    <input type="file" id="km-excel-input" accept=".xlsx,.xls" style="display:none" onchange="importKmExcel(event)" />
 
     <div class="sb-section">
       <div class="sb-label">الإجماليات</div>
@@ -447,7 +514,7 @@
 
     <div class="sb-section">
       <div class="sb-label">كيلومترات البايك</div>
-      <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;">يوم 07/05 — 08/05 — 09/05 — 10/05</div>
+      <div id="km-sidebar-dates" style="font-size:10px;color:var(--text-muted);margin-bottom:8px;"></div>
       <div id="km-sidebar"></div>
     </div>
   </div>
@@ -617,15 +684,25 @@ const IQAMA={
   'Naim Uddin':     '2609749706',
 };
 const BIKES={
+  // ✅ موجودين في النظام — أرقام مؤكدة من جدول البايكات 2026-06-07
   'Sajjad Ali':'8199','Fahad Soomro':'8465','Suronjeet Das':'8245',
   'Farhan Haider':'3516','Omar Arish':'3154','Usama Asaad':'9910',
-  'Muhammad Shoaib':'3155','Nazim Shabeer':'8270','Muhammed Sajid':'7865','Muhammed Hammad':'8257','Rasel Islam':'8079','Sagar Hossain':'8258',
-  'Muhammed Mujahid':'7868','Rana Molla':'9536','Sobuj Mia':'7867','Tawfeeq Aqib':'9500','Muhammad Adil':'3152','Naim Uddin':'2449','Sabbir Hossain':'3513',
-  'Zulqarnain Haider':'7863','MD AL Amin':'4663','ND Rayhan Ahmad':'8248',
-  'Abdul Rehman':'4575','Akash Chandra':'8097','Rizwan Ibrahim':'2082','Umer Butt':'7871',
+  'Muhammad Shoaib':'3155','Nazim Shabeer':'8270','Muhammed Sajid':'7865',
+  'Muhammed Hammad':'8257','Rasel Islam':'8079','Sagar Hossain':'8258',
+  'Muhammed Mujahid':'7868','Rana Molla':'4663','Sobuj Mia':'7867',
+  'Tawfeeq Aqib':'9500','Muhammad Adil':'3152','Naim Uddin':'2449',
+  'Sabbir Hossain':'3513','Zulqarnain Haider':'7863',
+  'ND Rayhan Ahmad':'8248','Abdul Rehman':'4575','Akash Chandra':'8097',
+  'Rizwan Ibrahim':'2082','Umer Butt':'4595',
   'Rizwan Nawaz':'4576','Naveed Akhtar':'7522','Shakeel':'2085','Muhammed Anas':'2083',
+  // ➕ إضافات جديدة من جدول البايكات
+  'Mohamed Ali':'4670','Abo Bakr':'5604','Yasser Ali':'4654',
+  'Raheel Iqbal':'2080','Muhammed Sohil':'4550','Sajid Ali Rafique':'2081',
+  'MD Monjur':'2079','Mohamed Amjad':'9908','Aqib Hussein':'8095',
+  'Saber Mia':'2078','Lotan Barua':'8249','MD Sifat Ali':'9536',
+  'Faisal Adnan':'3151',
 };
-// تفاويض — true = عنده تفويض (محدّث من ملف التفاويض 2026-06-02)
+// تفاويض — محدّث من جدول البايكات 2026-06-07
 const LICENSE={
   // ✅ عندهم تفويض فعال
   'Sajjad Ali':true,'Fahad Soomro':true,'Suronjeet Das':true,
@@ -635,10 +712,17 @@ const LICENSE={
   'Sobuj Mia':true,'Tawfeeq Aqib':true,'Muhammad Adil':true,
   'Rizwan Ibrahim':true,'Shakeel':true,'Naveed Akhtar':true,
   'Muhammed Anas':true,'Umer Butt':true,'ND Rayhan Ahmad':true,
+  // ✅ مصحّحين (كانوا false بالخطأ)
+  'Nazim Shabeer':true,'Rana Molla':true,'Sagar Hossain':true,
+  'Akash Chandra':true,'Abdul Rehman':true,'Rizwan Nawaz':true,
+  // ✅ جدد عندهم تفويض
+  'Mohamed Ali':true,'Abo Bakr':true,'Yasser Ali':true,
+  'Raheel Iqbal':true,'Muhammed Sohil':true,'Sajid Ali Rafique':true,
+  'MD Monjur':true,'Mohamed Amjad':true,'Aqib Hussein':true,
+  'Saber Mia':true,'Lotan Barua':true,'Faisal Adnan':true,
   // ❌ بدون تفويض
-  'Nazim Shabeer':false,'Rana Molla':false,'Sabbir Hossain':false,
-  'Sagar Hossain':false,'Zulqarnain Haider':false,'MD AL Amin':false,
-  'Abdul Rehman':false,'Akash Chandra':false,'Rizwan Nawaz':false,
+  'Sabbir Hossain':false,'Zulqarnain Haider':false,'MD AL Amin':false,
+  'MD Sifat Ali':false,
 };
 // KM per day per courier
 const KM_DATA={
@@ -666,6 +750,9 @@ const KM_DATA={
   '2026-05-18':{ 'Sajjad Ali':192.0,'Fahad Soomro':204.8,'Suronjeet Das':217.5,'Farhan Haider':267.5,'Omar Arish':57.5,'Usama Asaad':211.0,'Muhammad Shoaib':184.7,'Nazim Shabeer':199.0,'Muhammed Sajid':100.5,'Muhammed Mujahid':37.2,'Rana Molla':180.9,'Sobuj Mia':179.5,'Tawfeeq Aqib':150.4,'Muhammad Adil':214.8,'Naim Uddin':223.4 },
   '2026-05-16':{ 'Sajjad Ali':77.7,'Fahad Soomro':158.3,'Suronjeet Das':182.2,'Farhan Haider':171.2,'Omar Arish':66.3,'Usama Asaad':221,'Muhammad Shoaib':210.8,'Nazim Shabeer':220.6,'Muhammed Sajid':234.1,'Muhammed Mujahid':149.1,'Rana Molla':115.8,'Sobuj Mia':243.8,'Tawfeeq Aqib':184.2,'Muhammad Adil':219.9,'Naim Uddin':260.8 },
   '2026-06-01':{ 'Sajjad Ali':157.0,'Fahad Soomro':40.1,'Suronjeet Das':212.4,'Farhan Haider':80.5,'Omar Arish':103.9,'Usama Asaad':138.8,'Muhammad Shoaib':200.9,'Nazim Shabeer':324.7,'Muhammed Sajid':211.0,'Muhammed Hammad':58.5,'Rasel Islam':230.2,'Sagar Hossain':86.5,'Muhammed Mujahid':103.0,'Rana Molla':7.5,'Sobuj Mia':182.3,'Tawfeeq Aqib':0,'Muhammad Adil':62.6,'Naim Uddin':115.3,'Sabbir Hossain':0 },
+  '2026-06-04':{ 'Farhan Haider':499.8,'Naim Uddin':290.1,'Muhammed Hammad':266.8,'Rana Molla':243.3,'Lotan Barua':242.0,'Aqib Hussein':229.0,'Nazim Shabeer':228.6,'Suronjeet Das':224.8,'Faisal Adnan':217.0,'Muhammed Mujahid':210.6,'Muhammed Sajid':205.1,'Sobuj Mia':199.9,'Muhammad Shoaib':185.3,'Muhammad Adil':178.3,'Rasel Islam':178.1,'Fahad Soomro':170.8,'Usama Asaad':169.8,'ND Rayhan Ahmad':162.5,'Abo Bakr':160.7,'Tawfeeq Aqib':129.3,'Sagar Hossain':127.8,'Mohamed Amjad':94.8,'MD Monjur':85.3,'Omar Arish':84.8,'Sajjad Ali':77.5,'Yasser Ali':77.2,'Abdul Rehman':74.1,'Muhammed Sohil':72.9,'Rizwan Nawaz':60.7,'Naveed Akhtar':14.6,'Mohamed Ali':9.5,'Muhammed Anas':4.6,'Sajid Ali Rafique':4.0,'Akash Chandra':3.7,'Raheel Iqbal':1.2 },
+  '2026-06-03':{ 'Farhan Haider':488.4,'Aqib Hussein':277.7,'Naim Uddin':273.4,'Muhammed Mujahid':243.1,'Rana Molla':240.5,'Sajjad Ali':236.8,'Suronjeet Das':235.7,'Rasel Islam':233.4,'Muhammad Shoaib':215.5,'Muhammad Adil':214.9,'ND Rayhan Ahmad':182.8,'Yasser Ali':181.9,'Fahad Soomro':172.5,'Sobuj Mia':172.2,'Nazim Shabeer':162.2,'Muhammed Sajid':153.4,'Usama Asaad':151.2,'Akash Chandra':136.2,'Rizwan Nawaz':129.5,'Muhammed Hammad':113.9,'Abo Bakr':106.5,'Sagar Hossain':93.5,'Mohamed Amjad':39.0,'Tawfeeq Aqib':39.0,'Rizwan Ibrahim':33.5,'Shakeel':18.5,'Faisal Adnan':16.4,'Muhammed Sohil':16.4,'Lotan Barua':13.5,'Omar Arish':6.1 },
+  '2026-06-02':{ 'Nazim Shabeer':420.2,'Naim Uddin':317.7,'Sajjad Ali':271.5,'Rasel Islam':260.8,'Muhammed Sajid':177.6,'ND Rayhan Ahmad':172.9,'Sobuj Mia':169.6,'Muhammad Adil':163.7,'Rizwan Nawaz':139.4,'Fahad Soomro':135.7,'Sagar Hossain':130.8,'Muhammed Mujahid':119.3,'Farhan Haider':115.4,'Rana Molla':103.5,'Suronjeet Das':72.9,'Akash Chandra':71.8,'Abo Bakr':70.3,'Omar Arish':53.8,'Tawfeeq Aqib':52.7,'Shakeel':38.5,'Muhammed Hammad':34.4,'Raheel Iqbal':33.3,'Muhammad Shoaib':17.9,'Muhammed Anas':15.9,'Abdul Rehman':11.7,'Zulqarnain Haider':8.8,'Usama Asaad':6.8,'Rizwan Ibrahim':0.8 },
   '2026-05-27':{ 'Sajjad Ali':189.0,'Fahad Soomro':121.7,'Suronjeet Das':157.3,'Farhan Haider':234.8,'Omar Arish':43.0,'Usama Asaad':174.0,'Muhammad Shoaib':238.0,'Nazim Shabeer':259.4,'Muhammed Sajid':83.7,'Muhammed Hammad':1.3,'Rasel Islam':3.2,'Sagar Hossain':0,'Muhammed Mujahid':223.1,'Rana Molla':0,'Sobuj Mia':278.3,'Tawfeeq Aqib':230.5,'Muhammad Adil':278.7,'Naim Uddin':274.7,'Sabbir Hossain':0 },
   '2026-05-25':{ 'Sajjad Ali':416.4,'Fahad Soomro':309.2,'Suronjeet Das':22.2,'Farhan Haider':254.9,'Omar Arish':120.4,'Usama Asaad':239.9,'Muhammad Shoaib':218.7,'Nazim Shabeer':290,'Muhammed Sajid':198.7,'Muhammed Hammad':275.3,'Rasel Islam':0,'Sagar Hossain':24.6,'Muhammed Mujahid':248.6,'Rana Molla':0,'Sobuj Mia':186.2,'Tawfeeq Aqib':257,'Muhammad Adil':268.3,'Naim Uddin':210.4,'Sabbir Hossain':0 },
 };
@@ -680,7 +767,7 @@ const allData=[
   {name:'Omar Arish',      hours:10.6, orders:15, date:'2026-05-07'},
     {name:'Rana Molla',      hours:0.0,  orders:0, date:'2026-05-07'},
   {name:'Rasel Islam',      hours:0.0,  orders:0,  date:'2026-05-07'},
-  {name:'Sagar Hossain',    hours:0.0,  orders:0,  date:'2026-05-07'},,
+  {name:'Sagar Hossain',    hours:0.0,  orders:0,  date:'2026-05-07'},
   {name:'Sajjad Ali',      hours:8.3,  orders:29, date:'2026-05-07'},
   {name:'Suronjeet Das',   hours:10.8, orders:16, date:'2026-05-07'},
   {name:'Usama Asaad',     hours:9.5,  orders:17, date:'2026-05-07'},
@@ -1166,6 +1253,58 @@ const allData=[
   {name:'Suronjeet Das',     hours:7.8,  orders:18, date:'2026-06-01'},
   {name:'Tawfeeq Aqib',      hours:0.0,  orders:0,  date:'2026-06-01'},
   {name:'Usama Asaad',       hours:6.1,  orders:15, date:'2026-06-01'},
+  // يوم 5 يونيو
+  {name:'Ali Ashraf',        hours:0.0,  orders:0,  date:'2026-06-05'},
+  {name:'Barbar Anwar',      hours:0.0,  orders:0,  date:'2026-06-05'},
+  {name:'Fahad Soomro',      hours:4.5,  orders:13, date:'2026-06-05'},
+  {name:'Faizan Ali',        hours:0.0,  orders:0,  date:'2026-06-05'},
+  {name:'Farhan Haider',     hours:18.6, orders:43, date:'2026-06-05'},
+  {name:'MD Manik',          hours:0.0,  orders:0,  date:'2026-06-05'},
+  {name:'Muhammad Adil',     hours:6.5,  orders:16, date:'2026-06-05'},
+  {name:'Muhammad Shoaib',   hours:12.6, orders:30, date:'2026-06-05'},
+  {name:'Muhammed Hammad',   hours:8.7,  orders:21, date:'2026-06-05'},
+  {name:'Muhammed Mujahid',  hours:13.3, orders:32, date:'2026-06-05'},
+  {name:'Muhammed Sajid',    hours:5.9,  orders:12, date:'2026-06-05'},
+  {name:'Naim Uddin',        hours:16.4, orders:41, date:'2026-06-05'},
+  {name:'Nazim Shabeer',     hours:15.0, orders:39, date:'2026-06-05'},
+  {name:'Nazmul Hussein',    hours:0.0,  orders:0,  date:'2026-06-05'},
+  {name:'Omar Arish',        hours:7.9,  orders:20, date:'2026-06-05'},
+  {name:'Rana Molla',        hours:18.9, orders:42, date:'2026-06-05'},
+  {name:'Rasel Islam',       hours:17.4, orders:33, date:'2026-06-05'},
+  {name:'Sabbir Hossain',    hours:8.1,  orders:19, date:'2026-06-05'},
+  {name:'Sagar Hossain',     hours:9.1,  orders:18, date:'2026-06-05'},
+  {name:'Sajjad Ali',        hours:11.0, orders:30, date:'2026-06-05'},
+  {name:'Sobuj Mia',         hours:10.7, orders:24, date:'2026-06-05'},
+  {name:'Sumon Mia',         hours:0.0,  orders:0,  date:'2026-06-05'},
+  {name:'Suronjeet Das',     hours:16.5, orders:39, date:'2026-06-05'},
+  {name:'Tawfeeq Aqib',      hours:16.6, orders:40, date:'2026-06-05'},
+  {name:'Usama Asaad',       hours:15.7, orders:41, date:'2026-06-05'},
+  // يوم 4 يونيو
+  {name:'Ali Ashraf',        hours:0.0,  orders:0,  date:'2026-06-04'},
+  {name:'Barbar Anwar',      hours:0.0,  orders:0,  date:'2026-06-04'},
+  {name:'Fahad Soomro',      hours:6.8,  orders:12, date:'2026-06-04'},
+  {name:'Faizan Ali',        hours:0.0,  orders:0,  date:'2026-06-04'},
+  {name:'Farhan Haider',     hours:18.6, orders:46, date:'2026-06-04'},
+  {name:'MD Manik',          hours:0.0,  orders:0,  date:'2026-06-04'},
+  {name:'Muhammad Adil',     hours:14.9, orders:31, date:'2026-06-04'},
+  {name:'Muhammad Shoaib',   hours:11.6, orders:21, date:'2026-06-04'},
+  {name:'Muhammed Hammad',   hours:9.3,  orders:21, date:'2026-06-04'},
+  {name:'Muhammed Mujahid',  hours:14.3, orders:32, date:'2026-06-04'},
+  {name:'Muhammed Sajid',    hours:9.1,  orders:18, date:'2026-06-04'},
+  {name:'Naim Uddin',        hours:10.4, orders:22, date:'2026-06-04'},
+  {name:'Nazim Shabeer',     hours:13.4, orders:40, date:'2026-06-04'},
+  {name:'Nazmul Hussein',    hours:0.0,  orders:0,  date:'2026-06-04'},
+  {name:'Omar Arish',        hours:10.1, orders:25, date:'2026-06-04'},
+  {name:'Rana Molla',        hours:15.8, orders:35, date:'2026-06-04'},
+  {name:'Rasel Islam',       hours:9.1,  orders:14, date:'2026-06-04'},
+  {name:'Sabbir Hossain',    hours:16.6, orders:31, date:'2026-06-04'},
+  {name:'Sagar Hossain',     hours:10.0, orders:6,  date:'2026-06-04'},
+  {name:'Sajjad Ali',        hours:1.0,  orders:5,  date:'2026-06-04'},
+  {name:'Sobuj Mia',         hours:9.8,  orders:17, date:'2026-06-04'},
+  {name:'Sumon Mia',         hours:0.0,  orders:0,  date:'2026-06-04'},
+  {name:'Suronjeet Das',     hours:8.8,  orders:18, date:'2026-06-04'},
+  {name:'Tawfeeq Aqib',      hours:16.1, orders:35, date:'2026-06-04'},
+  {name:'Usama Asaad',       hours:13.6, orders:34, date:'2026-06-04'},
   // يوم 2 يونيو
   {name:'Ali Ashraf',        hours:0.0,  orders:0,  date:'2026-06-02'},
   {name:'Barbar Anwar',      hours:0.0,  orders:0,  date:'2026-06-02'},
@@ -1192,6 +1331,32 @@ const allData=[
   {name:'Suronjeet Das',     hours:4.2,  orders:8,  date:'2026-06-02'},
   {name:'Tawfeeq Aqib',      hours:2.1,  orders:4,  date:'2026-06-02'},
   {name:'Usama Asaad',       hours:0.0,  orders:0,  date:'2026-06-02'},
+  // يوم 6 يونيو
+  {name:'Ali Ashraf',        hours:0.0,  orders:0,  date:'2026-06-06'},
+  {name:'Barbar Anwar',      hours:0.0,  orders:0,  date:'2026-06-06'},
+  {name:'Fahad Soomro',      hours:5.8,  orders:13, date:'2026-06-06'},
+  {name:'Faizan Ali',        hours:0.0,  orders:0,  date:'2026-06-06'},
+  {name:'Farhan Haider',     hours:15.3, orders:38, date:'2026-06-06'},
+  {name:'MD Manik',          hours:0.0,  orders:0,  date:'2026-06-06'},
+  {name:'Muhammad Adil',     hours:9.3,  orders:24, date:'2026-06-06'},
+  {name:'Muhammad Shoaib',   hours:8.4,  orders:18, date:'2026-06-06'},
+  {name:'Muhammed Hammad',   hours:13.0, orders:32, date:'2026-06-06'},
+  {name:'Muhammed Mujahid',  hours:1.4,  orders:4,  date:'2026-06-06'},
+  {name:'Muhammed Sajid',    hours:1.6,  orders:5,  date:'2026-06-06'},
+  {name:'Naim Uddin',        hours:20.1, orders:44, date:'2026-06-06'},
+  {name:'Nazim Shabeer',     hours:14.2, orders:37, date:'2026-06-06'},
+  {name:'Nazmul Hussein',    hours:0.0,  orders:0,  date:'2026-06-06'},
+  {name:'Omar Arish',        hours:8.2,  orders:20, date:'2026-06-06'},
+  {name:'Rana Molla',        hours:19.9, orders:46, date:'2026-06-06'},
+  {name:'Rasel Islam',       hours:17.2, orders:34, date:'2026-06-06'},
+  {name:'Sabbir Hossain',    hours:9.8,  orders:19, date:'2026-06-06'},
+  {name:'Sagar Hossain',     hours:5.9,  orders:12, date:'2026-06-06'},
+  {name:'Sajjad Ali',        hours:6.1,  orders:25, date:'2026-06-06'},
+  {name:'Sobuj Mia',         hours:9.1,  orders:20, date:'2026-06-06'},
+  {name:'Sumon Mia',         hours:0.0,  orders:0,  date:'2026-06-06'},
+  {name:'Suronjeet Das',     hours:16.9, orders:36, date:'2026-06-06'},
+  {name:'Tawfeeq Aqib',      hours:14.6, orders:29, date:'2026-06-06'},
+  {name:'Usama Asaad',       hours:17.1, orders:38, date:'2026-06-06'},
 ];
 
 let activeMonth='2026-05';
@@ -1201,15 +1366,10 @@ let sortDir=-1; // -1=desc, 1=asc always
 let searchQuery='';
 let activeTab='orders'; // 'orders' | 'gps'
 
-function getMonths(){return[...new Set(allData.filter(r=>r.date&&r.date.includes('-')).map(r=>mk(r.date)))].filter(m=>m!=='unknown').sort((a,b)=>b.localeCompare(a));}
+function getMonths(){return[...new Set(allData.filter(r=>r&&r.date&&r.date.includes('-')).map(r=>mk(r.date)))].filter(m=>m!=='unknown').sort((a,b)=>b.localeCompare(a));}
 
 function renderSidebar(){
-  // restore table, hide summary div if visible
-  const sumDiv=document.getElementById('sum-content');
-  if(sumDiv) sumDiv.remove();
-  const mt2=document.getElementById('main-table');
-  if(mt2) mt2.style.display='';
-  const rows=allData.filter(r=>mk(r.date)===activeMonth);
+  const rows=allData.filter(r=>r&&mk(r.date)===activeMonth);
   const totalO=rows.reduce((s,r)=>s+r.orders,0);
   const totalH=rows.reduce((s,r)=>s+r.hours,0);
   const days=[...new Set(rows.map(r=>r.date))].length;
@@ -1221,6 +1381,11 @@ function renderSidebar(){
     <div class="stat-card"><div class="lbl">الساعات</div><div class="val">${totalH.toFixed(0)}h</div></div>
     <div class="stat-card"><div class="lbl">الكيلومترات</div><div class="val">${totalKm.toFixed(0)}</div></div>
   `;
+
+  // update KM sidebar date label dynamically
+  const recentKmDates=Object.keys(KM_DATA).filter(d=>mk(d)===activeMonth).sort().slice(-4).map(fd);
+  const kmDatesEl=document.getElementById('km-sidebar-dates');
+  if(kmDatesEl) kmDatesEl.textContent=recentKmDates.length?'آخر الأيام: '+recentKmDates.join(' — '):'';
 
   // aggregate km per courier for active month only
   const kmTotals={};
@@ -1239,41 +1404,71 @@ function renderSidebar(){
 }
 
 function render(){
+  // cleanup from previous tab
+  const _sd=document.getElementById('sum-content');if(_sd)_sd.remove();
+  const _mt=document.getElementById('main-table');if(_mt)_mt.style.display='';
+
   document.getElementById('month-pills').innerHTML=getMonths().map(m=>
     `<button class="mpill ${m===activeMonth?'active':''}" onclick="setMonth('${m}')">${ml(m)}</button>`
   ).join('');
 
-  const rows=allData.filter(r=>mk(r.date)===activeMonth);
+  renderSidebar();
+
+  // update KPI bar
+  const _kpiRows=allData.filter(r=>r&&mk(r.date)===activeMonth);
+  const _kpiDays=[...new Set(_kpiRows.map(r=>r.date))].length;
+  const _kpiO=_kpiRows.reduce((s,r)=>s+r.orders,0);
+  const _kpiH=_kpiRows.reduce((s,r)=>s+r.hours,0);
+  const _kpiKm=Object.entries(KM_DATA).filter(([d])=>mk(d)===activeMonth).reduce((s,[,d])=>s+Object.values(d).reduce((a,v)=>a+v,0),0);
+  const _kpiCouriers=[...new Set(_kpiRows.filter(r=>r.orders>0).map(r=>r.name))].length;
+  document.getElementById('kpi-bar').innerHTML=`
+    <div class="kpi-card kpi-blue"><span class="kpi-icon">📦</span><div><div class="kpi-lbl">أوردرات الشهر</div><div class="kpi-val">${_kpiO.toLocaleString()}</div></div></div>
+    <div class="kpi-card kpi-green"><span class="kpi-icon">⏱</span><div><div class="kpi-lbl">ساعات العمل</div><div class="kpi-val">${_kpiH.toFixed(0)}h</div></div></div>
+    <div class="kpi-card kpi-gold"><span class="kpi-icon">🏍</span><div><div class="kpi-lbl">كيلومترات GPS</div><div class="kpi-val">${_kpiKm.toFixed(0)}</div></div></div>
+    <div class="kpi-card kpi-purple"><span class="kpi-icon">👤</span><div><div class="kpi-lbl">مندوبين نشطين</div><div class="kpi-val">${_kpiCouriers}</div></div></div>
+    <div class="kpi-card"><span class="kpi-icon">📅</span><div><div class="kpi-lbl">أيام مسجلة</div><div class="kpi-val">${_kpiDays}</div></div></div>
+    ${_kpiO>0&&_kpiCouriers>0?`<div class="kpi-card"><span class="kpi-icon">📊</span><div><div class="kpi-lbl">معدل/مندوب/يوم</div><div class="kpi-val">${(_kpiO/_kpiCouriers/_kpiDays||0).toFixed(1)}</div></div></div>`:''}
+  `;
+
+  const rows=allData.filter(r=>r&&mk(r.date)===activeMonth);
   const days=[...new Set(rows.map(r=>r.date))].sort();
   const maxO=Math.max(...rows.map(r=>r.orders),1);
-  // apply search
-  const allNames=[...new Set(rows.map(r=>r.name))];
+  // apply search — GPS tab includes ALL bikes with km data even if no orders
+  const kmNamesInMonth=activeTab==='gps'
+    ? Object.keys(BIKES).filter(n=>Object.entries(KM_DATA).filter(([d])=>mk(d)===activeMonth).some(([,d])=>(d[n]||0)>0))
+    : [];
+  const allNames=[...new Set([...rows.map(r=>r.name),...kmNamesInMonth])];
   const filteredNames=searchQuery
     ? allNames.filter(n=>n.toLowerCase().includes(searchQuery.toLowerCase()))
     : allNames;
 
-  // sort — always total desc, zeros always at bottom
+  // sort — supports sortCol/sortDir, zeros always at bottom
   const namesSorted=filteredNames.sort((a,b)=>{
     if(activeTab==='gps'){
-      // GPS tab: sort by total km desc, zeros at bottom
       const ka=Object.entries(KM_DATA).filter(([d])=>mk(d)===activeMonth).reduce((s,[,d])=>s+(d[a]||0),0);
       const kb=Object.entries(KM_DATA).filter(([d])=>mk(d)===activeMonth).reduce((s,[,d])=>s+(d[b]||0),0);
       if(ka===0 && kb===0) return a.localeCompare(b);
-      if(ka===0) return 1;
-      if(kb===0) return -1;
-      return kb-ka;
+      if(ka===0) return 1; if(kb===0) return -1;
+      return (ka-kb)*sortDir;
     }
-    // Orders tab
-    const oa=rows.filter(r=>r.name===a).reduce((s,r)=>s+r.orders,0);
-    const ob=rows.filter(r=>r.name===b).reduce((s,r)=>s+r.orders,0);
-    if(oa===0 && ob===0) return a.localeCompare(b);
-    if(oa===0) return 1;
-    if(ob===0) return -1;
-    return ob-oa; // always desc
+    if(sortCol==='name') return a.localeCompare(b)*sortDir;
+    let va, vb;
+    if(sortCol==='total'){
+      va=rows.filter(r=>r.name===a).reduce((s,r)=>s+r.orders,0);
+      vb=rows.filter(r=>r.name===b).reduce((s,r)=>s+r.orders,0);
+    } else {
+      va=(rows.find(r=>r.name===a&&r.date===sortCol)?.orders)||0;
+      vb=(rows.find(r=>r.name===b&&r.date===sortCol)?.orders)||0;
+    }
+    if(va===0 && vb===0) return a.localeCompare(b);
+    if(va===0) return 1; if(vb===0) return -1;
+    return (va-vb)*sortDir;
   });
 
-  // build day-km columns: show km for days that have km data
-  const kmDays=days.filter(d=>KM_DATA[d]);
+  // build day-km columns: for GPS tab use all KM_DATA days in month; otherwise filter from allData days
+  const kmDays=activeTab==='gps'
+    ? Object.keys(KM_DATA).filter(d=>mk(d)===activeMonth).sort()
+    : days.filter(d=>KM_DATA[d]);
 
   const si=(col)=>{
     const active=sortCol===col;
@@ -1304,7 +1499,7 @@ function render(){
       </tr>
       <tr class="h2">
         <th class="name-col"></th>
-        ${kmDays.map(d=>`<th class="km-sub">كم / أوردر/كم</th>`).join('')}
+        ${kmDays.map(d=>`<th class="km-sub">كم</th>`).join('')}
         <th class="km-sub">GPS</th>
       </tr>
     </thead><tbody>`;
@@ -1312,10 +1507,11 @@ function render(){
 
   for(const name of namesSorted){
     const nr=rows.filter(r=>r.name===name);
-    if(!nr.length) continue;
+    if(!nr.length && activeTab!=='gps') continue;
     const totalO=nr.reduce((s,r)=>s+r.orders,0);
     const totalH=nr.reduce((s,r)=>s+r.hours,0);
     const bike=BIKES[name]||'';
+    const iqama=IQAMA[name]||'';
     const totalKmN=Object.entries(KM_DATA).filter(([d])=>mk(d)===activeMonth).reduce((s,[,d])=>s+(d[name]||0),0);
 
     if(activeTab==='orders'){
@@ -1330,7 +1526,6 @@ function render(){
         const v=rec?rec.hours:null;
         return`<td class="hours-cell">${!v?'-':v.toFixed(1)+'h'}</td>`;
       }).join('');
-      const iqama=IQAMA[name]||'';
       html+=`<tr class="ord-row">
         <td class="name-col" rowspan="2">
           <div class="c-name" onclick="showHistory('${name}')">${name}</div>
@@ -1349,8 +1544,7 @@ function render(){
         const km=KM_DATA[d]?.[name];
         const rec=nr.find(r=>r.date===d);
         const ord=rec?rec.orders:0;
-        const avg=(km!=null&&km>0&&ord>0)?(km/ord).toFixed(1):null;
-        return`<td class="km-td-day">${km!=null&&km>0?km.toFixed(1)+' كم':'—'}${avg?`<div class="km-avg">${avg} كم/طلب</div>`:''}</td>`;
+        return`<td class="km-td-day">${km!=null&&km>0?km.toFixed(1)+' كم':'—'}</td>`;
       }).join('');
       const totalKmDay=Object.entries(KM_DATA).filter(([d])=>mk(d)===activeMonth).reduce((s,[,v])=>s+(v[name]||0),0);
       html+=`<tr class="ord-row">
@@ -1377,6 +1571,7 @@ function render(){
       <tr class="foot-row hr-row"><td class="name-col" style="color:#12A872">إجمالي ساعات</td>${dayHT.map(t=>`<td style="color:#12A872">${t.toFixed(1)}h</td>`).join('')}<td style="background:rgba(15,138,95,0.15);color:#12A872;font-weight:600">${grandH.toFixed(1)}h</td></tr>
     `;
   } else {
+    document.getElementById('chart-area').style.display='none';
     const footKm=kmDays.map(d=>{
       const t=Object.values(KM_DATA[d]||{}).reduce((s,v)=>s+v,0);
       return`<td class="km-td">${t.toFixed(0)} كم</td>`;
@@ -1385,10 +1580,10 @@ function render(){
     html+=`<tr class="foot-row ord-row"><td class="name-col">إجمالي كم</td>${footKm}<td class="km-td">${grandKm.toFixed(0)} كم</td></tr>`;
   }
   if(activeTab==='summary'){
-    const allN=[...new Set(allData.map(r=>r.name))];
+    const allN=[...new Set(allData.filter(Boolean).map(r=>r.name))];
     // compute totals per courier
     const couriers=allN.map(name=>{
-      const recs=allData.filter(r=>r.name===name&&mk(r.date)===activeMonth);
+      const recs=allData.filter(r=>r&&r.name===name&&mk(r.date)===activeMonth);
       const totalO=recs.reduce((s,r)=>s+r.orders,0);
       const totalH=recs.reduce((s,r)=>s+r.hours,0);
       const totalKm=Object.entries(KM_DATA).filter(([d])=>mk(d)===activeMonth).reduce((s,[,d])=>s+(d[name]||0),0);
@@ -1570,22 +1765,21 @@ function render(){
       mapDiv.style.cssText='margin-top:16px;background:var(--card);border:1px solid var(--border2);border-radius:var(--r);padding:16px;';
       document.getElementById('main-table').insertAdjacentElement('afterend',mapDiv);
     }
-    const allN=[...new Set(allData.map(r=>r.name))].sort();
+    const allN=[...new Set(allData.filter(Boolean).map(r=>r.name))].sort();
     mapDiv.innerHTML=`<div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:12px">🔗 ربط ID بالمندوب</div>`+
       HS_DATA.map(r=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
         <div style="font-size:12px;color:#FB923C;width:80px;flex-shrink:0">🆔 ${r.id}</div>
         <select onchange="HS_MAP['${r.id}']=this.value;switchTab('hs')"
           style="flex:1;padding:6px 8px;background:var(--card);border:1px solid var(--border2);color:var(--text1);border-radius:4px;font-family:'Cairo',sans-serif;font-size:12px">
           <option value="">— اختر المندوب —</option>
-          ${allN.map(n=>`<option value="${n}" ${HS_MAP['${r.id}']===n?'selected':''}>${n}</option>`).join('')}
+          ${allN.map(n=>`<option value="${n}" ${HS_MAP[r.id]===n?'selected':''}>${n}</option>`).join('')}
         </select>
       </div>`).join('');
     return;
   }
 
   if(activeTab==='license'){
-    // get all unique names from allData
-    const allN=[...new Set(allData.map(r=>r.name))].sort();
+    const allN=[...new Set(allData.filter(Boolean).map(r=>r.name))].sort();
     const licensed=allN.filter(n=>LICENSE[n]===true);
     const unlicensed=allN.filter(n=>LICENSE[n]!==true);
 
@@ -1599,7 +1793,7 @@ function render(){
 
     const renderLicRow=(name,hasL)=>{
       const bike=BIKES[name]||'—';
-      const totalO=allData.filter(r=>r.name===name).reduce((s,r)=>s+r.orders,0);
+      const totalO=allData.filter(r=>r&&r.name===name).reduce((s,r)=>s+r.orders,0);
       const totalKm=Object.values(KM_DATA).reduce((s,d)=>s+(d[name]||0),0);
       const badge=hasL
         ? `<span style="background:rgba(5,150,105,.2);border:1px solid rgba(52,211,153,.4);color:#34D399;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;">✅ مرخص</span>`
@@ -1681,11 +1875,18 @@ function render(){
   document.getElementById('main-table').innerHTML=html;
   renderSidebar();
   if(selectedCourier) showHistory(selectedCourier);
+  // draw daily orders chart for orders tab
+  if(activeTab==='orders'){
+    requestAnimationFrame(()=>drawOrdersChart(days, dayOT, dayHT));
+  } else {
+    const ca=document.getElementById('chart-area');
+    if(ca) ca.style.display='none';
+  }
 }
 
 function showHistory(name){
   selectedCourier=name;
-  const rows=allData.filter(r=>r.name===name).sort((a,b)=>a.date.localeCompare(b.date));
+  const rows=allData.filter(r=>r&&r.name===name).sort((a,b)=>a.date.localeCompare(b.date));
   if(!rows.length){document.getElementById('history-area').innerHTML='';return;}
   const av=ac(name);
   const totalO=rows.reduce((s,r)=>s+r.orders,0);
@@ -1740,7 +1941,8 @@ function showHistory(name){
 
 function closeHistory(){selectedCourier='';document.getElementById('history-area').innerHTML='';}
 function setSort(col){
-  // sort is always fixed: most to least, zeros at bottom
+  if(sortCol===col) sortDir*=-1;
+  else { sortCol=col; sortDir=-1; }
   render();
 }
 function applySearch(val){
@@ -1769,9 +1971,35 @@ function switchTab(tab){
 }
 function toggleLicense(name, val){
   LICENSE[name] = val;
+  saveToStorage();
   render();
 }
 function setMonth(m){activeMonth=m;sortCol='total';sortDir=-1;render();}
+
+function exportCSV(){
+  const from=document.getElementById('exp-from').value;
+  const to=document.getElementById('exp-to').value;
+  if(!from||!to){ alert('اختر التاريخ'); return; }
+  const validData=allData.filter(r=>r&&r.name&&r.date&&r.date>=from&&r.date<=to);
+  const dates=[...new Set(validData.map(r=>r.date))].sort();
+  const names=[...new Set(validData.map(r=>r.name))].sort();
+  let csv='المندوب,التاريخ,الأوردرات,الساعات,كيلومترات GPS\n';
+  dates.forEach(date=>{
+    names.forEach(name=>{
+      const rec=validData.find(r=>r.name===name&&r.date===date);
+      if(!rec) return;
+      const km=(KM_DATA[date]&&KM_DATA[date][name]!=null)?KM_DATA[date][name]:0;
+      csv+=`${name},${date},${rec.orders},${rec.hours},${km}\n`;
+    });
+  });
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='keeta_'+from+'_'+to+'.csv';
+  a.click(); URL.revokeObjectURL(url);
+  document.getElementById('export-modal').classList.remove('open');
+  showToast('✅ تم تحميل CSV (مكتبة Excel غير متاحة)');
+}
 
 function exportData(){
   // افتح modal اختيار التاريخ
@@ -1784,6 +2012,11 @@ function exportData(){
 }
 
 function doExport(){
+  if(typeof XLSX==='undefined'){
+    // fallback: export as CSV
+    exportCSV();
+    return;
+  }
   const from=document.getElementById('exp-from').value;
   const to=document.getElementById('exp-to').value;
   if(!from||!to){ alert('اختر التاريخ'); return; }
@@ -1795,7 +2028,7 @@ function doExport(){
   const wb=XLSX.utils.book_new();
 
   /* ── Sheet 1: تفصيلي (صف لكل مندوب لكل يوم) ── */
-  const detail=[['المندوب','التاريخ','الأوردرات','الساعات','كيلومترات GPS','Avg أوردر/ساعة','Avg كم/أوردر']];
+  const detail=[['المندوب','رقم الإقامة','رقم البايك','التاريخ','الأوردرات','الساعات','كيلومترات GPS','Avg أوردر/ساعة','Avg كم/أوردر']];
   dates.forEach(date=>{
     names.forEach(name=>{
       const rec=validData.find(r=>r.name===name&&r.date===date);
@@ -1803,15 +2036,15 @@ function doExport(){
       const km=(KM_DATA[date]&&KM_DATA[date][name]!=null)?KM_DATA[date][name]:0;
       const avgOH=rec.hours>0?+(rec.orders/rec.hours).toFixed(2):0;
       const avgKO=rec.orders>0?+(km/rec.orders).toFixed(2):0;
-      detail.push([name, date, rec.orders, rec.hours, km, avgOH, avgKO]);
+      detail.push([name, IQAMA[name]||'', BIKES[name]||'', date, rec.orders, rec.hours, km, avgOH, avgKO]);
     });
   });
   const ws1=XLSX.utils.aoa_to_sheet(detail);
-  ws1['!cols']=[{wch:20},{wch:12},{wch:12},{wch:12},{wch:14},{wch:16},{wch:14}];
+  ws1['!cols']=[{wch:22},{wch:14},{wch:10},{wch:12},{wch:12},{wch:12},{wch:14},{wch:16},{wch:14}];
   XLSX.utils.book_append_sheet(wb,ws1,'تفصيلي');
 
   /* ── Sheet 2: ملخص لكل مندوب ── */
-  const summary=[['المندوب','إجمالي أوردرات','إجمالي ساعات','إجمالي كيلومترات','Avg أوردر/يوم','Avg ساعة/يوم','Avg كم/يوم','Avg كم/أوردر']];
+  const summary=[['المندوب','رقم الإقامة','رقم البايك','إجمالي أوردرات','إجمالي ساعات','إجمالي كيلومترات','Avg أوردر/يوم','Avg ساعة/يوم','Avg كم/يوم','Avg كم/أوردر']];
   names.forEach(name=>{
     const recs=validData.filter(r=>r.name===name);
     const totalO=recs.reduce((s,r)=>s+r.orders,0);
@@ -1823,6 +2056,8 @@ function doExport(){
     const workDays=recs.filter(r=>r.hours>0||r.orders>0).length||1;
     summary.push([
       name,
+      IQAMA[name]||'',
+      BIKES[name]||'',
       totalO,
       +totalH.toFixed(1),
       +totalKm.toFixed(1),
@@ -1834,35 +2069,35 @@ function doExport(){
   });
   // sort by total orders desc
   const summaryHeader=summary.shift();
-  summary.sort((a,b)=>b[1]-a[1]);
+  summary.sort((a,b)=>b[3]-a[3]);
   summary.unshift(summaryHeader);
   const ws2=XLSX.utils.aoa_to_sheet(summary);
-  ws2['!cols']=[{wch:20},{wch:16},{wch:14},{wch:18},{wch:16},{wch:14},{wch:14},{wch:14}];
+  ws2['!cols']=[{wch:22},{wch:14},{wch:10},{wch:16},{wch:14},{wch:18},{wch:16},{wch:14},{wch:14},{wch:14}];
   XLSX.utils.book_append_sheet(wb,ws2,'ملخص');
 
   /* ── Sheet 3: بيفوت أوردرات (مندوب × يوم) ── */
-  const pivotO=[['المندوب',...dates,'الإجمالي','Avg/يوم']];
+  const pivotO=[['المندوب','رقم الإقامة','رقم البايك',...dates,'الإجمالي','Avg/يوم']];
   names.forEach(name=>{
     const recs=validData.filter(r=>r.name===name);
     const dayVals=dates.map(d=>{const r=recs.find(x=>x.date===d);return r?r.orders:0;});
     const total=dayVals.reduce((s,v)=>s+v,0);
     const wdays=dayVals.filter(v=>v>0).length||1;
-    pivotO.push([name,...dayVals,total,+(total/wdays).toFixed(1)]);
+    pivotO.push([name, IQAMA[name]||'', BIKES[name]||'', ...dayVals, total, +(total/wdays).toFixed(1)]);
   });
   const ws3=XLSX.utils.aoa_to_sheet(pivotO);
-  ws3['!cols']=[{wch:20},...dates.map(()=>({wch:8})),{wch:10},{wch:10}];
+  ws3['!cols']=[{wch:22},{wch:14},{wch:10},...dates.map(()=>({wch:8})),{wch:10},{wch:10}];
   XLSX.utils.book_append_sheet(wb,ws3,'أوردرات');
 
   /* ── Sheet 4: بيفوت كيلومترات (مندوب × يوم) ── */
-  const pivotKm=[['المندوب',...dates,'الإجمالي','Avg/يوم']];
+  const pivotKm=[['المندوب','رقم الإقامة','رقم البايك',...dates,'الإجمالي','Avg/يوم']];
   names.forEach(name=>{
     const dayVals=dates.map(d=>KM_DATA[d]&&KM_DATA[d][name]!=null?+KM_DATA[d][name].toFixed(1):0);
     const total=+dayVals.reduce((s,v)=>s+v,0).toFixed(1);
     const wdays=dayVals.filter(v=>v>0).length||1;
-    pivotKm.push([name,...dayVals,total,+(total/wdays).toFixed(1)]);
+    pivotKm.push([name, IQAMA[name]||'', BIKES[name]||'', ...dayVals, total, +(total/wdays).toFixed(1)]);
   });
   const ws4=XLSX.utils.aoa_to_sheet(pivotKm);
-  ws4['!cols']=[{wch:20},...dates.map(()=>({wch:8})),{wch:10},{wch:10}];
+  ws4['!cols']=[{wch:22},{wch:14},{wch:10},...dates.map(()=>({wch:8})),{wch:10},{wch:10}];
   XLSX.utils.book_append_sheet(wb,ws4,'كيلومترات');
 
   XLSX.writeFile(wb,'keeta_'+from+'_'+to+'.xlsx');
@@ -1872,7 +2107,9 @@ function doExport(){
 const ALL_NAMES=['Fahad Soomro','Farhan Haider','Muhammad Adil','Muhammad Shoaib','Muhammed Hammad','Muhammed Mujahid','Muhammed Sajid','Naim Uddin','Nazim Shabeer','Omar Arish','Rana Molla','Sajjad Ali','Sobuj Mia','Suronjeet Das','Tawfeeq Aqib','Usama Asaad'];
 
 function openAddModal(){
-  document.getElementById('modal-rows').innerHTML=ALL_NAMES.map(n=>{
+  // Use dynamic list: all known couriers from data + BIKES
+  const dynamicNames=[...new Set([...allData.filter(Boolean).map(r=>r.name),...Object.keys(BIKES)])].sort();
+  document.getElementById('modal-rows').innerHTML=dynamicNames.map(n=>{
     const hasBike=!!BIKES[n];
     return`<div class="modal-grid">
       <div class="modal-name-lbl">${n}</div>
@@ -1888,9 +2125,10 @@ function closeAddModal(){ document.getElementById('add-modal').classList.remove(
 function saveNewDay(){
   const dateVal=document.getElementById('modal-date').value;
   if(!dateVal){ alert('اختر التاريخ أولاً'); return; }
-  if(allData.find(r=>r.date===dateVal)){ if(!confirm('اليوم ده موجود، تبي تضيف عليه؟'))return; }
+  if(allData.find(r=>r&&r.date===dateVal)){ if(!confirm('اليوم ده موجود، تبي تضيف عليه؟'))return; }
+  const dynamicNames=[...new Set([...allData.filter(Boolean).map(r=>r.name),...Object.keys(BIKES)])].sort();
   const dayKm={};
-  for(const n of ALL_NAMES){
+  for(const n of dynamicNames){
     const o=parseFloat(document.getElementById('mo_'+n+'_o')?.value)||0;
     const h=parseFloat(document.getElementById('mo_'+n+'_h')?.value)||0;
     allData.push({name:n, orders:o, hours:h, date:dateVal});
@@ -1900,8 +2138,115 @@ function saveNewDay(){
     }
   }
   if(Object.keys(dayKm).length) KM_DATA[dateVal]=dayKm;
+  saveToStorage();
   closeAddModal();
   render();
+}
+
+// ── LOCALSTORAGE PERSISTENCE ──
+function saveToStorage(){
+  try {
+    localStorage.setItem('kd_data', JSON.stringify(allData.filter(Boolean)));
+    localStorage.setItem('kd_km', JSON.stringify(KM_DATA));
+    localStorage.setItem('kd_bikes', JSON.stringify(BIKES));
+    localStorage.setItem('kd_license', JSON.stringify(LICENSE));
+  } catch(e){ console.warn('Save failed:', e); }
+}
+function loadFromStorage(){
+  try {
+    const d=localStorage.getItem('kd_data');
+    const k=localStorage.getItem('kd_km');
+    const b=localStorage.getItem('kd_bikes');
+    const l=localStorage.getItem('kd_license');
+    if(d){ const parsed=JSON.parse(d).filter(Boolean); if(parsed.length){ allData.length=0; parsed.forEach(r=>allData.push(r)); } }
+    if(k){ const parsed=JSON.parse(k); Object.keys(KM_DATA).forEach(key=>delete KM_DATA[key]); Object.assign(KM_DATA,parsed); }
+    if(b) Object.assign(BIKES,JSON.parse(b));
+    if(l) Object.assign(LICENSE,JSON.parse(l));
+  } catch(e){ console.warn('Load failed:', e); }
+}
+
+// ── IMPORT KM FROM TRIPS EXCEL ──
+function importKmExcel(event){
+  const file=event.target.files[0];
+  event.target.value='';
+  if(!file) return;
+
+  // Try to detect date from filename e.g. Trips-20260604-1200.xlsx → 2026-06-04
+  let suggestedDate='';
+  const m=file.name.match(/(\d{4})(\d{2})(\d{2})/);
+  if(m) suggestedDate=`${m[1]}-${m[2]}-${m[3]}`;
+
+  const reader=new FileReader();
+  reader.onload=function(e){
+    let wb;
+    try{
+      wb=XLSX.read(e.target.result,{type:'array'});
+    }catch(err){
+      showToast('❌ فشل قراءة الملف: '+err.message); return;
+    }
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+    if(!rows.length){ showToast('❌ الملف فارغ أو غير مدعوم'); return; }
+
+    // Detect name column
+    const nameKeys=['Courier Name','Driver Name','courier_name','driver_name','Name','name','اسم المندوب','المندوب'];
+    // Detect distance column
+    const distKeys=['Distance (km)','Distance','distance','Total Distance','total_distance','KM','km','Kilometers','kilometers','المسافة','المسافة (كم)','الكيلومترات'];
+
+    const headers=Object.keys(rows[0]);
+    let nameCol=nameKeys.find(k=>headers.includes(k)) || headers.find(h=>/name|courier|driver|مندوب/i.test(h));
+    let distCol=distKeys.find(k=>headers.includes(k)) || headers.find(h=>/dist|km|kilo|مساف/i.test(h));
+
+    if(!nameCol || !distCol){
+      // Show available columns and ask user
+      const colList=headers.join('\n');
+      const userNameCol=prompt(`لم أتعرف على الأعمدة تلقائياً.\nالأعمدة المتاحة:\n${colList}\n\nاكتب اسم عمود المندوب:`);
+      const userDistCol=prompt(`اكتب اسم عمود المسافة (كيلومترات):`);
+      if(!userNameCol||!userDistCol){ showToast('❌ إلغاء الاستيراد'); return; }
+      nameCol=userNameCol; distCol=userDistCol;
+    }
+
+    // Aggregate km per courier
+    const kmMap={};
+    rows.forEach(row=>{
+      const name=(row[nameCol]||'').toString().trim();
+      const dist=parseFloat(row[distCol])||0;
+      if(name && dist>0) kmMap[name]=(kmMap[name]||0)+dist;
+    });
+
+    const count=Object.keys(kmMap).length;
+    if(!count){ showToast('❌ لم يتم العثور على بيانات'); return; }
+
+    // Preview & confirm
+    const preview=Object.entries(kmMap).slice(0,5).map(([n,k])=>`${n}: ${k.toFixed(1)} كم`).join('\n');
+    const moreNote=count>5?`\n... و ${count-5} آخرين`:'';
+    const dateInput=prompt(
+      `تم تحليل ${count} مندوب مثلاً:\n${preview}${moreNote}\n\nأدخل التاريخ لهذه البيانات (YYYY-MM-DD):`,
+      suggestedDate
+    );
+    if(!dateInput||!dateInput.match(/^\d{4}-\d{2}-\d{2}$/)){ showToast('❌ تاريخ غير صحيح، إلغاء الاستيراد'); return; }
+
+    // Merge into KM_DATA
+    if(!KM_DATA[dateInput]) KM_DATA[dateInput]={};
+    Object.entries(kmMap).forEach(([name,km])=>{
+      KM_DATA[dateInput][name]=(KM_DATA[dateInput][name]||0)+parseFloat(km.toFixed(1));
+    });
+    saveToStorage();
+    render();
+    showToast(`✅ تم استيراد كيلومترات ${count} مندوب ليوم ${dateInput}`);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ── API KEY SETTINGS ──
+function getApiKey(){ return localStorage.getItem('kd_apikey')||''; }
+function openApiKeyModal(){
+  const cur=getApiKey();
+  const key=prompt('أدخل Google Gemini API Key:\n(مجاني من aistudio.google.com)\n(يتخزن في متصفحك فقط، ما يتشارش مع أحد)', cur||'');
+  if(key===null) return;
+  if(key.trim()){ localStorage.setItem('kd_apikey', key.trim()); showToast('✅ تم حفظ الـ API Key'); }
+  else { localStorage.removeItem('kd_apikey'); showToast('🗑 تم حذف الـ API Key'); }
+  updateApiKeyStatus();
 }
 
 // ── IMAGE UPLOAD DAY ──
@@ -1909,6 +2254,13 @@ async function uploadDayImage(event){
   const file = event.target.files[0];
   if(!file) return;
   event.target.value='';
+
+  const apiKey=getApiKey();
+  if(!apiKey){
+    showToast('❌ محتاج Gemini API Key — اضغط 🔑 API Key في السايدبار');
+    openApiKeyModal();
+    return;
+  }
 
   // Convert to base64
   const base64 = await new Promise((res,rej)=>{
@@ -1918,58 +2270,69 @@ async function uploadDayImage(event){
     r.readAsDataURL(file);
   });
 
-  // Show loading toast
   showToast('⏳ جاري تحليل الصورة...');
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        messages:[{
-          role:'user',
-          content:[
-            { type:'image', source:{ type:'base64', media_type:file.type||'image/jpeg', data:base64 }},
-            { type:'text', text:`Extract courier data from this Keeta dashboard screenshot.
-Return ONLY a JSON object like:
+    const today=new Date().toISOString().slice(0,10);
+    const prompt=`Extract courier performance data from this Keeta dashboard screenshot.
+Return ONLY valid JSON, no markdown, no explanation:
 {
   "date": "YYYY-MM-DD",
   "couriers": [
-    {"name": "Barbar Anwar", "hours": 0.0, "orders": 0},
+    {"name": "Courier Name", "hours": 9.5, "orders": 22},
     ...
   ]
 }
-For date: look for any date clue; if none found use today's date in format YYYY-MM-DD.
-For each courier extract: name (exact), Online hours (number), Completed orders (number).
-No explanation, no markdown, only raw JSON.`
-          }]
-        }]
-      })
-    });
+Rules:
+- date: find the date shown in the screenshot. If unclear, use today: ${today}
+- name: exact name as shown (first + last name)
+- hours: Online hours (decimal number)
+- orders: Completed orders (integer)
+- Include ALL couriers visible, even those with 0 orders`;
+
+    const geminiBody=JSON.stringify({contents:[{parts:[
+      {inline_data:{mime_type:file.type||'image/jpeg',data:base64}},
+      {text:prompt}
+    ]}]});
+
+    // try models in order until one works
+    const models=['gemini-1.5-flash','gemini-1.5-flash-latest','gemini-pro-vision'];
+    let response, lastErr;
+    for(const model of models){
+      try{
+        response=await fetch(`https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`,
+          {method:'POST',headers:{'Content-Type':'application/json'},body:geminiBody});
+        if(response.ok) break;
+        const e=await response.json().catch(()=>({}));
+        lastErr=e.error?.message||'error '+response.status;
+        response=null;
+      }catch(e){lastErr=e.message;}
+    }
+    if(!response||!response.ok) throw new Error(lastErr||'All Gemini models failed');
+
     const data = await response.json();
-    const text = data.content.map(i=>i.text||'').join('');
-    const clean = text.replace(/\`\`\`json|\`\`\`/g,'').trim();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+    const clean = text.replace(/```json|```/g,'').trim();
     const parsed = JSON.parse(clean);
 
-    // Confirm with user
     const date = parsed.date;
     const lines = parsed.couriers.map(c=>`${c.name}: ${c.orders} أوردر، ${c.hours}h`).join('\n');
-    if(!confirm(`تم التعرف على البيانات ليوم ${date}:\n\n${lines}\n\nتضيفه للداش؟`)) return;
+    if(!confirm(`يوم ${date} — ${parsed.couriers.length} مندوب:\n\n${lines}\n\nتضيفه للداش بورد؟`)) return;
 
-    // Add to allData
+    let added=0;
     for(const c of parsed.couriers){
-      if(!allData.find(r=>r.name===c.name && r.date===date)){
-        allData.push({name:c.name, hours:c.hours, orders:c.orders, date});
+      if(!allData.find(r=>r&&r.name===c.name&&r.date===date)){
+        allData.push({name:c.name, hours:+c.hours||0, orders:+c.orders||0, date});
+        added++;
       }
       if(!ALL_NAMES.includes(c.name)) ALL_NAMES.push(c.name);
     }
+    saveToStorage();
     render();
-    showToast('✅ تم إضافة يوم '+date);
+    showToast(`✅ تم إضافة يوم ${date} — ${added} مندوب`);
   } catch(e) {
     console.error(e);
-    showToast('❌ فشل تحليل الصورة، حاول تاني');
+    showToast('❌ فشل: '+e.message);
   }
 }
 
@@ -2024,19 +2387,20 @@ function addCourier(){
   const dates=[...new Set(allData.map(r=>r.date))];
   dates.forEach(d=>{ if(!allData.find(r=>r.name===name&&r.date===d)) allData.push({name,orders:0,hours:0,date:d}); });
   if(bike) BIKES[name]=bike;
-  // update ALL_NAMES
   if(!ALL_NAMES.includes(name)) ALL_NAMES.push(name);
+  saveToStorage();
   nameEl.value=''; bikeEl.value='';
   renderMcList();
 }
 
 function deleteCourier(name){
   if(!confirm(`حذف "${name}" وكل بياناته؟`)) return;
-  for(let i=allData.length-1;i>=0;i--){ if(allData[i].name===name) allData.splice(i,1); }
+  for(let i=allData.length-1;i>=0;i--){ if(allData[i]&&allData[i].name===name) allData.splice(i,1); }
   delete BIKES[name];
   const idx=ALL_NAMES.indexOf(name);
   if(idx>-1) ALL_NAMES.splice(idx,1);
   for(const day of Object.values(KM_DATA)){ delete day[name]; }
+  saveToStorage();
   renderMcList();
 }
 
@@ -2062,6 +2426,7 @@ function saveManage(){
     if(bike) BIKES[newName]=bike;
     else delete BIKES[newName];
   }
+  saveToStorage();
   closeManageModal();
   render();
 }
@@ -2071,7 +2436,7 @@ function saveManage(){
 function openImportModal(){
   // Set bookmarklet href
   var bm = document.getElementById('keeta-bookmarklet');
-  if(bm) bm.href = `javascript:(function(){var lines=document.body.innerText.split('\n').map(s=>s.trim()).filter(Boolean);var result=[];for(var i=0;i<lines.length;i++){var line=lines[i];if(line.match(/^Online:/)){var online=line.match(/Online:\s*([\d.]+)/)?.[1]||'0';var completed=lines[i+1]?.match(/Completed:\s*(\d+)/)?.[1]||'0';var name='';for(var j=i-1;j>=Math.max(0,i-4);j--){if(lines[j]&&!lines[j].match(/^\+966/)&&!lines[j].match(/^Car-/)&&lines[j].length>3&&lines[j].length<40){name=lines[j];break;}}if(name)result.push(name+'|'+online+'|'+completed);}}if(result.length>0){navigator.clipboard.writeText(result.join('\n')).then(()=>alert('✅ '+result.length+' مندوب - ارجع للداش بورد والصق'));}else{alert('مش لاقي بيانات');}})();`;
+  if(bm) bm.href = `javascript:(function(){var lines=document.body.innerText.split('\\n').map(s=>s.trim()).filter(Boolean);var result=[];for(var i=0;i<lines.length;i++){var line=lines[i];if(line.includes('Online:')&&line.includes('Completed:')){var hours=line.match(/Online:\\s*([\\d.]+)/)?.[1]||'0';var orders=line.match(/Completed:\\s*(\\d+)/)?.[1]||'0';var name='';for(var j=i-1;j>=Math.max(0,i-4);j--){var p=lines[j];if(p&&!p.match(/^\\+/)&&!p.match(/^Car-/i)&&!p.includes('Online:')&&!p.includes('Completed:')&&p.length>2&&p.length<60){name=p;break;}}if(name)result.push(name+'|'+hours+'|'+orders);}}if(result.length>0){navigator.clipboard.writeText(result.join('\\n')).then(function(){alert('✅ '+result.length+' courier - go back to dashboard and paste');}).catch(function(){var t=document.createElement('textarea');t.value=result.join('\\n');document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);alert('✅ '+result.length+' courier copied - paste in dashboard');});}else{alert('No data found - make sure you are on courier.mykeeta.com courier list page');}})();`;
   document.getElementById('import-modal').classList.add('open');
 }
 function closeImportModal(){
@@ -2098,12 +2463,143 @@ function processImport(){
       }
     }
   }
+  saveToStorage();
   closeImportModal();
   render();
   showToast('✅ تم استيراد '+added+' مندوب ليوم '+dateVal);
 }
 
-window.addEventListener('DOMContentLoaded', function(){ render(); });
+function updateApiKeyStatus(){
+  const el=document.getElementById('apikey-status');
+  if(el) el.textContent=getApiKey()?'✅':'❌';
+}
+
+window.addEventListener('DOMContentLoaded', function(){
+  loadFromStorage();
+  updateApiKeyStatus();
+  render();
+});
+
+// ══════════════════════════════════════════════
+// ORDERS DAILY CHART
+// ══════════════════════════════════════════════
+function drawOrdersChart(days, dayOT, dayHT) {
+  const area = document.getElementById('chart-area');
+  const canvas = document.getElementById('orders-chart');
+  if (!canvas || !days.length) { area.style.display='none'; return; }
+  area.style.display = 'block';
+
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.parentElement.clientWidth - 48; // padding
+  const H = 200;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+
+  const PAD_L = 44, PAD_R = 16, PAD_T = 16, PAD_B = 36;
+  const chartW = W - PAD_L - PAD_R;
+  const chartH = H - PAD_T - PAD_B;
+  const n = days.length;
+  const maxVal = Math.max(...dayOT, 1);
+
+  // grid lines
+  const gridCount = 4;
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  ctx.font = `${10 * dpr / dpr}px Cairo, sans-serif`;
+  for (let i = 0; i <= gridCount; i++) {
+    const val = Math.round((maxVal / gridCount) * i);
+    const y = PAD_T + chartH - (i / gridCount) * chartH;
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(PAD_L + chartW, y); ctx.stroke();
+    ctx.fillStyle = '#475569';
+    ctx.fillText(val, PAD_L - 6, y);
+  }
+
+  const barW = Math.max(8, Math.min(32, (chartW / n) * 0.55));
+  const step = chartW / n;
+
+  // gradient fill under line
+  const grad = ctx.createLinearGradient(0, PAD_T, 0, PAD_T + chartH);
+  grad.addColorStop(0, 'rgba(0,212,255,0.25)');
+  grad.addColorStop(1, 'rgba(0,212,255,0.00)');
+
+  // draw bars
+  dayOT.forEach((v, i) => {
+    const x = PAD_L + i * step + step / 2;
+    const barH = (v / maxVal) * chartH;
+    const y = PAD_T + chartH - barH;
+
+    // bar gradient
+    const bg = ctx.createLinearGradient(0, y, 0, y + barH);
+    bg.addColorStop(0, 'rgba(168,85,247,0.8)');
+    bg.addColorStop(1, 'rgba(99,102,241,0.3)');
+    ctx.fillStyle = bg;
+    ctx.beginPath();
+    ctx.roundRect(x - barW/2, y, barW, barH, [3, 3, 0, 0]);
+    ctx.fill();
+  });
+
+  // line path
+  ctx.beginPath();
+  dayOT.forEach((v, i) => {
+    const x = PAD_L + i * step + step / 2;
+    const y = PAD_T + chartH - (v / maxVal) * chartH;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = '#00D4FF';
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  // fill under line
+  ctx.lineTo(PAD_L + (n-1) * step + step/2, PAD_T + chartH);
+  ctx.lineTo(PAD_L + step/2, PAD_T + chartH);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // dots + labels
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+  const maxIdx = dayOT.indexOf(Math.max(...dayOT));
+  dayOT.forEach((v, i) => {
+    const x = PAD_L + i * step + step / 2;
+    const y = PAD_T + chartH - (v / maxVal) * chartH;
+    // dot
+    ctx.beginPath();
+    ctx.arc(x, y, i === maxIdx ? 5 : 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = i === maxIdx ? '#00FFCC' : '#00D4FF';
+    if (i === maxIdx) { ctx.shadowColor='#00FFCC'; ctx.shadowBlur=8; }
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    // value label on top (only show every 2nd if crowded)
+    if (n <= 12 || i % 2 === 0 || i === maxIdx) {
+      ctx.fillStyle = i === maxIdx ? '#00FFCC' : 'rgba(255,255,255,0.7)';
+      ctx.font = `bold ${10}px Cairo, sans-serif`;
+      ctx.fillText(v, x, y - 7);
+    }
+    // x-axis date label
+    ctx.fillStyle = '#475569';
+    ctx.font = `${10}px Cairo, sans-serif`;
+    ctx.textBaseline = 'top';
+    const label = days[i].split('-').slice(1).join('/'); // MM/DD
+    ctx.fillText(label, x, PAD_T + chartH + 6);
+    ctx.textBaseline = 'bottom';
+  });
+
+  // peak info
+  const peakDay = days[maxIdx];
+  const peakVal = dayOT[maxIdx];
+  document.getElementById('chart-peak').textContent =
+    `أعلى يوم: ${peakDay.split('-').slice(1).join('/')} — ${peakVal} أوردر`;
+}
 
 </script>
 </body>
