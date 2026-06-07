@@ -1929,12 +1929,32 @@ function render(){
       r.brand.toLowerCase().includes(search) ||
       r.model.toLowerCase().includes(search)
     );
+    // build plate-number → {hasTafweed, courierName} map from BIKES+LICENSE
+    const plateNumMap={};
+    Object.entries(BIKES).forEach(([name,num])=>{
+      plateNumMap[String(num)]={hasTafweed: LICENSE[name]===true, courier: name};
+    });
+    function getPlateNum(plate){ const m=plate.match(/\d+/g); return m?m[m.length-1]:null; }
+    function plateTafweed(plate){
+      const n=getPlateNum(plate);
+      return n && plateNumMap[n] ? plateNumMap[n] : null;
+    }
+
     const total=filtered.length;
     const bikes=filtered.filter(r=>r.type==='دراجة آلية').length;
     const cars=filtered.filter(r=>r.type==='نقل عام').length;
     const insOk=filtered.filter(r=>r.insurance==='ساري المفعول').length;
     const insExp=filtered.filter(r=>r.insurance==='منتهي').length;
     const inspOk=filtered.filter(r=>r.inspStatus==='ساري المفعول').length;
+    const tafweedOk=filtered.filter(r=>{ const t=plateTafweed(r.plate); return t && t.hasTafweed; }).length;
+    const tafweedNo=filtered.filter(r=>{ const t=plateTafweed(r.plate); return t && !t.hasTafweed; }).length;
+
+    function vTafweedBadge(plate){
+      const t=plateTafweed(plate);
+      if(!t) return `<span style="color:#475569;font-size:11px;">—</span>`;
+      if(t.hasTafweed) return `<span style="background:rgba(16,185,129,.15);border:1px solid rgba(52,211,153,.3);color:#34D399;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;" title="${t.courier}">✅ موجود</span>`;
+      return `<span style="background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:#F87171;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;" title="${t.courier}">❌ بدون تفويض</span>`;
+    }
 
     function vInsurBadge(v){
       if(v==='ساري المفعول') return `<span style="background:rgba(16,185,129,.15);border:1px solid rgba(52,211,153,.3);color:#34D399;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">✅ ساري</span>`;
@@ -1958,7 +1978,8 @@ function render(){
       <div class="kpi-card kpi-gold"   style="flex:1;min-width:90px;"><div class="kpi-lbl">سيارات</div><div class="kpi-val">${cars}</div></div>
       <div class="kpi-card kpi-green"  style="flex:1;min-width:90px;"><div class="kpi-lbl">تأمين ساري</div><div class="kpi-val">${insOk}</div></div>
       <div class="kpi-card kpi-red"    style="flex:1;min-width:90px;"><div class="kpi-lbl">تأمين منتهي</div><div class="kpi-val" style="color:#F87171;">${insExp}</div></div>
-      <div class="kpi-card kpi-blue"   style="flex:1;min-width:90px;"><div class="kpi-lbl">فحص ساري</div><div class="kpi-val">${inspOk}</div></div>
+      <div class="kpi-card kpi-green"  style="flex:1;min-width:90px;"><div class="kpi-lbl">عندهم تفويض</div><div class="kpi-val">${tafweedOk}</div></div>
+      <div class="kpi-card kpi-red"    style="flex:1;min-width:90px;"><div class="kpi-lbl">بدون تفويض</div><div class="kpi-val" style="color:#F87171;">${tafweedNo}</div></div>
     </div>`;
 
     let vHtml=`<thead><tr class="h1">
@@ -1971,6 +1992,7 @@ function render(){
       <th>انتهاء الرخصة</th>
       <th>حالة الفحص</th>
       <th>التأمين</th>
+      <th>التفويض</th>
     </tr></thead><tbody>`;
 
     filtered.forEach(r=>{
@@ -1984,6 +2006,7 @@ function render(){
         <td style="font-size:12px;color:#94A3B8;">${r.licenseExp}</td>
         <td>${vInspBadge(r.inspStatus)}</td>
         <td>${vInsurBadge(r.insurance)}</td>
+        <td>${vTafweedBadge(r.plate)}</td>
       </tr>`;
     });
     vHtml+='</tbody>';
