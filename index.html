@@ -421,8 +421,99 @@
   .mc-add-row{display:flex;gap:7px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
   .btn-add-c{background:var(--green);color:#fff;border:none;border-radius:var(--r3);padding:8px 16px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s;}
   .btn-add-c:hover{background:var(--green2);color:#000;}
+
+  /* ── OVERVIEW TAB ── */
+  .ov-wrap{padding:4px 0;}
+  .ov-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+  .ov-kpi{
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+    border-radius:var(--r);padding:20px;
+    backdrop-filter:blur(12px);
+    transition:transform .25s,box-shadow .25s;
+    position:relative;overflow:hidden;
+  }
+  .ov-kpi::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse at 60% -10%,var(--glow,rgba(0,212,255,.1)),transparent 65%);
+    pointer-events:none;
+  }
+  .ov-kpi:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.45);}
+  .ov-kpi.g-blue  {--glow:rgba(0,212,255,.18);  border-color:rgba(0,212,255,.22); box-shadow:0 0 18px rgba(0,212,255,.06);}
+  .ov-kpi.g-green {--glow:rgba(16,185,129,.18); border-color:rgba(52,211,153,.22);box-shadow:0 0 18px rgba(52,211,153,.06);}
+  .ov-kpi.g-gold  {--glow:rgba(251,191,36,.18); border-color:rgba(251,191,36,.22); box-shadow:0 0 18px rgba(251,191,36,.06);}
+  .ov-kpi.g-purple{--glow:rgba(168,85,247,.18); border-color:rgba(168,85,247,.22);box-shadow:0 0 18px rgba(168,85,247,.06);}
+  .ov-kpi.g-red   {--glow:rgba(248,113,113,.18);border-color:rgba(248,113,113,.22);box-shadow:0 0 18px rgba(248,113,113,.06);}
+  .ov-kpi-ico{font-size:26px;display:block;margin-bottom:10px;position:relative;}
+  .ov-kpi-val{font-size:34px;font-weight:900;line-height:1;margin-bottom:4px;position:relative;}
+  .ov-kpi-lbl{font-size:12px;color:var(--text3);position:relative;margin-bottom:6px;}
+  .ov-kpi-change{font-size:11px;position:relative;}
+  .g-blue  .ov-kpi-val{color:var(--cyan);}
+  .g-green .ov-kpi-val{color:var(--green2);}
+  .g-gold  .ov-kpi-val{color:var(--gold);}
+  .g-purple .ov-kpi-val{color:var(--purple2);}
+  .g-red   .ov-kpi-val{color:var(--red);}
+  .ov-row2{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:14px;}
+  .ov-row3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .ov-card{
+    background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+    border-radius:var(--r);padding:20px;backdrop-filter:blur(10px);
+  }
+  .ov-card-title{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:14px;
+    padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.06);
+    display:flex;align-items:center;gap:7px;}
+  .ov-stat-row{display:flex;justify-content:space-between;align-items:center;
+    padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+  .ov-stat-row:last-child{border-bottom:none;}
+  .ov-stat-lbl{font-size:13px;color:var(--text2);}
+  .ov-stat-val{font-size:16px;font-weight:800;}
+  .ov-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:9px;}
+  .ov-bar-lbl{font-size:11px;color:var(--text2);width:70px;text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .ov-bar-bg{flex:1;height:7px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;}
+  .ov-bar-fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+  .ov-bar-val{font-size:11px;font-weight:700;width:36px;text-align:left;}
+
+  /* ── ALERTS TAB ── */
+  .alert-section-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;
+    letter-spacing:.12em;margin:18px 0 10px;padding-bottom:7px;
+    border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+  .alert-cnt{background:var(--red);color:#fff;border-radius:20px;font-size:10px;padding:1px 7px;font-weight:700;}
+  .alert-cnt-y{background:#F59E0B;color:#000;}
+  .alert-card{
+    display:flex;align-items:flex-start;gap:14px;
+    padding:14px 16px;border-radius:var(--r2);margin-bottom:8px;border:1px solid;
+    animation:slideUp .2s ease;backdrop-filter:blur(6px);
+  }
+  .alert-red   {background:rgba(220,38,38,.08); border-color:rgba(248,113,113,.22);}
+  .alert-yellow{background:rgba(245,158,11,.08); border-color:rgba(252,211,77,.22);}
+  .alert-green {background:rgba(16,185,129,.08); border-color:rgba(52,211,153,.22);}
+  .alert-ico{font-size:22px;flex-shrink:0;margin-top:1px;}
+  .alert-title{font-size:13px;font-weight:700;color:var(--text1);margin-bottom:3px;}
+  .alert-detail{font-size:12px;color:var(--text3);line-height:1.65;}
+  .alerts-wrap{max-width:860px;}
+
+  /* ── QUICK STATS ── */
+  #quick-stats{
+    display:flex;gap:6px;padding:5px 20px;
+    background:rgba(0,0,0,.2);border-bottom:1px solid var(--border);
+    font-size:11px;color:var(--text3);flex-shrink:0;
+    align-items:center;flex-wrap:wrap;
+  }
+  .qs-item{display:flex;align-items:center;gap:5px;padding:2px 10px;
+    border-radius:20px;border:1px solid rgba(255,255,255,.07);
+    background:rgba(255,255,255,.03);}
+  .qs-val{font-weight:700;color:var(--text2);}
+  .qs-sep{width:1px;height:14px;background:var(--border2);flex-shrink:0;}
+
+  /* ── LIVE CLOCK ── */
+  #live-clock{font-size:11px;color:var(--cyan);font-weight:700;letter-spacing:.04em;margin-top:2px;}
+
+  /* Glassmorphism tweaks */
+  .kpi-card{backdrop-filter:blur(10px);}
+  .stat-card{backdrop-filter:blur(6px);}
+  .sidebar{backdrop-filter:blur(4px);}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -431,8 +522,8 @@
   <div class="main">
     <div class="topbar">
       <div class="topbar-left">
-        <div class="page-title">الطلبات الشهرية</div>
-        <div class="page-sub">اضغط على اسم أي مندوب لعرض تفاصيله</div>
+        <div class="page-title">لوحة تحكم كيتا الرياض</div>
+        <div id="live-clock"></div>
       </div>
       <div class="topbar-right">
         <div id="month-pills" class="month-pills"></div>
@@ -450,13 +541,16 @@
       </div>
     </div>
     <div id="kpi-bar" class="kpi-bar"></div>
+    <div id="quick-stats"></div>
     <div class="tab-bar">
-      <button class="tab-btn active" id="tab-orders" onclick="switchTab('orders')">🟢 Keeta</button>
+      <button class="tab-btn active" id="tab-overview" onclick="switchTab('overview')">🏠 الرئيسية</button>
+      <button class="tab-btn" id="tab-orders" onclick="switchTab('orders')">🟢 Keeta</button>
       <button class="tab-btn" id="tab-gps" onclick="switchTab('gps')">🏍 GPS والكيلومترات</button>
       <button class="tab-btn" id="tab-license" onclick="switchTab('license')">📋 التفاويض</button>
       <button class="tab-btn" id="tab-summary" onclick="switchTab('summary')">📊 الإجمالي</button>
       <button class="tab-btn" id="tab-hs" onclick="switchTab('hs')">🟠 HungerStation</button>
       <button class="tab-btn" id="tab-bikes" onclick="switchTab('bikes')">🏍 البايكات</button>
+      <button class="tab-btn" id="tab-alerts" onclick="switchTab('alerts')">🔔 التنبيهات</button>
       <button class="tab-btn" id="tab-muqeem" onclick="switchTab('muqeem')">🏢 المؤسسة</button>
       <button class="tab-btn" id="tab-vehicles" onclick="switchTab('vehicles')">🚗 المركبات</button>
     </div>
@@ -1372,7 +1466,7 @@ let selectedCourier='';
 let sortCol='total';
 let sortDir=-1; // -1=desc, 1=asc always
 let searchQuery='';
-let activeTab='orders'; // 'orders' | 'gps'
+let activeTab='overview'; // 'overview'|'orders'|'gps'|'license'|'summary'|'hs'|'bikes'|'alerts'|'muqeem'|'vehicles'
 
 function getMonths(){return[...new Set(allData.filter(r=>r&&r.date&&r.date.includes('-')).map(r=>mk(r.date)))].filter(m=>m!=='unknown').sort((a,b)=>b.localeCompare(a));}
 
@@ -1411,9 +1505,231 @@ function renderSidebar(){
     </div>`).join('');
 }
 
+/* ════ buildAlerts ════ */
+function buildAlerts(){
+  const items=[];
+  // بايكات بدون تفويض
+  const noLic=Object.keys(BIKES).filter(n=>LICENSE[n]!==true);
+  if(noLic.length) items.push({sev:'red',cat:'bikes',ico:'🏍',title:`${noLic.length} مندوب بدون تفويض`,detail:noLic.join(' — ')});
+
+  // مقيم منتهي
+  const invMuq=MUQEEM_DATA.filter(r=>r.status==='InValid');
+  if(invMuq.length) items.push({sev:'red',cat:'muqeem',ico:'🏢',title:`${invMuq.length} موظف إقامتهم منتهية`,detail:invMuq.slice(0,8).map(r=>r.name).join(' — ')+(invMuq.length>8?` و ${invMuq.length-8} آخرين`:'')});
+
+  // مقيم خارج المملكة
+  const outside=MUQEEM_DATA.filter(r=>r.outside==='نعم');
+  if(outside.length) items.push({sev:'yellow',cat:'muqeem',ico:'✈️',title:`${outside.length} موظف خارج المملكة`,detail:outside.map(r=>r.name).join(' — ')});
+
+  // تأمين منتهي
+  const noIns=VEHICLES_DATA.filter(r=>r.insurance&&r.insurance!=='ساري المفعول'&&r.insurance!=='-');
+  if(noIns.length) items.push({sev:'yellow',cat:'vehicles',ico:'🚗',title:`${noIns.length} مركبة تأمينها منتهي أو غير موجود`,detail:noIns.slice(0,6).map(r=>r.plate).join(' — ')+(noIns.length>6?` و ${noIns.length-6} أخرى`:'')});
+
+  // فحص منتهي
+  const badInsp=VEHICLES_DATA.filter(r=>r.inspStatus&&r.inspStatus!=='ساري المفعول'&&r.inspStatus!=='لا يوجد'&&r.inspStatus!=='-');
+  if(badInsp.length) items.push({sev:'yellow',cat:'vehicles',ico:'🔧',title:`${badInsp.length} مركبة فحصها يحتاج مراجعة`,detail:badInsp.slice(0,5).map(r=>r.plate).join(' — ')+(badInsp.length>5?` و ${badInsp.length-5} أخرى`:'')});
+
+  return items;
+}
+
+/* ════ renderOverview ════ */
+function renderOverview(){
+  const mt=document.getElementById('main-table');
+  mt.style.display='none';
+
+  const rows=allData.filter(r=>r&&mk(r.date)===activeMonth);
+  const days=[...new Set(rows.map(r=>r.date))].sort();
+  const totalO=rows.reduce((s,r)=>s+r.orders,0);
+  const totalH=rows.reduce((s,r)=>s+r.hours,0);
+  const couriers=[...new Set(rows.filter(r=>r.orders>0).map(r=>r.name))];
+  const totalKm=Object.entries(KM_DATA).filter(([d])=>mk(d)===activeMonth).reduce((s,[,d])=>s+Object.values(d).reduce((a,v)=>a+v,0),0);
+  const avgDay=days.length>0?(totalO/days.length).toFixed(1):0;
+
+  // top couriers
+  const courierTotals=couriers.map(n=>({n,o:rows.filter(r=>r.name===n).reduce((s,r)=>s+r.orders,0)})).sort((a,b)=>b.o-a.o);
+  const maxCO=courierTotals[0]?.o||1;
+
+  // license stats
+  const licTotal=Object.keys(BIKES).length;
+  const licYes=Object.keys(BIKES).filter(n=>LICENSE[n]===true).length;
+  const muqValid=MUQEEM_DATA.filter(r=>r.status==='Valid').length;
+  const muqInvalid=MUQEEM_DATA.length-muqValid;
+  const vTotal=VEHICLES_DATA.length;
+  const vInsOk=VEHICLES_DATA.filter(r=>r.insurance==='ساري المفعول').length;
+
+  const alerts=buildAlerts();
+  const redA=alerts.filter(a=>a.sev==='red');
+  const yellA=alerts.filter(a=>a.sev==='yellow');
+
+  const d=document.createElement('div');
+  d.id='overview-content';
+  d.className='ov-wrap';
+  d.style.cssText='padding:6px 0;';
+
+  d.innerHTML=`
+  <!-- KPI Row -->
+  <div class="ov-kpi-row">
+    <div class="ov-kpi g-blue">
+      <span class="ov-kpi-ico">📦</span>
+      <div class="ov-kpi-val">${totalO.toLocaleString()}</div>
+      <div class="ov-kpi-lbl">إجمالي الأوردرات</div>
+      <div class="ov-kpi-change" style="color:var(--text3)">📅 ${days.length} يوم مسجل</div>
+    </div>
+    <div class="ov-kpi g-green">
+      <span class="ov-kpi-ico">⏱</span>
+      <div class="ov-kpi-val">${totalH.toFixed(0)}h</div>
+      <div class="ov-kpi-lbl">ساعات العمل</div>
+      <div class="ov-kpi-change" style="color:var(--text3)">📊 معدل ${(totalH/Math.max(days.length,1)).toFixed(1)}h/يوم</div>
+    </div>
+    <div class="ov-kpi g-gold">
+      <span class="ov-kpi-ico">🏍</span>
+      <div class="ov-kpi-val">${totalKm.toFixed(0)}</div>
+      <div class="ov-kpi-lbl">كيلومترات GPS</div>
+      <div class="ov-kpi-change" style="color:var(--text3)">📍 معدل ${couriers.length>0?(totalKm/couriers.length).toFixed(0):0} كم/مندوب</div>
+    </div>
+    <div class="ov-kpi ${redA.length>0?'g-red':'g-purple'}">
+      <span class="ov-kpi-ico">${redA.length>0?'🔴':'✅'}</span>
+      <div class="ov-kpi-val">${redA.length+yellA.length}</div>
+      <div class="ov-kpi-lbl">التنبيهات النشطة</div>
+      <div class="ov-kpi-change" style="color:${redA.length>0?'#F87171':'#34D399'};cursor:pointer" onclick="switchTab('alerts')">${redA.length>0?redA.length+' عاجل':'كل شيء تمام ✓'}</div>
+    </div>
+  </div>
+
+  <!-- Row 2: chart + quick numbers -->
+  <div class="ov-row2">
+    <div class="ov-card">
+      <div class="ov-card-title">📈 أوردرات يومية — ${days.length > 0 ? days[0].slice(5) + ' ← ' + days[days.length-1].slice(5) : 'لا يوجد بيانات'}</div>
+      <canvas id="ov-chart" height="90"></canvas>
+    </div>
+    <div class="ov-card">
+      <div class="ov-card-title">⚡ إحصائيات سريعة</div>
+      <div class="ov-stat-row"><span class="ov-stat-lbl">معدل يومي</span><span class="ov-stat-val" style="color:var(--cyan)">${avgDay}</span></div>
+      <div class="ov-stat-row"><span class="ov-stat-lbl">مناديب نشطين</span><span class="ov-stat-val" style="color:var(--green2)">${couriers.length}</span></div>
+      <div class="ov-stat-row"><span class="ov-stat-lbl">تفاويض صالحة</span><span class="ov-stat-val" style="color:${licYes===licTotal?'#34D399':'#FCD34D'}">${licYes}/${licTotal}</span></div>
+      <div class="ov-stat-row"><span class="ov-stat-lbl">إقامة صالحة</span><span class="ov-stat-val" style="color:${muqInvalid===0?'#34D399':'#F87171'}">${muqValid}/${MUQEEM_DATA.length}</span></div>
+      <div class="ov-stat-row"><span class="ov-stat-lbl">تأمين ساري</span><span class="ov-stat-val" style="color:${vInsOk===vTotal?'#34D399':'#FCD34D'}">${vInsOk}/${vTotal}</span></div>
+    </div>
+  </div>
+
+  <!-- Row 3: top couriers + license + muqeem -->
+  <div class="ov-row3">
+    <div class="ov-card">
+      <div class="ov-card-title">🏆 أفضل المناديب</div>
+      ${courierTotals.slice(0,8).map((c,i)=>`
+        <div class="ov-bar-row">
+          <div class="ov-bar-lbl">${i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1)} ${c.n.split(' ')[0]}</div>
+          <div class="ov-bar-bg"><div class="ov-bar-fill" style="width:${Math.round(c.o/maxCO*100)}%;background:linear-gradient(90deg,var(--cyan),var(--purple2))"></div></div>
+          <div class="ov-bar-val" style="color:var(--cyan)">${c.o}</div>
+        </div>`).join('')}
+    </div>
+    <div class="ov-card">
+      <div class="ov-card-title">📋 حالة التفاويض</div>
+      <div style="margin-bottom:14px">
+        <div class="ov-bar-row">
+          <div class="ov-bar-lbl" style="color:#34D399">✅ موجود</div>
+          <div class="ov-bar-bg"><div class="ov-bar-fill" style="width:${Math.round(licYes/Math.max(licTotal,1)*100)}%;background:linear-gradient(90deg,#059669,#34D399)"></div></div>
+          <div class="ov-bar-val" style="color:#34D399">${licYes}</div>
+        </div>
+        <div class="ov-bar-row">
+          <div class="ov-bar-lbl" style="color:#F87171">❌ غير موجود</div>
+          <div class="ov-bar-bg"><div class="ov-bar-fill" style="width:${Math.round((licTotal-licYes)/Math.max(licTotal,1)*100)}%;background:linear-gradient(90deg,#DC2626,#F87171)"></div></div>
+          <div class="ov-bar-val" style="color:#F87171">${licTotal-licYes}</div>
+        </div>
+      </div>
+      <div class="ov-card-title" style="margin-top:10px">🏢 حالة الإقامة</div>
+      <div class="ov-bar-row">
+        <div class="ov-bar-lbl" style="color:#34D399">✅ صالحة</div>
+        <div class="ov-bar-bg"><div class="ov-bar-fill" style="width:${Math.round(muqValid/Math.max(MUQEEM_DATA.length,1)*100)}%;background:linear-gradient(90deg,#059669,#34D399)"></div></div>
+        <div class="ov-bar-val" style="color:#34D399">${muqValid}</div>
+      </div>
+      <div class="ov-bar-row">
+        <div class="ov-bar-lbl" style="color:#F87171">❌ منتهية</div>
+        <div class="ov-bar-bg"><div class="ov-bar-fill" style="width:${Math.round(muqInvalid/Math.max(MUQEEM_DATA.length,1)*100)}%;background:linear-gradient(90deg,#DC2626,#F87171)"></div></div>
+        <div class="ov-bar-val" style="color:#F87171">${muqInvalid}</div>
+      </div>
+    </div>
+    <div class="ov-card">
+      <div class="ov-card-title">🔔 التنبيهات</div>
+      ${alerts.length===0?`<div style="text-align:center;padding:30px;color:#34D399;font-size:14px">✅ كل شيء تمام!</div>`
+        :alerts.slice(0,5).map(a=>`
+        <div class="alert-card ${a.sev==='red'?'alert-red':'alert-yellow'}" style="margin-bottom:7px;padding:10px 12px;">
+          <span class="alert-ico" style="font-size:18px">${a.ico}</span>
+          <div>
+            <div class="alert-title" style="font-size:12px">${a.title}</div>
+            <div class="alert-detail" style="font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px">${a.detail}</div>
+          </div>
+        </div>`).join('')}
+      ${alerts.length>5?`<div style="text-align:center;margin-top:8px"><button onclick="switchTab('alerts')" style="background:transparent;border:1px solid var(--border2);color:var(--cyan);border-radius:6px;padding:5px 14px;font-family:Cairo,sans-serif;font-size:11px;cursor:pointer;">عرض الكل (${alerts.length})</button></div>`:''}
+    </div>
+  </div>`;
+
+  mt.parentNode.insertBefore(d, mt.nextSibling);
+
+  // Draw chart with Chart.js
+  requestAnimationFrame(()=>{
+    const ctx=document.getElementById('ov-chart');
+    if(!ctx||typeof Chart==='undefined') return;
+    const dayTotals=days.map(day=>rows.filter(r=>r.date===day).reduce((s,r)=>s+r.orders,0));
+    new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:days.map(d=>d.slice(5)),
+        datasets:[{
+          data:dayTotals,
+          backgroundColor:dayTotals.map(v=>{
+            const max=Math.max(...dayTotals,1);
+            const pct=v/max;
+            return pct>=.85?'rgba(0,212,255,.7)':pct>=.6?'rgba(99,102,241,.6)':'rgba(168,85,247,.45)';
+          }),
+          borderRadius:5,
+          borderSkipped:false,
+        }]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'أوردرات: '+ctx.raw}}},
+        scales:{
+          x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#64748B',font:{size:10}}},
+          y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#64748B',font:{size:10}},beginAtZero:true}
+        }
+      }
+    });
+  });
+}
+
+/* ════ renderAlerts ════ */
+function renderAlerts(){
+  const mt=document.getElementById('main-table');
+  mt.style.display='none';
+  const alerts=buildAlerts();
+  const red=alerts.filter(a=>a.sev==='red');
+  const yell=alerts.filter(a=>a.sev==='yellow');
+
+  let html='<div class="alerts-wrap">';
+  if(alerts.length===0){
+    html+=`<div style="text-align:center;padding:80px 20px;color:#34D399;font-size:22px">✅ ماكوش تنبيهات — كل شيء تمام!</div>`;
+  } else {
+    if(red.length){
+      html+=`<div class="alert-section-title">🔴 عاجل <span class="alert-cnt">${red.length}</span></div>`;
+      html+=red.map(a=>`<div class="alert-card alert-red"><span class="alert-ico">${a.ico}</span><div><div class="alert-title">${a.title}</div><div class="alert-detail">${a.detail}</div></div></div>`).join('');
+    }
+    if(yell.length){
+      html+=`<div class="alert-section-title">🟡 تحتاج متابعة <span class="alert-cnt alert-cnt-y">${yell.length}</span></div>`;
+      html+=yell.map(a=>`<div class="alert-card alert-yellow"><span class="alert-ico">${a.ico}</span><div><div class="alert-title">${a.title}</div><div class="alert-detail">${a.detail}</div></div></div>`).join('');
+    }
+  }
+  html+='</div>';
+
+  const d=document.createElement('div');
+  d.id='alerts-content';
+  d.innerHTML=html;
+  mt.parentNode.insertBefore(d, mt.nextSibling);
+}
+
 function render(){
   // cleanup from previous tab
   const _sd=document.getElementById('sum-content');if(_sd)_sd.remove();
+  const _ov=document.getElementById('overview-content');if(_ov)_ov.remove();
+  const _al=document.getElementById('alerts-content');if(_al)_al.remove();
   const _mt=document.getElementById('main-table');if(_mt)_mt.style.display='';
 
   document.getElementById('month-pills').innerHTML=getMonths().map(m=>
@@ -1437,6 +1753,32 @@ function render(){
     <div class="kpi-card"><span class="kpi-icon">📅</span><div><div class="kpi-lbl">أيام مسجلة</div><div class="kpi-val">${_kpiDays}</div></div></div>
     ${_kpiO>0&&_kpiCouriers>0?`<div class="kpi-card"><span class="kpi-icon">📊</span><div><div class="kpi-lbl">معدل/مندوب/يوم</div><div class="kpi-val">${(_kpiO/_kpiCouriers/_kpiDays||0).toFixed(1)}</div></div></div>`:''}
   `;
+
+  // quick stats bar
+  (function(){
+    const licTotal=Object.keys(BIKES).length;
+    const licYes=Object.keys(BIKES).filter(n=>LICENSE[n]===true).length;
+    const muqValid=MUQEEM_DATA.filter(r=>r.status==='Valid').length;
+    const vInsOk=VEHICLES_DATA.filter(r=>r.insurance==='ساري المفعول').length;
+    const alerts=buildAlerts();
+    const redCount=alerts.filter(a=>a.sev==='red').length;
+    const yellCount=alerts.filter(a=>a.sev==='yellow').length;
+    document.getElementById('quick-stats').innerHTML=
+      `<div class="qs-item">📦 <span class="qs-val">${_kpiO.toLocaleString()}</span> أوردر</div>
+       <div class="qs-sep"></div>
+       <div class="qs-item">👥 <span class="qs-val">${_kpiCouriers}</span> مندوب نشط</div>
+       <div class="qs-sep"></div>
+       <div class="qs-item">✅ تفاويض <span class="qs-val" style="color:#34D399">${licYes}</span>/${licTotal}</div>
+       <div class="qs-sep"></div>
+       <div class="qs-item">🏢 إقامة صالحة <span class="qs-val" style="color:#34D399">${muqValid}</span>/${MUQEEM_DATA.length}</div>
+       <div class="qs-sep"></div>
+       <div class="qs-item">🚗 تأمين <span class="qs-val" style="color:#34D399">${vInsOk}</span>/${VEHICLES_DATA.length}</div>
+       ${redCount>0?`<div class="qs-sep"></div><div class="qs-item" onclick="switchTab('alerts')" style="cursor:pointer;">🔴 <span class="qs-val" style="color:#F87171">${redCount}</span> تنبيه عاجل</div>`:''}
+       ${yellCount>0?`<div class="qs-item" onclick="switchTab('alerts')" style="cursor:pointer;">🟡 <span class="qs-val" style="color:#FCD34D">${yellCount}</span> تنبيه</div>`:''}`;
+  })();
+
+  if(activeTab==='overview'){ renderOverview(); return; }
+  if(activeTab==='alerts'){ renderAlerts(); return; }
 
   const rows=allData.filter(r=>r&&mk(r.date)===activeMonth);
   const days=[...new Set(rows.map(r=>r.date))].sort();
@@ -2218,12 +2560,10 @@ function clearSearch(){
 
 function switchTab(tab){
   activeTab=tab;
-  document.getElementById('tab-orders').classList.toggle('active', tab==='orders');
-  document.getElementById('tab-gps').classList.toggle('active', tab==='gps');
-  document.getElementById('tab-license').classList.toggle('active', tab==='license');
-  document.getElementById('tab-summary').classList.toggle('active', tab==='summary');
-  document.getElementById('tab-hs').classList.toggle('active', tab==='hs');
-  document.getElementById('tab-bikes').classList.toggle('active', tab==='bikes');
+  ['overview','orders','gps','license','summary','hs','bikes','alerts','muqeem','vehicles'].forEach(t=>{
+    const el=document.getElementById('tab-'+t);
+    if(el) el.classList.toggle('active', t===tab);
+  });
   sortCol='total'; sortDir=-1;
   render();
 }
@@ -2768,6 +3108,20 @@ function updateApiKeyStatus(){
 window.addEventListener('DOMContentLoaded', function(){
   loadFromStorage();
   updateApiKeyStatus();
+  // live clock
+  function updateClock(){
+    const el=document.getElementById('live-clock');
+    if(!el) return;
+    const now=new Date(Date.now()+3*3600000);
+    const days=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+    const h=String(now.getUTCHours()).padStart(2,'0');
+    const m=String(now.getUTCMinutes()).padStart(2,'0');
+    const s=String(now.getUTCSeconds()).padStart(2,'0');
+    const d=now.toISOString().slice(0,10);
+    el.textContent=`🕐 ${h}:${m}:${s} | ${days[now.getUTCDay()]} ${d}`;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
   render();
 });
 
