@@ -451,7 +451,7 @@
     </div>
     <div id="kpi-bar" class="kpi-bar"></div>
     <div class="tab-bar">
-      <button class="tab-btn active" id="tab-orders" onclick="switchTab('orders')">📦 الأوردرات والساعات</button>
+      <button class="tab-btn active" id="tab-orders" onclick="switchTab('orders')">🟢 Keeta</button>
       <button class="tab-btn" id="tab-gps" onclick="switchTab('gps')">🏍 GPS والكيلومترات</button>
       <button class="tab-btn" id="tab-license" onclick="switchTab('license')">📋 التفاويض</button>
       <button class="tab-btn" id="tab-summary" onclick="switchTab('summary')">📊 الإجمالي</button>
@@ -1703,6 +1703,11 @@ function render(){
     // Restore table
     const s2=document.getElementById('sum-content'); if(s2) s2.remove();
     const mt3=document.getElementById('main-table'); if(mt3) mt3.style.display='';
+    // Remove old hs-map-ui if present
+    const oldMap=document.getElementById('hs-map-ui'); if(oldMap) oldMap.remove();
+
+    document.getElementById('main-table').innerHTML=`<thead></thead><tbody><tr><td colspan="10" style="text-align:center;padding:60px 20px;color:var(--text3);font-size:16px">🚧 قريباً</td></tr></tbody>`;
+    return;
 
     const maxComp=Math.max(...HS_DATA.map(r=>r.completed));
 
