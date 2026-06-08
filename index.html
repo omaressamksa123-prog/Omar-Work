@@ -3499,7 +3499,8 @@ function gsSearch(raw){
       const bikeEntry=Object.entries(BIKES).find(([n])=>n.toLowerCase()===r.name.toLowerCase());
       const bikeNum=bikeEntry?bikeEntry[1]:null;
       const hasL=bikeEntry?LICENSE[bikeEntry[0]]===true:null;
-      return `<div class="gs-item" onclick="gsShowMuqeem('${r.iqama}')">
+      const courierName=bikeEntry?bikeEntry[0]:r.name;
+      return `<div class="gs-item" onclick="gsBarClear();switchTab('orders');setTimeout(()=>showHistory('${courierName.replace(/'/g,"\\'")}'),80)">
         <div class="gs-ico gs-ico-muqeem">🏢</div>
         <div style="flex:1;min-width:0;overflow:hidden">
           <div class="gs-item-main">${hl(r.name,q)}</div>
@@ -3525,7 +3526,7 @@ function gsSearch(raw){
       const hasL=LICENSE[name]===true;
       const mq=MUQEEM_DATA.find(r=>r.name.toLowerCase()===name.toLowerCase());
       const totalO=allData.filter(r=>r&&r.name===name).reduce((s,r)=>s+r.orders,0);
-      return `<div class="gs-item" onclick="gsShowBike('${name.replace(/'/g,"\\'")}')">
+      return `<div class="gs-item" onclick="gsBarClear();switchTab('orders');setTimeout(()=>showHistory('${name.replace(/'/g,"\\'")}'),80)">
         <div class="gs-ico gs-ico-bike">🏍</div>
         <div style="flex:1;min-width:0">
           <div class="gs-item-main">${hl(name,q)}</div>
@@ -3549,7 +3550,7 @@ function gsSearch(raw){
     html+=vehHits.slice(0,15).map(r=>{
       const insOk=r.insurance==='ساري المفعول';
       const inspOk=r.inspStatus==='ساري المفعول'||r.inspStatus==='لا يوجد';
-      return `<div class="gs-item" onclick="gsShowVehicle('${r.plate.replace(/'/g,"\\'")}')">
+      return `<div class="gs-item" onclick="gsBarClear();switchTab('vehicles')">
         <div class="gs-ico gs-ico-vehicle">🚗</div>
         <div style="flex:1;min-width:0">
           <div class="gs-item-main" style="font-family:monospace">${hl(r.plate,q)}</div>
