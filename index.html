@@ -2548,8 +2548,20 @@ Rules:
       {text:prompt}
     ]}]});
 
-    // try models in order until one works
-    const models=['gemini-2.0-flash','gemini-2.0-flash-lite','gemini-1.5-flash'];
+    // fetch available models from API first, then pick best vision-capable one
+    let models=['gemini-2.0-flash','gemini-2.0-flash-lite','gemini-1.5-flash','gemini-1.5-flash-8b','gemini-1.5-pro'];
+    try{
+      const mRes=await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}&pageSize=50`);
+      if(mRes.ok){
+        const mData=await mRes.json();
+        const available=(mData.models||[])
+          .filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent'))
+          .map(m=>m.name.replace('models/',''))
+          .filter(n=>n.includes('flash')||n.includes('pro'));
+        if(available.length) models=[...available, ...models];
+      }
+    }catch(_){}
+
     let response, lastErr;
     for(const model of models){
       try{
@@ -2559,7 +2571,7 @@ Rules:
         const e=await response.json().catch(()=>({}));
         lastErr=e.error?.message||'error '+response.status;
         response=null;
-      }catch(e){lastErr=e.message;}
+      }catch(e){lastErr=e.message; response=null;}
     }
     if(!response||!response.ok) throw new Error(lastErr||'All Gemini models failed');
 
