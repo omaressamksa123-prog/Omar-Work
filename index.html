@@ -262,6 +262,7 @@
   /* name cell */
   .c-name{font-size:14px;font-weight:700;cursor:pointer;color:var(--cyan2);transition:color .15s;}
   .c-name:hover{color:var(--cyan);text-decoration:underline;text-shadow:0 0 8px rgba(0,212,255,.3);}
+  .c-name.active-courier{color:#fff;background:linear-gradient(90deg,rgba(0,212,255,.18),transparent);border-radius:6px;padding:2px 6px;box-shadow:0 0 12px rgba(0,212,255,.25);}
   .bike-tag{
     display:inline-flex;align-items:center;gap:3px;
     background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.25);
@@ -2543,6 +2544,9 @@ function render(){
 
 function showHistory(name){
   selectedCourier=name;
+  // highlight active courier name in table
+  document.querySelectorAll('.c-name').forEach(el=>el.classList.remove('active-courier'));
+  document.querySelectorAll('.c-name').forEach(el=>{ if(el.textContent===name) el.classList.add('active-courier'); });
   const rows=allData.filter(r=>r&&r.name===name).sort((a,b)=>a.date.localeCompare(b.date));
   if(!rows.length){document.getElementById('history-area').innerHTML='';return;}
   const av=ac(name);
@@ -2594,9 +2598,11 @@ function showHistory(name){
       }).join('')}</div>
     </div>
   </div>`;
+  // scroll profile into view automatically
+  setTimeout(()=>{ const ha=document.getElementById('history-area'); if(ha) ha.scrollIntoView({behavior:'smooth',block:'start'}); },60);
 }
 
-function closeHistory(){selectedCourier='';document.getElementById('history-area').innerHTML='';}
+function closeHistory(){selectedCourier='';document.getElementById('history-area').innerHTML='';document.querySelectorAll('.c-name').forEach(el=>el.classList.remove('active-courier'));}
 function setSort(col){
   if(sortCol===col) sortDir*=-1;
   else { sortCol=col; sortDir=-1; }
