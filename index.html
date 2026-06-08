@@ -2544,9 +2544,6 @@ function render(){
 
 function showHistory(name){
   selectedCourier=name;
-  // highlight active courier name in table
-  document.querySelectorAll('.c-name').forEach(el=>el.classList.remove('active-courier'));
-  document.querySelectorAll('.c-name').forEach(el=>{ if(el.textContent===name) el.classList.add('active-courier'); });
   const rows=allData.filter(r=>r&&r.name===name).sort((a,b)=>a.date.localeCompare(b.date));
   if(!rows.length){document.getElementById('history-area').innerHTML='';return;}
   const av=ac(name);
@@ -2554,21 +2551,33 @@ function showHistory(name){
   const totalH=rows.reduce((s,r)=>s+r.hours,0);
   const maxO=Math.max(...rows.map(r=>r.orders),1);
   const bike=BIKES[name]||'';
+  const iqama=IQAMA[name]||'';
 
   // km total for this courier
   const kmTotal=Object.values(KM_DATA).reduce((s,d)=>s+(d[name]||0),0);
   const allKmTotals=Object.keys(BIKES).map(n=>Object.values(KM_DATA).reduce((s,d)=>s+(d[n]||0),0));
   const maxKmTotal=Math.max(...allKmTotals);
 
-  document.getElementById('history-area').innerHTML=`
-  <div class="history-wrap">
+  // hide table & chart, show profile fullscreen
+  const tblWrap=document.querySelector('.tbl-wrap');
+  const chartArea=document.getElementById('chart-area');
+  if(tblWrap) tblWrap.style.display='none';
+  if(chartArea) chartArea.style.display='none';
+
+  const ha=document.getElementById('history-area');
+  ha.style.display='block';
+  ha.innerHTML=`
+  <div class="history-wrap" style="margin-top:0">
     <div class="hp-hdr">
       <div class="hp-avatar" style="background:${av.bg};color:${av.txt}">${ini(name)}</div>
-      <div>
+      <div style="flex:1">
         <div style="font-size:15px;font-weight:700;color:#fff">${name}</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.6)">${bike?'🏍 بايك: '+bike:''}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;gap:10px;margin-top:3px">
+          ${bike?`<span>🏍 ${bike}</span>`:''}
+          ${iqama?`<span>🪪 ${iqama}</span>`:''}
+        </div>
       </div>
-      <button class="close-btn" onclick="closeHistory()">✕ إغلاق</button>
+      <button class="close-btn" onclick="closeHistory()">← رجوع للجدول</button>
     </div>
     <div class="hp-body">
       <div class="summary-row">
@@ -2598,19 +2607,20 @@ function showHistory(name){
       }).join('')}</div>
     </div>
   </div>`;
-  // scroll .content container so profile panel is visible
-  setTimeout(()=>{
-    const ha=document.getElementById('history-area');
-    const cont=document.querySelector('.content');
-    if(ha&&cont){
-      const haRect=ha.getBoundingClientRect();
-      const contRect=cont.getBoundingClientRect();
-      cont.scrollTop+=haRect.top-contRect.top-16;
-    }
-  },80);
+  // scroll to top of profile
+  const cont=document.querySelector('.content');
+  if(cont) cont.scrollTop=0;
 }
 
-function closeHistory(){selectedCourier='';document.getElementById('history-area').innerHTML='';document.querySelectorAll('.c-name').forEach(el=>el.classList.remove('active-courier'));}
+function closeHistory(){
+  selectedCourier='';
+  const ha=document.getElementById('history-area');
+  if(ha){ha.innerHTML='';ha.style.display='';}
+  const tblWrap=document.querySelector('.tbl-wrap');
+  const chartArea=document.getElementById('chart-area');
+  if(tblWrap) tblWrap.style.display='';
+  if(activeTab==='orders'&&chartArea) chartArea.style.display='';
+}
 function setSort(col){
   if(sortCol===col) sortDir*=-1;
   else { sortCol=col; sortDir=-1; }
