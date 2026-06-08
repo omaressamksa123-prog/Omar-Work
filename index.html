@@ -1498,6 +1498,7 @@ const allData=[
 
 let activeMonth='2026-05';
 let selectedCourier='';
+let selectedPlate='';
 let sortCol='total';
 let sortDir=-1; // -1=desc, 1=asc always
 let searchQuery='';
@@ -2449,8 +2450,9 @@ function render(){
     </tr></thead><tbody>`;
 
     filtered.forEach(r=>{
-      vHtml+=`<tr class="ord-row">
-        <td style="font-family:monospace;font-size:13px;font-weight:700;color:#38BDF8;">${r.plate}</td>
+      const isHL=selectedPlate&&r.plate.replace(/\s/g,'')===selectedPlate.replace(/\s/g,'');
+      vHtml+=`<tr class="ord-row" id="vrow-${r.plate.replace(/\s/g,'_')}" style="${isHL?'background:rgba(0,212,255,.12);outline:2px solid rgba(0,212,255,.5);outline-offset:-2px;':''}">
+        <td style="font-family:monospace;font-size:13px;font-weight:700;color:${isHL?'#00D4FF':'#38BDF8'};">${isHL?'👉 ':''} ${r.plate}</td>
         <td>${vTypeBadge(r.type)}</td>
         <td style="font-size:12px;color:#F1F5F9;font-weight:600;">${r.brand}</td>
         <td style="font-size:12px;color:#94A3B8;">${r.model}</td>
@@ -2465,6 +2467,14 @@ function render(){
     vHtml+='</tbody>';
 
     document.getElementById('main-table').innerHTML=vHtml;
+    // scroll to highlighted vehicle row
+    if(selectedPlate){
+      setTimeout(()=>{
+        const row=document.getElementById('vrow-'+selectedPlate.replace(/\s/g,'_'));
+        const cont=document.querySelector('.content');
+        if(row&&cont){const r=row.getBoundingClientRect();const c=cont.getBoundingClientRect();cont.scrollTop+=r.top-c.top-80;}
+      },60);
+    }
     let vWrap=document.querySelector('.tbl-wrap');
     let vKpiDiv=document.getElementById('vehicles-kpi');
     if(!vKpiDiv){vKpiDiv=document.createElement('div');vKpiDiv.id='vehicles-kpi';vWrap.parentNode.insertBefore(vKpiDiv,vWrap);}
@@ -2640,6 +2650,8 @@ function clearSearch(){
 }
 
 function switchTab(tab){
+  if(tab!=='vehicles') selectedPlate='';
+  if(tab!=='orders') selectedCourier='';
   activeTab=tab;
   ['overview','orders','gps','license','summary','hs','bikes','alerts','muqeem','vehicles'].forEach(t=>{
     const el=document.getElementById('tab-'+t);
@@ -3574,7 +3586,7 @@ function gsSearch(raw){
     html+=vehHits.slice(0,15).map(r=>{
       const insOk=r.insurance==='ساري المفعول';
       const inspOk=r.inspStatus==='ساري المفعول'||r.inspStatus==='لا يوجد';
-      return `<div class="gs-item" onclick="gsBarClear();switchTab('vehicles')">
+      return `<div class="gs-item" onclick="selectedPlate='${r.plate.replace(/'/g,"\\'")}';gsBarClear();switchTab('vehicles')">
         <div class="gs-ico gs-ico-vehicle">🚗</div>
         <div style="flex:1;min-width:0">
           <div class="gs-item-main" style="font-family:monospace">${hl(r.plate,q)}</div>
