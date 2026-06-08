@@ -512,62 +512,27 @@
   .stat-card{backdrop-filter:blur(6px);}
   .sidebar{backdrop-filter:blur(4px);}
 
-  /* ── GLOBAL SEARCH MODAL ── */
-  #global-search-overlay{
-    display:none;position:fixed;inset:0;z-index:200;
-    background:rgba(0,0,0,.75);backdrop-filter:blur(8px);
-    align-items:flex-start;justify-content:center;padding-top:80px;
-  }
-  #global-search-overlay.open{display:flex;}
-  #global-search-box{
-    background:#141B2D;border:1px solid rgba(0,212,255,.25);
-    border-radius:16px;width:640px;max-width:96vw;
-    box-shadow:0 24px 80px rgba(0,0,0,.8),0 0 0 1px rgba(0,212,255,.08);
-    animation:slideUp .2s ease;overflow:hidden;
-  }
-  #gs-input-wrap{
-    display:flex;align-items:center;gap:10px;
-    padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.07);
-    background:rgba(0,212,255,.04);
-  }
-  #gs-input{
-    flex:1;background:transparent;border:none;outline:none;
-    color:#F1F5F9;font-family:'Cairo',sans-serif;font-size:16px;font-weight:600;
-  }
-  #gs-input::placeholder{color:#475569;}
-  #gs-clear{color:#475569;cursor:pointer;font-size:18px;padding:2px 6px;border-radius:4px;transition:.15s;}
-  #gs-clear:hover{color:#F1F5F9;background:rgba(255,255,255,.1);}
-  #gs-results{max-height:460px;overflow-y:auto;padding:10px 12px;}
-  #gs-empty{text-align:center;padding:40px;color:#475569;font-size:14px;}
-  .gs-group-title{
-    font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;
-    letter-spacing:.12em;padding:8px 6px 6px;
-  }
-  .gs-item{
-    display:flex;align-items:center;gap:12px;
-    padding:10px 12px;border-radius:10px;cursor:pointer;
-    transition:background .15s;margin-bottom:3px;
-  }
-  .gs-item:hover{background:rgba(255,255,255,.06);}
-  .gs-ico{
-    width:36px;height:36px;border-radius:10px;flex-shrink:0;
-    display:flex;align-items:center;justify-content:center;font-size:17px;
-  }
+  #gs-bar-box:focus-within{border-color:rgba(0,212,255,.55);box-shadow:0 0 0 3px rgba(0,212,255,.12);}
+  #gs-dropdown .gs-group-title{padding:10px 14px 5px;font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.12em;}
+  #gs-dropdown .gs-item{display:flex;align-items:center;gap:11px;padding:10px 14px;cursor:pointer;transition:background .12s;border-radius:0;}
+  #gs-dropdown .gs-item:hover{background:rgba(255,255,255,.05);}
+  #gs-dropdown .gs-item:first-child{border-radius:14px 14px 0 0;}
+  #gs-dropdown .gs-ico{width:34px;height:34px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;}
+  #gs-dropdown .gs-item-main{font-size:13px;font-weight:700;color:#F1F5F9;margin-bottom:2px;}
+  #gs-dropdown .gs-item-sub{font-size:11px;color:#64748B;line-height:1.5;display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
+  #gs-dropdown .gs-hint{text-align:center;padding:24px;color:#334155;font-size:12px;}
+  #gs-dropdown .gs-detail{padding:14px 16px;}
+  #gs-dropdown .gs-back{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#94A3B8;border-radius:8px;padding:5px 13px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer;margin-bottom:12px;display:inline-block;}
+  #gs-dropdown .gs-back:hover{background:rgba(255,255,255,.1);}
+  #gs-dropdown .gs-profile-hdr{border-radius:10px;padding:14px 16px;margin-bottom:10px;}
+  #gs-dropdown .gs-profile-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px;}
+  #gs-dropdown .gs-profile-row:last-child{border-bottom:none;}
+  #gs-dropdown .gs-profile-lbl{color:#64748B;}
+  #gs-dropdown .gs-profile-val{font-weight:600;color:#94A3B8;}
+
   .gs-ico-muqeem{background:rgba(0,212,255,.12);border:1px solid rgba(0,212,255,.2);}
   .gs-ico-bike  {background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.2);}
   .gs-ico-vehicle{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);}
-  .gs-item-main{font-size:13px;font-weight:700;color:#F1F5F9;margin-bottom:2px;}
-  .gs-item-sub{font-size:11px;color:#64748B;line-height:1.4;}
-  .gs-item-badge{
-    margin-right:auto;font-size:10px;padding:2px 8px;border-radius:20px;
-    font-weight:700;white-space:nowrap;
-  }
-  .gs-badge-valid  {background:rgba(5,150,105,.2);color:#34D399;border:1px solid rgba(52,211,153,.3);}
-  .gs-badge-invalid{background:rgba(220,38,38,.15);color:#F87171;border:1px solid rgba(248,113,113,.25);}
-  .gs-badge-lic    {background:rgba(16,185,129,.15);color:#34D399;border:1px solid rgba(52,211,153,.3);}
-  .gs-badge-nolic  {background:rgba(220,38,38,.15);color:#F87171;border:1px solid rgba(248,113,113,.25);}
-  .gs-badge-vehicle{background:rgba(251,191,36,.1);color:#FBBF24;border:1px solid rgba(251,191,36,.25);}
-  .gs-hint{text-align:center;padding:22px;color:#334155;font-size:12px;}
   mark.hl{background:rgba(0,212,255,.25);color:#E0F7FF;border-radius:2px;padding:0 1px;}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -585,17 +550,21 @@
       </div>
       <div class="topbar-right">
         <div id="month-pills" class="month-pills"></div>
-        <div class="search-wrap">
-          <input id="courier-search" type="text" placeholder="🔍 ابحث..." oninput="applySearch(this.value)" autocomplete="off" />
-          <span class="search-clear" id="search-clear" onclick="clearSearch()" style="display:none">✕</span>
+        <!-- GLOBAL SEARCH BAR -->
+        <div id="gs-bar-wrap" style="position:relative;">
+          <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.06);border:1px solid rgba(0,212,255,.25);border-radius:10px;padding:7px 14px;transition:all .2s;" id="gs-bar-box">
+            <span style="color:#00D4FF;font-size:14px;">🔍</span>
+            <input id="gs-bar-input" type="text" placeholder="ابحث: اسم · رقم إقامة · رقم دباب · لوحة..."
+              autocomplete="off"
+              style="background:transparent;border:none;outline:none;color:#F1F5F9;font-family:'Cairo',sans-serif;font-size:13px;width:270px;"
+              oninput="gsBarSearch(this.value)"
+              onfocus="gsBarSearch(this.value)"
+            />
+            <span id="gs-bar-clear" onclick="gsBarClear()" style="color:#475569;cursor:pointer;font-size:14px;display:none;">✕</span>
+          </div>
+          <div id="gs-dropdown" style="display:none;position:absolute;top:calc(100% + 6px);right:0;width:560px;max-width:96vw;background:#141B2D;border:1px solid rgba(0,212,255,.2);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.8);z-index:300;max-height:480px;overflow-y:auto;">
+          </div>
         </div>
-        <button onclick="openGlobalSearch()" style="
-          display:flex;align-items:center;gap:6px;padding:8px 16px;
-          background:linear-gradient(135deg,#0f2744,#1e3a5f);color:#00D4FF;
-          border:1px solid rgba(0,212,255,.35);border-radius:8px;font-family:'Cairo',sans-serif;
-          font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;
-          box-shadow:0 2px 12px rgba(0,212,255,.15);transition:all .2s;
-        " onmouseover="this.style.background='linear-gradient(135deg,#1e3a5f,#2a4f7f)'" onmouseout="this.style.background='linear-gradient(135deg,#0f2744,#1e3a5f)'">🔍 بحث شامل</button>
         <button onclick="exportData()" style="
           display:flex;align-items:center;gap:6px;padding:8px 14px;
           background:linear-gradient(135deg,#7C3AED,#6366F1);color:#fff;
@@ -3462,18 +3431,32 @@ function clearStoredData(key){
 document.addEventListener('DOMContentLoaded', refreshUpdateModal);
 
 /* ══════════════════════════════════════════
-   GLOBAL SEARCH
+   GLOBAL SEARCH (inline dropdown)
 ══════════════════════════════════════════ */
-function openGlobalSearch(){
-  document.getElementById('global-search-overlay').classList.add('open');
-  setTimeout(()=>document.getElementById('gs-input').focus(),80);
+// Close dropdown when clicking outside
+document.addEventListener('click',e=>{
+  const wrap=document.getElementById('gs-bar-wrap');
+  if(wrap && !wrap.contains(e.target)) gsDropClose();
+});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') gsDropClose(); });
+
+function gsDropClose(){
+  const d=document.getElementById('gs-dropdown');
+  if(d) d.style.display='none';
 }
-function closeGlobalSearch(){
-  document.getElementById('global-search-overlay').classList.remove('open');
-  document.getElementById('gs-input').value='';
-  document.getElementById('gs-results').innerHTML='<div class="gs-hint">اكتب على الأقل حرفين للبحث — اسم · رقم إقامة · رقم دباب · لوحة مركبة</div>';
+function gsDropOpen(html){
+  const d=document.getElementById('gs-dropdown');
+  d.innerHTML=html;
+  d.style.display='block';
 }
-document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeGlobalSearch(); });
+function gsBarClear(){
+  document.getElementById('gs-bar-input').value='';
+  document.getElementById('gs-bar-clear').style.display='none';
+  gsDropClose();
+}
+// keep backward compat stubs
+function openGlobalSearch(){ document.getElementById('gs-bar-input').focus(); }
+function closeGlobalSearch(){ gsBarClear(); }
 
 function hl(text, q){
   if(!q) return text;
@@ -3483,11 +3466,16 @@ function hl(text, q){
 
 let _gsLastQuery='';
 
+function gsBarSearch(raw){
+  _gsLastQuery=raw;
+  document.getElementById('gs-bar-clear').style.display=raw?'block':'none';
+  gsSearch(raw);
+}
+
 function gsSearch(raw){
   _gsLastQuery=raw;
   const q=raw.trim();
-  const el=document.getElementById('gs-results');
-  if(q.length<2){ el.innerHTML='<div class="gs-hint">اكتب على الأقل حرفين — اسم · رقم إقامة · رقم دباب · لوحة مركبة</div>'; return; }
+  if(q.length<2){ gsDropClose(); return; }
   const lq=q.toLowerCase();
 
   const muqHits=MUQEEM_DATA.filter(r=> r.name.toLowerCase().includes(lq)||String(r.iqama).includes(q));
@@ -3495,7 +3483,7 @@ function gsSearch(raw){
   const vehHits=VEHICLES_DATA.filter(r=> r.plate.replace(/\s/g,'').includes(q.replace(/\s/g,''))||r.brand.toLowerCase().includes(lq)||r.model.toLowerCase().includes(lq));
 
   const total=muqHits.length+bikeHits.length+vehHits.length;
-  if(total===0){ el.innerHTML=`<div id="gs-empty" style="text-align:center;padding:40px;color:#475569;font-size:14px">😕 ما في نتايج لـ «${q}»</div>`; return; }
+  if(total===0){ gsDropOpen(`<div class="gs-hint" style="padding:30px;text-align:center;color:#475569">😕 ما في نتايج لـ «${q}»</div>`); return; }
 
   // helper: stat pill
   const pill=(txt,ok)=>`<span style="display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;background:${ok?'rgba(5,150,105,.18)':'rgba(220,38,38,.15)'};color:${ok?'#34D399':'#F87171'};border:1px solid ${ok?'rgba(52,211,153,.3)':'rgba(248,113,113,.25)'}">${txt}</span>`;
@@ -3578,14 +3566,12 @@ function gsSearch(raw){
     if(vehHits.length>15) html+=`<div style="text-align:center;font-size:11px;color:#475569;padding:5px">... و ${vehHits.length-15} نتيجة أخرى</div>`;
   }
 
-  el.innerHTML=html;
+  gsDropOpen(html);
 }
 
 /* ─── Detail views ─── */
 function _gsBack(){
   gsSearch(_gsLastQuery);
-  // restore input
-  document.getElementById('gs-input').value=_gsLastQuery;
 }
 
 function gsShowMuqeem(iqama){
@@ -3598,9 +3584,9 @@ function gsShowMuqeem(iqama){
   const totalO=allData.filter(d=>d&&d.name&&d.name.toLowerCase()===r.name.toLowerCase()).reduce((s,d)=>s+d.orders,0);
   const row=(lbl,val,c='#94A3B8')=>`<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="color:#64748B;font-size:12px">${lbl}</span><span style="color:${c};font-size:13px;font-weight:600">${val}</span></div>`;
   const pill2=(t,ok2)=>`<span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;background:${ok2?'rgba(5,150,105,.18)':'rgba(220,38,38,.15)'};color:${ok2?'#34D399':'#F87171'};border:1px solid ${ok2?'rgba(52,211,153,.3)':'rgba(248,113,113,.25)'}">${t}</span>`;
-  document.getElementById('gs-results').innerHTML=`
-    <div style="padding:10px 6px">
-      <button onclick="_gsBack()" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#94A3B8;border-radius:8px;padding:6px 14px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer;margin-bottom:14px">‹ رجوع للنتايج</button>
+  gsDropOpen(`
+    <div style="padding:10px 14px">
+      <button class="gs-back" onclick="_gsBack()">‹ رجوع للنتايج</button>
       <div style="background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:12px;padding:16px 18px;margin-bottom:12px">
         <div style="font-size:16px;font-weight:800;color:#F1F5F9;margin-bottom:4px">${r.name}</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
@@ -3618,7 +3604,7 @@ function gsShowMuqeem(iqama){
         ${row('🚗 رخصة خفيفة', r.light||'—', r.light==='سارى'?'#34D399':'#64748B')}
         ${totalO>0?row('📦 إجمالي الأوردرات', totalO.toLocaleString(),'#00D4FF'):''}
       </div>
-    </div>`;
+    </div>`)
 }
 
 function gsShowBike(name){
@@ -3631,9 +3617,9 @@ function gsShowBike(name){
   const pill2=(t,ok2)=>`<span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;background:${ok2?'rgba(5,150,105,.18)':'rgba(220,38,38,.15)'};color:${ok2?'#34D399':'#F87171'};border:1px solid ${ok2?'rgba(52,211,153,.3)':'rgba(248,113,113,.25)'}">${t}</span>`;
   const row=(lbl,val,c='#94A3B8')=>`<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="color:#64748B;font-size:12px">${lbl}</span><span style="color:${c};font-size:13px;font-weight:600">${val}</span></div>`;
   const last5=courierRows.slice(0,5);
-  document.getElementById('gs-results').innerHTML=`
-    <div style="padding:10px 6px">
-      <button onclick="_gsBack()" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#94A3B8;border-radius:8px;padding:6px 14px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer;margin-bottom:14px">‹ رجوع للنتايج</button>
+  gsDropOpen(`
+    <div style="padding:10px 14px">
+      <button class="gs-back" onclick="_gsBack()">‹ رجوع للنتايج</button>
       <div style="background:rgba(168,85,247,.05);border:1px solid rgba(168,85,247,.2);border-radius:12px;padding:16px 18px;margin-bottom:12px">
         <div style="font-size:16px;font-weight:800;color:#F1F5F9;margin-bottom:4px">${name}</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
@@ -3653,7 +3639,7 @@ function gsShowBike(name){
       <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:4px 16px">
         ${last5.map(r=>row(r.date, r.orders+' أوردر &nbsp;·&nbsp; '+r.hours+'h','#F1F5F9')).join('')}
       </div>`:''}
-    </div>`;
+    </div>`)
 }
 
 function gsShowVehicle(plate){
@@ -3667,9 +3653,9 @@ function gsShowVehicle(plate){
   const row=(lbl,val,c='#94A3B8')=>`<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="color:#64748B;font-size:12px">${lbl}</span><span style="color:${c};font-size:13px;font-weight:600">${val}</span></div>`;
   // find tafweed
   const tw=plateTafweed?plateTafweed(r.plate):null;
-  document.getElementById('gs-results').innerHTML=`
-    <div style="padding:10px 6px">
-      <button onclick="_gsBack()" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#94A3B8;border-radius:8px;padding:6px 14px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer;margin-bottom:14px">‹ رجوع للنتايج</button>
+  gsDropOpen(`
+    <div style="padding:10px 14px">
+      <button class="gs-back" onclick="_gsBack()">‹ رجوع للنتايج</button>
       <div style="background:rgba(251,191,36,.04);border:1px solid rgba(251,191,36,.2);border-radius:12px;padding:16px 18px;margin-bottom:12px">
         <div style="font-size:18px;font-weight:900;color:#38BDF8;font-family:monospace;margin-bottom:6px">${r.plate}</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -3689,7 +3675,7 @@ function gsShowVehicle(plate){
         ${row('🔍 انتهاء الفحص', r.inspExp||'—')}
         ${row('🛡 التأمين', r.insurance, insOk?'#34D399':'#F87171')}
       </div>
-    </div>`;
+    </div>`)
 }
 
 </script>
@@ -3772,19 +3758,6 @@ function gsShowVehicle(plate){
       </div>
     </div>
 
-  </div>
-</div>
-<!-- GLOBAL SEARCH MODAL -->
-<div id="global-search-overlay" onclick="if(event.target===this)closeGlobalSearch()">
-  <div id="global-search-box">
-    <div id="gs-input-wrap">
-      <span style="font-size:18px;color:#00D4FF;">🔍</span>
-      <input id="gs-input" type="text" placeholder="ابحث بالاسم أو رقم الإقامة أو رقم الدباب..." autocomplete="off" oninput="gsSearch(this.value)" />
-      <span id="gs-clear" onclick="closeGlobalSearch()">✕</span>
-    </div>
-    <div id="gs-results">
-      <div class="gs-hint">اكتب على الأقل حرفين للبحث — اسم · رقم إقامة · رقم دباب · لوحة مركبة</div>
-    </div>
   </div>
 </div>
 </body>
