@@ -3481,90 +3481,215 @@ function hl(text, q){
   return String(text).replace(rx,'<mark class="hl">$1</mark>');
 }
 
+let _gsLastQuery='';
+
 function gsSearch(raw){
+  _gsLastQuery=raw;
   const q=raw.trim();
   const el=document.getElementById('gs-results');
-  if(q.length<2){ el.innerHTML='<div class="gs-hint">اكتب على الأقل حرفين...</div>'; return; }
+  if(q.length<2){ el.innerHTML='<div class="gs-hint">اكتب على الأقل حرفين — اسم · رقم إقامة · رقم دباب · لوحة مركبة</div>'; return; }
   const lq=q.toLowerCase();
 
-  // ── search MUQEEM ──
-  const muqHits=MUQEEM_DATA.filter(r=>
-    r.name.toLowerCase().includes(lq) ||
-    String(r.iqama).includes(q)
-  );
-
-  // ── search BIKES ──
-  const bikeHits=Object.entries(BIKES).filter(([name,num])=>
-    name.toLowerCase().includes(lq) ||
-    String(num).includes(q)
-  );
-
-  // ── search VEHICLES ──
-  const vehHits=VEHICLES_DATA.filter(r=>
-    r.plate.replace(/\s/g,'').includes(q.replace(/\s/g,'')) ||
-    r.brand.toLowerCase().includes(lq) ||
-    r.model.toLowerCase().includes(lq)
-  );
+  const muqHits=MUQEEM_DATA.filter(r=> r.name.toLowerCase().includes(lq)||String(r.iqama).includes(q));
+  const bikeHits=Object.entries(BIKES).filter(([n,num])=> n.toLowerCase().includes(lq)||String(num).includes(q));
+  const vehHits=VEHICLES_DATA.filter(r=> r.plate.replace(/\s/g,'').includes(q.replace(/\s/g,''))||r.brand.toLowerCase().includes(lq)||r.model.toLowerCase().includes(lq));
 
   const total=muqHits.length+bikeHits.length+vehHits.length;
-  if(total===0){ el.innerHTML='<div id="gs-empty">😕 ما في نتايج لـ «'+q+'»</div>'; return; }
+  if(total===0){ el.innerHTML=`<div id="gs-empty" style="text-align:center;padding:40px;color:#475569;font-size:14px">😕 ما في نتايج لـ «${q}»</div>`; return; }
+
+  // helper: stat pill
+  const pill=(txt,ok)=>`<span style="display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;background:${ok?'rgba(5,150,105,.18)':'rgba(220,38,38,.15)'};color:${ok?'#34D399':'#F87171'};border:1px solid ${ok?'rgba(52,211,153,.3)':'rgba(248,113,113,.25)'}">${txt}</span>`;
+  const pillY=(txt)=>`<span style="display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(245,158,11,.12);color:#FCD34D;border:1px solid rgba(252,211,77,.25)">${txt}</span>`;
 
   let html='';
 
+  /* ─── MUQEEM ─── */
   if(muqHits.length){
     html+=`<div class="gs-group-title">🏢 المؤسسة — ${muqHits.length} نتيجة</div>`;
-    html+=muqHits.slice(0,15).map(r=>{
-      const isValid=r.status==='Valid';
-      const badge=`<span class="gs-item-badge ${isValid?'gs-badge-valid':'gs-badge-invalid'}">${isValid?'✅ إقامة صالحة':'❌ إقامة منتهية'}</span>`;
-      return `<div class="gs-item" onclick="closeGlobalSearch();switchTab('muqeem')">
+    html+=muqHits.slice(0,20).map(r=>{
+      const ok=r.status==='Valid';
+      const bikeEntry=Object.entries(BIKES).find(([n])=>n.toLowerCase()===r.name.toLowerCase());
+      const bikeNum=bikeEntry?bikeEntry[1]:null;
+      const hasL=bikeEntry?LICENSE[bikeEntry[0]]===true:null;
+      return `<div class="gs-item" onclick="gsShowMuqeem('${r.iqama}')">
         <div class="gs-ico gs-ico-muqeem">🏢</div>
-        <div style="flex:1;min-width:0">
+        <div style="flex:1;min-width:0;overflow:hidden">
           <div class="gs-item-main">${hl(r.name,q)}</div>
-          <div class="gs-item-sub">🪪 ${hl(r.iqama,q)} &nbsp;|&nbsp; ${r.job||'—'} &nbsp;|&nbsp; خارج: ${r.outside}</div>
+          <div class="gs-item-sub" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;align-items:center">
+            ${pill(ok?'✅ إقامة صالحة':'❌ إقامة منتهية',ok)}
+            <span style="color:#475569;font-size:11px">🪪 ${hl(String(r.iqama),q)}</span>
+            ${r.job?`<span style="color:#64748B;font-size:11px">· ${r.job}</span>`:''}
+            ${bikeNum?pill('🏍 '+hl(bikeNum,q),true):''}
+            ${hasL===true?pill('✅ تفويض',true):hasL===false?pill('❌ بدون تفويض',false):''}
+            ${r.outside==='نعم'?pillY('✈️ خارج المملكة'):''}
+          </div>
         </div>
-        ${badge}
+        <span style="font-size:16px;color:#334155;flex-shrink:0">›</span>
       </div>`;
     }).join('');
-    if(muqHits.length>15) html+=`<div style="text-align:center;font-size:11px;color:#475569;padding:6px">... و ${muqHits.length-15} نتيجة أخرى</div>`;
+    if(muqHits.length>20) html+=`<div style="text-align:center;font-size:11px;color:#475569;padding:5px">... و ${muqHits.length-20} نتيجة أخرى</div>`;
   }
 
+  /* ─── BIKES ─── */
   if(bikeHits.length){
     html+=`<div class="gs-group-title">🏍 البايكات — ${bikeHits.length} نتيجة</div>`;
-    html+=bikeHits.slice(0,15).map(([name,num])=>{
+    html+=bikeHits.slice(0,20).map(([name,num])=>{
       const hasL=LICENSE[name]===true;
-      const badge=`<span class="gs-item-badge ${hasL?'gs-badge-lic':'gs-badge-nolic'}">${hasL?'✅ تفويض':'❌ بدون تفويض'}</span>`;
-      // find muqeem iqama
       const mq=MUQEEM_DATA.find(r=>r.name.toLowerCase()===name.toLowerCase());
-      return `<div class="gs-item" onclick="closeGlobalSearch();switchTab('bikes')">
+      const totalO=allData.filter(r=>r&&r.name===name).reduce((s,r)=>s+r.orders,0);
+      return `<div class="gs-item" onclick="gsShowBike('${name.replace(/'/g,"\\'")}')">
         <div class="gs-ico gs-ico-bike">🏍</div>
         <div style="flex:1;min-width:0">
           <div class="gs-item-main">${hl(name,q)}</div>
-          <div class="gs-item-sub">🔢 بايك: ${hl(num,q)}${mq?` &nbsp;|&nbsp; 🪪 ${hl(mq.iqama,q)}`:''}</div>
+          <div class="gs-item-sub" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;align-items:center">
+            ${pill(hasL?'✅ تفويض':'❌ بدون تفويض',hasL)}
+            <span style="color:#64748B;font-size:11px">🔢 دباب: ${hl(num,q)}</span>
+            ${mq?`<span style="color:#64748B;font-size:11px">🪪 ${hl(String(mq.iqama),q)}</span>`:''}
+            ${mq?pill(mq.status==='Valid'?'إقامة صالحة':'إقامة منتهية',mq.status==='Valid'):''}
+            ${totalO>0?`<span style="color:#64748B;font-size:11px">📦 ${totalO} أوردر</span>`:''}
+          </div>
         </div>
-        ${badge}
+        <span style="font-size:16px;color:#334155;flex-shrink:0">›</span>
       </div>`;
     }).join('');
-    if(bikeHits.length>15) html+=`<div style="text-align:center;font-size:11px;color:#475569;padding:6px">... و ${bikeHits.length-15} نتيجة أخرى</div>`;
+    if(bikeHits.length>20) html+=`<div style="text-align:center;font-size:11px;color:#475569;padding:5px">... و ${bikeHits.length-20} نتيجة أخرى</div>`;
   }
 
+  /* ─── VEHICLES ─── */
   if(vehHits.length){
     html+=`<div class="gs-group-title">🚗 المركبات — ${vehHits.length} نتيجة</div>`;
-    html+=vehHits.slice(0,12).map(r=>{
+    html+=vehHits.slice(0,15).map(r=>{
       const insOk=r.insurance==='ساري المفعول';
-      const badge=`<span class="gs-item-badge gs-badge-vehicle">${r.type||'مركبة'}</span>`;
-      return `<div class="gs-item" onclick="closeGlobalSearch();switchTab('vehicles')">
+      const inspOk=r.inspStatus==='ساري المفعول'||r.inspStatus==='لا يوجد';
+      return `<div class="gs-item" onclick="gsShowVehicle('${r.plate.replace(/'/g,"\\'")}')">
         <div class="gs-ico gs-ico-vehicle">🚗</div>
         <div style="flex:1;min-width:0">
-          <div class="gs-item-main">${hl(r.plate,q)}</div>
-          <div class="gs-item-sub">${r.brand} ${r.model} ${r.year} · ${r.color} · تأمين: <span style="color:${insOk?'#34D399':'#F87171'}">${r.insurance}</span></div>
+          <div class="gs-item-main" style="font-family:monospace">${hl(r.plate,q)}</div>
+          <div class="gs-item-sub" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;align-items:center">
+            <span style="color:#94A3B8;font-size:11px">${r.brand} ${r.model} ${r.year} · ${r.color}</span>
+            ${pill(insOk?'✅ تأمين ساري':'❌ تأمين '+r.insurance,insOk)}
+            ${inspOk?'':pillY('⚠ فحص: '+r.inspStatus)}
+            <span style="color:#64748B;font-size:11px">${r.type}</span>
+          </div>
         </div>
-        ${badge}
+        <span style="font-size:16px;color:#334155;flex-shrink:0">›</span>
       </div>`;
     }).join('');
-    if(vehHits.length>12) html+=`<div style="text-align:center;font-size:11px;color:#475569;padding:6px">... و ${vehHits.length-12} نتيجة أخرى</div>`;
+    if(vehHits.length>15) html+=`<div style="text-align:center;font-size:11px;color:#475569;padding:5px">... و ${vehHits.length-15} نتيجة أخرى</div>`;
   }
 
   el.innerHTML=html;
+}
+
+/* ─── Detail views ─── */
+function _gsBack(){
+  gsSearch(_gsLastQuery);
+  // restore input
+  document.getElementById('gs-input').value=_gsLastQuery;
+}
+
+function gsShowMuqeem(iqama){
+  const r=MUQEEM_DATA.find(x=>String(x.iqama)===String(iqama));
+  if(!r) return;
+  const ok=r.status==='Valid';
+  const bikeEntry=Object.entries(BIKES).find(([n])=>n.toLowerCase()===r.name.toLowerCase());
+  const bikeNum=bikeEntry?bikeEntry[1]:null;
+  const hasL=bikeEntry?LICENSE[bikeEntry[0]]===true:null;
+  const totalO=allData.filter(d=>d&&d.name&&d.name.toLowerCase()===r.name.toLowerCase()).reduce((s,d)=>s+d.orders,0);
+  const row=(lbl,val,c='#94A3B8')=>`<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="color:#64748B;font-size:12px">${lbl}</span><span style="color:${c};font-size:13px;font-weight:600">${val}</span></div>`;
+  const pill2=(t,ok2)=>`<span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;background:${ok2?'rgba(5,150,105,.18)':'rgba(220,38,38,.15)'};color:${ok2?'#34D399':'#F87171'};border:1px solid ${ok2?'rgba(52,211,153,.3)':'rgba(248,113,113,.25)'}">${t}</span>`;
+  document.getElementById('gs-results').innerHTML=`
+    <div style="padding:10px 6px">
+      <button onclick="_gsBack()" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#94A3B8;border-radius:8px;padding:6px 14px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer;margin-bottom:14px">‹ رجوع للنتايج</button>
+      <div style="background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:12px;padding:16px 18px;margin-bottom:12px">
+        <div style="font-size:16px;font-weight:800;color:#F1F5F9;margin-bottom:4px">${r.name}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+          ${pill2(ok?'✅ إقامة صالحة':'❌ إقامة منتهية',ok)}
+          ${bikeNum?pill2('🏍 دباب: '+bikeNum,true):''}
+          ${hasL===true?pill2('✅ تفويض',true):hasL===false?pill2('❌ بدون تفويض',false):''}
+          ${r.outside==='نعم'?`<span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;background:rgba(245,158,11,.12);color:#FCD34D;border:1px solid rgba(252,211,77,.25)">✈️ خارج المملكة</span>`:''}
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:4px 16px">
+        ${row('🪪 رقم الإقامة', r.iqama,'#38BDF8')}
+        ${row('💼 المهنة', r.job||'—')}
+        ${row('🏗 سند', r.sanad==='True'?'✅ موجود':'❌ غير موجود', r.sanad==='True'?'#34D399':'#F87171')}
+        ${row('🚗 رخصة ثقيلة', r.heavy||'—', r.heavy==='سارى'?'#34D399':'#64748B')}
+        ${row('🚗 رخصة خفيفة', r.light||'—', r.light==='سارى'?'#34D399':'#64748B')}
+        ${totalO>0?row('📦 إجمالي الأوردرات', totalO.toLocaleString(),'#00D4FF'):''}
+      </div>
+    </div>`;
+}
+
+function gsShowBike(name){
+  const bikeNum=BIKES[name];
+  const hasL=LICENSE[name]===true;
+  const mq=MUQEEM_DATA.find(r=>r.name.toLowerCase()===name.toLowerCase());
+  const courierRows=allData.filter(r=>r&&r.name===name).sort((a,b)=>b.date.localeCompare(a.date));
+  const totalO=courierRows.reduce((s,r)=>s+r.orders,0);
+  const totalH=courierRows.reduce((s,r)=>s+r.hours,0);
+  const pill2=(t,ok2)=>`<span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;background:${ok2?'rgba(5,150,105,.18)':'rgba(220,38,38,.15)'};color:${ok2?'#34D399':'#F87171'};border:1px solid ${ok2?'rgba(52,211,153,.3)':'rgba(248,113,113,.25)'}">${t}</span>`;
+  const row=(lbl,val,c='#94A3B8')=>`<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="color:#64748B;font-size:12px">${lbl}</span><span style="color:${c};font-size:13px;font-weight:600">${val}</span></div>`;
+  const last5=courierRows.slice(0,5);
+  document.getElementById('gs-results').innerHTML=`
+    <div style="padding:10px 6px">
+      <button onclick="_gsBack()" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#94A3B8;border-radius:8px;padding:6px 14px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer;margin-bottom:14px">‹ رجوع للنتايج</button>
+      <div style="background:rgba(168,85,247,.05);border:1px solid rgba(168,85,247,.2);border-radius:12px;padding:16px 18px;margin-bottom:12px">
+        <div style="font-size:16px;font-weight:800;color:#F1F5F9;margin-bottom:4px">${name}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+          ${bikeNum?`<span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;background:rgba(168,85,247,.15);color:#C084FC;border:1px solid rgba(168,85,247,.3)">🏍 دباب: ${bikeNum}</span>`:''}
+          ${pill2(hasL?'✅ تفويض':'❌ بدون تفويض',hasL)}
+          ${mq?pill2(mq.status==='Valid'?'✅ إقامة صالحة':'❌ إقامة منتهية',mq.status==='Valid'):''}
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:4px 16px;margin-bottom:12px">
+        ${mq?row('🪪 رقم الإقامة', mq.iqama,'#38BDF8'):''}
+        ${totalO>0?row('📦 إجمالي الأوردرات', totalO.toLocaleString(),'#00D4FF'):''}
+        ${totalH>0?row('⏱ إجمالي الساعات', totalH.toFixed(1)+'h','#34D399'):''}
+        ${mq&&mq.job?row('💼 المهنة', mq.job):''}
+      </div>
+      ${last5.length?`
+      <div style="font-size:11px;color:#475569;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">📅 آخر الأيام</div>
+      <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:4px 16px">
+        ${last5.map(r=>row(r.date, r.orders+' أوردر &nbsp;·&nbsp; '+r.hours+'h','#F1F5F9')).join('')}
+      </div>`:''}
+    </div>`;
+}
+
+function gsShowVehicle(plate){
+  const r=VEHICLES_DATA.find(v=>v.plate===plate);
+  if(!r) return;
+  const insOk=r.insurance==='ساري المفعول';
+  const inspOk=r.inspStatus==='ساري المفعول'||r.inspStatus==='لا يوجد';
+  const pill2=(t,ok2,y=false)=>y
+    ?`<span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;background:rgba(245,158,11,.12);color:#FCD34D;border:1px solid rgba(252,211,77,.25)">${t}</span>`
+    :`<span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;background:${ok2?'rgba(5,150,105,.18)':'rgba(220,38,38,.15)'};color:${ok2?'#34D399':'#F87171'};border:1px solid ${ok2?'rgba(52,211,153,.3)':'rgba(248,113,113,.25)'}">${t}</span>`;
+  const row=(lbl,val,c='#94A3B8')=>`<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="color:#64748B;font-size:12px">${lbl}</span><span style="color:${c};font-size:13px;font-weight:600">${val}</span></div>`;
+  // find tafweed
+  const tw=plateTafweed?plateTafweed(r.plate):null;
+  document.getElementById('gs-results').innerHTML=`
+    <div style="padding:10px 6px">
+      <button onclick="_gsBack()" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#94A3B8;border-radius:8px;padding:6px 14px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer;margin-bottom:14px">‹ رجوع للنتايج</button>
+      <div style="background:rgba(251,191,36,.04);border:1px solid rgba(251,191,36,.2);border-radius:12px;padding:16px 18px;margin-bottom:12px">
+        <div style="font-size:18px;font-weight:900;color:#38BDF8;font-family:monospace;margin-bottom:6px">${r.plate}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${pill2(insOk?'✅ تأمين ساري':'❌ تأمين '+r.insurance,insOk)}
+          ${inspOk?pill2('✅ فحص ساري',true):pill2('⚠ '+r.inspStatus,false,true)}
+          ${r.hold&&r.hold!=='غير متحفظ'?pill2('🔒 '+r.hold,false):''}
+          ${tw?pill2(tw.hasTafweed?'✅ تفويض: '+tw.courier:'❌ بدون تفويض',tw.hasTafweed):''}
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:4px 16px">
+        ${row('🚗 النوع', r.type)}
+        ${row('🏷 الماركة', r.brand,'#F1F5F9')}
+        ${row('📋 الطراز', r.model)}
+        ${row('📅 سنة الصنع', r.year,'#38BDF8')}
+        ${row('🎨 اللون', r.color)}
+        ${row('📄 انتهاء الرخصة', r.licenseExp, r.licenseExp?'#FBBF24':'#64748B')}
+        ${row('🔍 انتهاء الفحص', r.inspExp||'—')}
+        ${row('🛡 التأمين', r.insurance, insOk?'#34D399':'#F87171')}
+      </div>
+    </div>`;
 }
 
 </script>
