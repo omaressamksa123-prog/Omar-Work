@@ -511,6 +511,64 @@
   .kpi-card{backdrop-filter:blur(10px);}
   .stat-card{backdrop-filter:blur(6px);}
   .sidebar{backdrop-filter:blur(4px);}
+
+  /* ── GLOBAL SEARCH MODAL ── */
+  #global-search-overlay{
+    display:none;position:fixed;inset:0;z-index:200;
+    background:rgba(0,0,0,.75);backdrop-filter:blur(8px);
+    align-items:flex-start;justify-content:center;padding-top:80px;
+  }
+  #global-search-overlay.open{display:flex;}
+  #global-search-box{
+    background:#141B2D;border:1px solid rgba(0,212,255,.25);
+    border-radius:16px;width:640px;max-width:96vw;
+    box-shadow:0 24px 80px rgba(0,0,0,.8),0 0 0 1px rgba(0,212,255,.08);
+    animation:slideUp .2s ease;overflow:hidden;
+  }
+  #gs-input-wrap{
+    display:flex;align-items:center;gap:10px;
+    padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.07);
+    background:rgba(0,212,255,.04);
+  }
+  #gs-input{
+    flex:1;background:transparent;border:none;outline:none;
+    color:#F1F5F9;font-family:'Cairo',sans-serif;font-size:16px;font-weight:600;
+  }
+  #gs-input::placeholder{color:#475569;}
+  #gs-clear{color:#475569;cursor:pointer;font-size:18px;padding:2px 6px;border-radius:4px;transition:.15s;}
+  #gs-clear:hover{color:#F1F5F9;background:rgba(255,255,255,.1);}
+  #gs-results{max-height:460px;overflow-y:auto;padding:10px 12px;}
+  #gs-empty{text-align:center;padding:40px;color:#475569;font-size:14px;}
+  .gs-group-title{
+    font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;
+    letter-spacing:.12em;padding:8px 6px 6px;
+  }
+  .gs-item{
+    display:flex;align-items:center;gap:12px;
+    padding:10px 12px;border-radius:10px;cursor:pointer;
+    transition:background .15s;margin-bottom:3px;
+  }
+  .gs-item:hover{background:rgba(255,255,255,.06);}
+  .gs-ico{
+    width:36px;height:36px;border-radius:10px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;font-size:17px;
+  }
+  .gs-ico-muqeem{background:rgba(0,212,255,.12);border:1px solid rgba(0,212,255,.2);}
+  .gs-ico-bike  {background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.2);}
+  .gs-ico-vehicle{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);}
+  .gs-item-main{font-size:13px;font-weight:700;color:#F1F5F9;margin-bottom:2px;}
+  .gs-item-sub{font-size:11px;color:#64748B;line-height:1.4;}
+  .gs-item-badge{
+    margin-right:auto;font-size:10px;padding:2px 8px;border-radius:20px;
+    font-weight:700;white-space:nowrap;
+  }
+  .gs-badge-valid  {background:rgba(5,150,105,.2);color:#34D399;border:1px solid rgba(52,211,153,.3);}
+  .gs-badge-invalid{background:rgba(220,38,38,.15);color:#F87171;border:1px solid rgba(248,113,113,.25);}
+  .gs-badge-lic    {background:rgba(16,185,129,.15);color:#34D399;border:1px solid rgba(52,211,153,.3);}
+  .gs-badge-nolic  {background:rgba(220,38,38,.15);color:#F87171;border:1px solid rgba(248,113,113,.25);}
+  .gs-badge-vehicle{background:rgba(251,191,36,.1);color:#FBBF24;border:1px solid rgba(251,191,36,.25);}
+  .gs-hint{text-align:center;padding:22px;color:#334155;font-size:12px;}
+  mark.hl{background:rgba(0,212,255,.25);color:#E0F7FF;border-radius:2px;padding:0 1px;}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -531,6 +589,13 @@
           <input id="courier-search" type="text" placeholder="🔍 ابحث..." oninput="applySearch(this.value)" autocomplete="off" />
           <span class="search-clear" id="search-clear" onclick="clearSearch()" style="display:none">✕</span>
         </div>
+        <button onclick="openGlobalSearch()" style="
+          display:flex;align-items:center;gap:6px;padding:8px 16px;
+          background:linear-gradient(135deg,#0f2744,#1e3a5f);color:#00D4FF;
+          border:1px solid rgba(0,212,255,.35);border-radius:8px;font-family:'Cairo',sans-serif;
+          font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;
+          box-shadow:0 2px 12px rgba(0,212,255,.15);transition:all .2s;
+        " onmouseover="this.style.background='linear-gradient(135deg,#1e3a5f,#2a4f7f)'" onmouseout="this.style.background='linear-gradient(135deg,#0f2744,#1e3a5f)'">🔍 بحث شامل</button>
         <button onclick="exportData()" style="
           display:flex;align-items:center;gap:6px;padding:8px 14px;
           background:linear-gradient(135deg,#7C3AED,#6366F1);color:#fff;
@@ -3396,6 +3461,112 @@ function clearStoredData(key){
 
 document.addEventListener('DOMContentLoaded', refreshUpdateModal);
 
+/* ══════════════════════════════════════════
+   GLOBAL SEARCH
+══════════════════════════════════════════ */
+function openGlobalSearch(){
+  document.getElementById('global-search-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('gs-input').focus(),80);
+}
+function closeGlobalSearch(){
+  document.getElementById('global-search-overlay').classList.remove('open');
+  document.getElementById('gs-input').value='';
+  document.getElementById('gs-results').innerHTML='<div class="gs-hint">اكتب على الأقل حرفين للبحث — اسم · رقم إقامة · رقم دباب · لوحة مركبة</div>';
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeGlobalSearch(); });
+
+function hl(text, q){
+  if(!q) return text;
+  const rx=new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+  return String(text).replace(rx,'<mark class="hl">$1</mark>');
+}
+
+function gsSearch(raw){
+  const q=raw.trim();
+  const el=document.getElementById('gs-results');
+  if(q.length<2){ el.innerHTML='<div class="gs-hint">اكتب على الأقل حرفين...</div>'; return; }
+  const lq=q.toLowerCase();
+
+  // ── search MUQEEM ──
+  const muqHits=MUQEEM_DATA.filter(r=>
+    r.name.toLowerCase().includes(lq) ||
+    String(r.iqama).includes(q)
+  );
+
+  // ── search BIKES ──
+  const bikeHits=Object.entries(BIKES).filter(([name,num])=>
+    name.toLowerCase().includes(lq) ||
+    String(num).includes(q)
+  );
+
+  // ── search VEHICLES ──
+  const vehHits=VEHICLES_DATA.filter(r=>
+    r.plate.replace(/\s/g,'').includes(q.replace(/\s/g,'')) ||
+    r.brand.toLowerCase().includes(lq) ||
+    r.model.toLowerCase().includes(lq)
+  );
+
+  const total=muqHits.length+bikeHits.length+vehHits.length;
+  if(total===0){ el.innerHTML='<div id="gs-empty">😕 ما في نتايج لـ «'+q+'»</div>'; return; }
+
+  let html='';
+
+  if(muqHits.length){
+    html+=`<div class="gs-group-title">🏢 المؤسسة — ${muqHits.length} نتيجة</div>`;
+    html+=muqHits.slice(0,15).map(r=>{
+      const isValid=r.status==='Valid';
+      const badge=`<span class="gs-item-badge ${isValid?'gs-badge-valid':'gs-badge-invalid'}">${isValid?'✅ إقامة صالحة':'❌ إقامة منتهية'}</span>`;
+      return `<div class="gs-item" onclick="closeGlobalSearch();switchTab('muqeem')">
+        <div class="gs-ico gs-ico-muqeem">🏢</div>
+        <div style="flex:1;min-width:0">
+          <div class="gs-item-main">${hl(r.name,q)}</div>
+          <div class="gs-item-sub">🪪 ${hl(r.iqama,q)} &nbsp;|&nbsp; ${r.job||'—'} &nbsp;|&nbsp; خارج: ${r.outside}</div>
+        </div>
+        ${badge}
+      </div>`;
+    }).join('');
+    if(muqHits.length>15) html+=`<div style="text-align:center;font-size:11px;color:#475569;padding:6px">... و ${muqHits.length-15} نتيجة أخرى</div>`;
+  }
+
+  if(bikeHits.length){
+    html+=`<div class="gs-group-title">🏍 البايكات — ${bikeHits.length} نتيجة</div>`;
+    html+=bikeHits.slice(0,15).map(([name,num])=>{
+      const hasL=LICENSE[name]===true;
+      const badge=`<span class="gs-item-badge ${hasL?'gs-badge-lic':'gs-badge-nolic'}">${hasL?'✅ تفويض':'❌ بدون تفويض'}</span>`;
+      // find muqeem iqama
+      const mq=MUQEEM_DATA.find(r=>r.name.toLowerCase()===name.toLowerCase());
+      return `<div class="gs-item" onclick="closeGlobalSearch();switchTab('bikes')">
+        <div class="gs-ico gs-ico-bike">🏍</div>
+        <div style="flex:1;min-width:0">
+          <div class="gs-item-main">${hl(name,q)}</div>
+          <div class="gs-item-sub">🔢 بايك: ${hl(num,q)}${mq?` &nbsp;|&nbsp; 🪪 ${hl(mq.iqama,q)}`:''}</div>
+        </div>
+        ${badge}
+      </div>`;
+    }).join('');
+    if(bikeHits.length>15) html+=`<div style="text-align:center;font-size:11px;color:#475569;padding:6px">... و ${bikeHits.length-15} نتيجة أخرى</div>`;
+  }
+
+  if(vehHits.length){
+    html+=`<div class="gs-group-title">🚗 المركبات — ${vehHits.length} نتيجة</div>`;
+    html+=vehHits.slice(0,12).map(r=>{
+      const insOk=r.insurance==='ساري المفعول';
+      const badge=`<span class="gs-item-badge gs-badge-vehicle">${r.type||'مركبة'}</span>`;
+      return `<div class="gs-item" onclick="closeGlobalSearch();switchTab('vehicles')">
+        <div class="gs-ico gs-ico-vehicle">🚗</div>
+        <div style="flex:1;min-width:0">
+          <div class="gs-item-main">${hl(r.plate,q)}</div>
+          <div class="gs-item-sub">${r.brand} ${r.model} ${r.year} · ${r.color} · تأمين: <span style="color:${insOk?'#34D399':'#F87171'}">${r.insurance}</span></div>
+        </div>
+        ${badge}
+      </div>`;
+    }).join('');
+    if(vehHits.length>12) html+=`<div style="text-align:center;font-size:11px;color:#475569;padding:6px">... و ${vehHits.length-12} نتيجة أخرى</div>`;
+  }
+
+  el.innerHTML=html;
+}
+
 </script>
 
 <!-- ════ Data Update Modal ════ -->
@@ -3476,6 +3647,19 @@ document.addEventListener('DOMContentLoaded', refreshUpdateModal);
       </div>
     </div>
 
+  </div>
+</div>
+<!-- GLOBAL SEARCH MODAL -->
+<div id="global-search-overlay" onclick="if(event.target===this)closeGlobalSearch()">
+  <div id="global-search-box">
+    <div id="gs-input-wrap">
+      <span style="font-size:18px;color:#00D4FF;">🔍</span>
+      <input id="gs-input" type="text" placeholder="ابحث بالاسم أو رقم الإقامة أو رقم الدباب..." autocomplete="off" oninput="gsSearch(this.value)" />
+      <span id="gs-clear" onclick="closeGlobalSearch()">✕</span>
+    </div>
+    <div id="gs-results">
+      <div class="gs-hint">اكتب على الأقل حرفين للبحث — اسم · رقم إقامة · رقم دباب · لوحة مركبة</div>
+    </div>
   </div>
 </div>
 </body>
