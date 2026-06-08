@@ -2598,8 +2598,12 @@ function showHistory(name){
       }).join('')}</div>
     </div>
   </div>`;
-  // scroll profile into view automatically
-  setTimeout(()=>{ const ha=document.getElementById('history-area'); if(ha) ha.scrollIntoView({behavior:'smooth',block:'start'}); },60);
+  // scroll the .content container to show the profile panel
+  setTimeout(()=>{
+    const ha=document.getElementById('history-area');
+    const cont=document.querySelector('.content');
+    if(ha&&cont) cont.scrollTo({top:ha.offsetTop-16,behavior:'smooth'});
+  },80);
 }
 
 function closeHistory(){selectedCourier='';document.getElementById('history-area').innerHTML='';document.querySelectorAll('.c-name').forEach(el=>el.classList.remove('active-courier'));}
@@ -3506,7 +3510,7 @@ function gsSearch(raw){
       const bikeNum=bikeEntry?bikeEntry[1]:null;
       const hasL=bikeEntry?LICENSE[bikeEntry[0]]===true:null;
       const courierName=bikeEntry?bikeEntry[0]:r.name;
-      return `<div class="gs-item" onclick="gsBarClear();switchTab('orders');setTimeout(()=>showHistory('${courierName.replace(/'/g,"\\'")}'),80)">
+      return `<div class="gs-item" onclick="gsBarClear();switchTab('orders');setTimeout(()=>showHistory('${courierName.replace(/'/g,"\\'")}'),200)">
         <div class="gs-ico gs-ico-muqeem">🏢</div>
         <div style="flex:1;min-width:0;overflow:hidden">
           <div class="gs-item-main">${hl(r.name,q)}</div>
@@ -3532,7 +3536,7 @@ function gsSearch(raw){
       const hasL=LICENSE[name]===true;
       const mq=MUQEEM_DATA.find(r=>r.name.toLowerCase()===name.toLowerCase());
       const totalO=allData.filter(r=>r&&r.name===name).reduce((s,r)=>s+r.orders,0);
-      return `<div class="gs-item" onclick="gsBarClear();switchTab('orders');setTimeout(()=>showHistory('${name.replace(/'/g,"\\'")}'),80)">
+      return `<div class="gs-item" onclick="gsBarClear();switchTab('orders');setTimeout(()=>showHistory('${name.replace(/'/g,"\\'")}'),200)">
         <div class="gs-ico gs-ico-bike">🏍</div>
         <div style="flex:1;min-width:0">
           <div class="gs-item-main">${hl(name,q)}</div>
