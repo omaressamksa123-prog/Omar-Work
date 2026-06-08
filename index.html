@@ -2526,7 +2526,8 @@ async function uploadDayImage(event){
   showToast('⏳ جاري تحليل الصورة...');
 
   try {
-    const today=new Date().toISOString().slice(0,10);
+    // use Saudi timezone (UTC+3)
+    const todaySA=new Date(Date.now()+3*3600000).toISOString().slice(0,10);
     const prompt=`Extract courier performance data from this Keeta dashboard screenshot.
 Return ONLY valid JSON, no markdown, no explanation:
 {
@@ -2537,7 +2538,7 @@ Return ONLY valid JSON, no markdown, no explanation:
   ]
 }
 Rules:
-- date: find the date shown in the screenshot. If unclear, use today: ${today}
+- date: use today's date ${todaySA} (do NOT read date from screenshot)
 - name: exact name as shown (first + last name)
 - hours: Online hours (decimal number)
 - orders: Completed orders (integer)
@@ -2580,9 +2581,29 @@ Rules:
     const clean = text.replace(/```json|```/g,'').trim();
     const parsed = JSON.parse(clean);
 
-    const date = parsed.date;
-    const lines = parsed.couriers.map(c=>`${c.name}: ${c.orders} أوردر، ${c.hours}h`).join('\n');
-    if(!confirm(`يوم ${date} — ${parsed.couriers.length} مندوب:\n\n${lines}\n\nتضيفه للداش بورد؟`)) return;
+    // ask user to confirm/edit date via custom dialog
+    const date = await new Promise(resolve=>{
+      const overlay=document.createElement('div');
+      overlay.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:99999;display:flex;align-items:center;justify-content:center;';
+      const lines=parsed.couriers.map(c=>`${c.name}: ${c.orders} أوردر، ${c.hours}h`).join('<br>');
+      overlay.innerHTML=`<div style="background:#1A2238;border:1px solid rgba(0,212,255,.3);border-radius:16px;padding:24px 28px;width:min(480px,90vw);font-family:Cairo,sans-serif;direction:rtl;">
+        <div style="font-size:16px;font-weight:800;color:#00D4FF;margin-bottom:16px;">📊 تأكيد إضافة اليوم</div>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:12px;color:#94A3B8;display:block;margin-bottom:6px;">📅 التاريخ (عدّله لو غلط):</label>
+          <input type="date" id="confirm-date" value="${parsed.date||todaySA}" style="background:#0B0F1E;border:1px solid rgba(0,212,255,.3);border-radius:8px;padding:8px 12px;color:#F1F5F9;font-family:Cairo,sans-serif;font-size:14px;width:100%;box-sizing:border-box;">
+        </div>
+        <div style="background:rgba(0,0,0,.3);border-radius:8px;padding:12px;max-height:200px;overflow-y:auto;font-size:12px;color:#94A3B8;margin-bottom:16px;line-height:1.8;">${lines}</div>
+        <div style="font-size:12px;color:#64748B;margin-bottom:16px;">${parsed.couriers.length} مندوب — تضيفهم للداشبورد؟</div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button id="confirm-cancel" style="background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:#F87171;padding:8px 20px;border-radius:8px;cursor:pointer;font-family:Cairo,sans-serif;">إلغاء</button>
+          <button id="confirm-ok" style="background:linear-gradient(135deg,#00D4FF,#6366F1);border:none;color:#fff;padding:8px 20px;border-radius:8px;cursor:pointer;font-family:Cairo,sans-serif;font-weight:700;">✅ إضافة</button>
+        </div>
+      </div>`;
+      document.body.appendChild(overlay);
+      document.getElementById('confirm-ok').onclick=()=>{ const d=document.getElementById('confirm-date').value; document.body.removeChild(overlay); resolve(d||todaySA); };
+      document.getElementById('confirm-cancel').onclick=()=>{ document.body.removeChild(overlay); resolve(null); };
+    });
+    if(!date) return;
 
     let added=0;
     for(const c of parsed.couriers){
