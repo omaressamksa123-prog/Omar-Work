@@ -2558,67 +2558,167 @@ function showHistory(name){
   const rows=allData.filter(r=>r&&r.name===name).sort((a,b)=>a.date.localeCompare(b.date));
   if(!rows.length){document.getElementById('history-area').innerHTML='';return;}
   const av=ac(name);
-  const totalO=rows.reduce((s,r)=>s+r.orders,0);
-  const totalH=rows.reduce((s,r)=>s+r.hours,0);
-  const maxO=Math.max(...rows.map(r=>r.orders),1);
   const bike=BIKES[name]||'';
   const iqama=IQAMA[name]||'';
 
-  // km total for this courier
+  // ── totals ──
+  const totalO=rows.reduce((s,r)=>s+r.orders,0);
+  const totalH=rows.reduce((s,r)=>s+r.hours,0);
+  const maxO=Math.max(...rows.map(r=>r.orders),1);
+  const workDays=rows.filter(r=>r.orders>0).length;
+  const absentDays=rows.filter(r=>r.orders===0).length;
+  const avgDay=workDays?+(totalO/workDays).toFixed(1):0;
+  const bestRow=rows.reduce((b,r)=>r.orders>b.orders?r:b,rows[0]);
+  const hoursPerOrder=totalO>0?+(totalH/totalO).toFixed(2):0;
+
+  // ── km ──
   const kmTotal=Object.values(KM_DATA).reduce((s,d)=>s+(d[name]||0),0);
   const allKmTotals=Object.keys(BIKES).map(n=>Object.values(KM_DATA).reduce((s,d)=>s+(d[n]||0),0));
-  const maxKmTotal=Math.max(...allKmTotals);
+  const maxKmTotal=Math.max(...allKmTotals,1);
 
-  // hide table & chart, show profile fullscreen
+  // ── rank by total orders (all time) ──
+  const allTotals=Object.keys(BIKES).map(n=>allData.filter(r=>r&&r.name===n).reduce((s,r)=>s+r.orders,0));
+  allTotals.sort((a,b)=>b-a);
+  const rank=allTotals.indexOf(totalO)+1;
+  const totalCouriers=Object.keys(BIKES).length;
+
+  // ── muqeem status ──
+  const muq=MUQEEM_DATA.find(r=>r.name&&r.name.toLowerCase()===name.toLowerCase());
+  const iqamaOk=muq?muq.status==='Valid':null;
+  const outside=muq?muq.outside==='نعم':false;
+  const licOk=LICENSE[name]===true;
+
+  // ── monthly breakdown ──
+  const months=[...new Set(rows.map(r=>mk(r.date)))].sort();
+  const maxMonthO=Math.max(...months.map(m=>rows.filter(r=>mk(r.date)===m).reduce((s,r)=>s+r.orders,0)),1);
+
+  // ── hide table/chart, show fullscreen ──
   const tblWrap=document.querySelector('.tbl-wrap');
   const chartArea=document.getElementById('chart-area');
   if(tblWrap) tblWrap.style.display='none';
   if(chartArea) chartArea.style.display='none';
 
+  const badge=(txt,ok,neutral)=>{
+    if(ok===null||ok===undefined) return neutral?`<span style="background:rgba(100,116,139,.15);border:1px solid rgba(100,116,139,.3);color:#94A3B8;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">${txt}</span>`:'';
+    return ok
+      ?`<span style="background:rgba(16,185,129,.15);border:1px solid rgba(52,211,153,.3);color:#34D399;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">✅ ${txt}</span>`
+      :`<span style="background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:#F87171;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">❌ ${txt}</span>`;
+  };
+
   const ha=document.getElementById('history-area');
   ha.style.display='block';
   ha.innerHTML=`
   <div class="history-wrap" style="margin-top:0">
-    <div class="hp-hdr">
-      <div class="hp-avatar" style="background:${av.bg};color:${av.txt}">${ini(name)}</div>
-      <div style="flex:1">
-        <div style="font-size:15px;font-weight:700;color:#fff">${name}</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;gap:10px;margin-top:3px">
-          ${bike?`<span>🏍 ${bike}</span>`:''}
-          ${iqama?`<span>🪪 ${iqama}</span>`:''}
+
+    <!-- ══ HEADER ══ -->
+    <div class="hp-hdr" style="background:linear-gradient(135deg,#1a1040 0%,#0d1f3c 50%,#0f1e2e 100%);padding:20px 24px;">
+      <div class="hp-avatar" style="background:${av.bg};color:${av.txt};width:54px;height:54px;font-size:20px;border-radius:14px;flex-shrink:0">${ini(name)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:17px;font-weight:800;color:#fff;letter-spacing:.01em">${name}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;align-items:center">
+          ${bike?`<span style="background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.3);color:#C084FC;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">🏍 ${bike}</span>`:''}
+          ${iqama?`<span style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);color:#7DD3FC;padding:3px 10px;border-radius:20px;font-size:11px;">🪪 ${iqama}</span>`:''}
+          ${badge('تفويض',licOk)}
+          ${badge('إقامة صالحة',iqamaOk,!muq)}
+          ${outside?`<span style="background:rgba(251,191,36,.1);border:1px solid rgba(252,211,77,.3);color:#FCD34D;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">✈️ خارج المملكة</span>`:''}
         </div>
       </div>
-      <button class="close-btn" onclick="closeHistory()">← رجوع للجدول</button>
+      <button class="close-btn" onclick="closeHistory()" style="flex-shrink:0">← رجوع</button>
     </div>
+
     <div class="hp-body">
-      <div class="summary-row">
-        <div class="s-card"><div class="s-lbl">إجمالي الأوردرات</div><div class="s-val" style="color:#7BC4F5">${totalO}</div></div>
-        <div class="s-card"><div class="s-lbl">إجمالي الساعات</div><div class="s-val" style="color:#12A872">${totalH.toFixed(1)}h</div></div>
-        <div class="s-card"><div class="s-lbl">معدل يومي</div><div class="s-val">${(totalO/rows.length).toFixed(1)}</div></div>
-        <div class="s-card s-km"><div class="s-lbl">إجمالي الكيلومترات</div><div class="s-val">${kmTotal.toFixed(1)} كم</div></div>
+
+      <!-- ══ STATS GRID ══ -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:18px">
+        <div style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);border-radius:10px;padding:12px 14px;text-align:center">
+          <div style="font-size:11px;color:#818CF8;margin-bottom:4px">إجمالي الأوردرات</div>
+          <div style="font-size:22px;font-weight:800;color:#A5B4FC">${totalO}</div>
+        </div>
+        <div style="background:rgba(16,185,129,.08);border:1px solid rgba(52,211,153,.2);border-radius:10px;padding:12px 14px;text-align:center">
+          <div style="font-size:11px;color:#6EE7B7;margin-bottom:4px">إجمالي الساعات</div>
+          <div style="font-size:22px;font-weight:800;color:#34D399">${totalH.toFixed(1)}h</div>
+        </div>
+        <div style="background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);border-radius:10px;padding:12px 14px;text-align:center">
+          <div style="font-size:11px;color:#7DD3FC;margin-bottom:4px">معدل يومي</div>
+          <div style="font-size:22px;font-weight:800;color:#38BDF8">${avgDay}</div>
+        </div>
+        <div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:10px;padding:12px 14px;text-align:center">
+          <div style="font-size:11px;color:#FDE68A;margin-bottom:4px">إجمالي كم</div>
+          <div style="font-size:22px;font-weight:800;color:#FBBF24">${kmTotal.toFixed(0)}</div>
+        </div>
+        <div style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);border-radius:10px;padding:12px 14px;text-align:center">
+          <div style="font-size:11px;color:#6EE7B7;margin-bottom:4px">أيام عمل</div>
+          <div style="font-size:22px;font-weight:800;color:#10B981">${workDays}</div>
+          ${absentDays>0?`<div style="font-size:10px;color:#F87171;margin-top:2px">${absentDays} غياب</div>`:''}
+        </div>
+        <div style="background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.2);border-radius:10px;padding:12px 14px;text-align:center">
+          <div style="font-size:11px;color:#C084FC;margin-bottom:4px">الترتيب</div>
+          <div style="font-size:22px;font-weight:800;color:#A855F7">${rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'#'+rank}</div>
+          <div style="font-size:10px;color:#64748B;margin-top:2px">من ${totalCouriers}</div>
+        </div>
       </div>
-      ${kmTotal>0?`<div class="km-compare">
-        <div class="km-compare-lbl">مقارنة الكيلومترات الإجمالية مع باقي المندوبين</div>
-        <div class="km-cbar">
-          <div class="km-cbar-bg"><div class="km-cbar-fill" style="width:${Math.round(kmTotal/maxKmTotal*100)}%"></div></div>
-          <div class="km-cbar-val">${kmTotal.toFixed(1)} كم</div>
+
+      <!-- ══ BEST DAY + KM BAR ══ -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">
+        <div style="background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.2);border-radius:10px;padding:12px 16px">
+          <div style="font-size:11px;color:#FDE68A;margin-bottom:6px">🏆 أفضل يوم</div>
+          <div style="font-size:18px;font-weight:800;color:#FBBF24">${bestRow.orders} أوردر</div>
+          <div style="font-size:11px;color:#94A3B8;margin-top:3px">${fd(bestRow.date)}</div>
+        </div>
+        <div style="background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.2);border-radius:10px;padding:12px 16px">
+          <div style="font-size:11px;color:#FCA5A5;margin-bottom:6px">⏱ ساعة / أوردر</div>
+          <div style="font-size:18px;font-weight:800;color:#F87171">${hoursPerOrder}h</div>
+          <div style="font-size:11px;color:#94A3B8;margin-top:3px">متوسط وقت التوصيل</div>
+        </div>
+      </div>
+
+      <!-- ══ KM RANK BAR ══ -->
+      ${kmTotal>0?`<div style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.15);border-radius:10px;padding:12px 16px;margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-size:11px;color:#FDE68A">🛣 مقارنة الكيلومترات مع باقي المندوبين</div>
+          <div style="font-size:13px;font-weight:700;color:#FBBF24">${kmTotal.toFixed(1)} كم</div>
+        </div>
+        <div style="background:rgba(255,255,255,.07);border-radius:20px;height:10px;overflow:hidden">
+          <div style="height:100%;width:${Math.round(kmTotal/maxKmTotal*100)}%;background:linear-gradient(90deg,#D97706,#FBBF24);border-radius:20px;transition:width .6s"></div>
         </div>
       </div>`:''}
-      <div class="hp-days-title">الأوردرات والساعات لكل يوم — الأزرق = أعلى يوم</div>
+
+      <!-- ══ MONTHLY BREAKDOWN ══ -->
+      ${months.length>1?`<div style="background:rgba(255,255,255,.03);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;margin-bottom:18px">
+        <div style="font-size:12px;color:#94A3B8;font-weight:700;margin-bottom:10px">📅 الأداء الشهري</div>
+        ${months.map(m=>{
+          const mo=rows.filter(r=>mk(r.date)===m).reduce((s,r)=>s+r.orders,0);
+          const mh=rows.filter(r=>mk(r.date)===m).reduce((s,r)=>s+r.hours,0);
+          const mdays=rows.filter(r=>mk(r.date)===m&&r.orders>0).length;
+          const pct=Math.round(mo/maxMonthO*100);
+          return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:7px">
+            <div style="width:56px;font-size:11px;color:#64748B;text-align:right;flex-shrink:0">${ml(m)}</div>
+            <div style="flex:1;background:rgba(255,255,255,.06);border-radius:20px;height:8px;overflow:hidden">
+              <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--cyan),var(--purple2));border-radius:20px"></div>
+            </div>
+            <div style="font-size:12px;font-weight:700;color:#A5B4FC;width:36px;text-align:left">${mo}</div>
+            <div style="font-size:10px;color:#475569;width:46px">${mdays}يوم · ${mh.toFixed(0)}h</div>
+          </div>`;
+        }).join('')}
+      </div>`:''}
+
+      <!-- ══ DAILY CARDS ══ -->
+      <div class="hp-days-title">📆 سجل الأيام — الأزرق = أفضل يوم</div>
       <div class="days-grid">${rows.map(r=>{
         const best=r.orders===maxO&&r.orders>0;
-        const dayKm=Object.entries(KM_DATA).find(([d])=>d===r.date)?.[1]?.[name];
+        const dayKm=KM_DATA[r.date]?.[name];
         return`<div class="day-card ${best?'best':''}">
           <div class="day-date">${fd(r.date)}</div>
-          <div class="day-orders">${r.orders}</div>
+          <div class="day-orders" style="${r.orders===0?'color:#475569':''}">${r.orders}</div>
           <div class="day-lbl">أوردر</div>
           <div class="day-hours">${r.hours>0?r.hours.toFixed(1)+'h':'-'}</div>
           ${dayKm!=null?`<div style="font-size:10px;color:#D4A017;margin-top:2px">${dayKm} كم</div>`:''}
         </div>`;
       }).join('')}</div>
+
     </div>
   </div>`;
-  // scroll to top of profile
+
   const cont=document.querySelector('.content');
   if(cont) cont.scrollTop=0;
 }
@@ -2863,69 +2963,125 @@ function importKmExcel(event){
   event.target.value='';
   if(!file) return;
 
-  // Try to detect date from filename e.g. Trips-20260604-1200.xlsx → 2026-06-04
+  // detect date from filename: Trips-20260605-2058.xlsx → 2026-06-05
   let suggestedDate='';
-  const m=file.name.match(/(\d{4})(\d{2})(\d{2})/);
-  if(m) suggestedDate=`${m[1]}-${m[2]}-${m[3]}`;
+  const fm=file.name.match(/(\d{4})(\d{2})(\d{2})/);
+  if(fm) suggestedDate=`${fm[1]}-${fm[2]}-${fm[3]}`;
 
   const reader=new FileReader();
   reader.onload=function(e){
     let wb;
-    try{
-      wb=XLSX.read(e.target.result,{type:'array'});
-    }catch(err){
-      showToast('❌ فشل قراءة الملف: '+err.message); return;
+    try{ wb=XLSX.read(e.target.result,{type:'array'}); }
+    catch(err){ showToast('❌ فشل قراءة الملف: '+err.message); return; }
+
+    const sheetNames=wb.SheetNames;
+    const isTrips=sheetNames.some(n=>n.endsWith(' - 2'));
+
+    if(isTrips){
+      /* ── TRIPS MULTI-SHEET FORMAT ── */
+      const bikeKm={};
+      let detectedDate=suggestedDate;
+      const numToName={};
+      Object.entries(BIKES).forEach(([name,num])=>numToName[String(num)]=name);
+
+      sheetNames.forEach(sname=>{
+        if(!sname.endsWith(' - 2')) return;
+        const ws=wb.Sheets[sname];
+        if(!ws) return;
+        const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+
+        // bike number = last digit sequence in base name
+        const base=sname.slice(0,-4).trim();
+        const nm=base.match(/(\d+)\s*$/);
+        if(!nm) return;
+        const bikeNum=nm[1];
+
+        rows.forEach(row=>{
+          const c0=String(row[0]||'');
+          if(c0.toLowerCase().includes('length')||c0.toLowerCase().includes('km')){
+            const v=parseFloat(row[1]);
+            if(!isNaN(v)&&v>0) bikeKm[bikeNum]=v;
+          }
+        });
+
+        // extract date from main sheet period line
+        if(!detectedDate){
+          const mainWs=wb.Sheets[base];
+          if(mainWs){
+            const mrows=XLSX.utils.sheet_to_json(mainWs,{header:1,defval:''});
+            mrows.forEach(r=>{
+              const txt=String(r[0]||'');
+              const dm=txt.match(/(\d{2})-(\d{2})-(\d{4})/);
+              if(dm&&!detectedDate) detectedDate=`${dm[3]}-${dm[1]}-${dm[2]}`;
+            });
+          }
+        }
+      });
+
+      const kmMap={};
+      const unmatched=[];
+      Object.entries(bikeKm).forEach(([num,km])=>{
+        const name=numToName[num];
+        if(name) kmMap[name]=km;
+        else unmatched.push(num);
+      });
+
+      const matched=Object.keys(kmMap).length;
+      if(!matched){ showToast('❌ لم يتم مطابقة أي بايك بمندوب'); return; }
+
+      const unmatchedNote=unmatched.length?`\n⚠ ${unmatched.length} بايك غير مسجل: ${unmatched.slice(0,5).join('، ')}`:'';
+      const dateInput=prompt(
+        `✅ تم تحليل ملف Trips\n${matched} مندوب تم مطابقتهم${unmatchedNote}\n\nالتاريخ (YYYY-MM-DD):`,
+        detectedDate
+      );
+      if(!dateInput||!dateInput.match(/^\d{4}-\d{2}-\d{2}$/)){ showToast('❌ إلغاء'); return; }
+
+      if(!KM_DATA[dateInput]) KM_DATA[dateInput]={};
+      Object.entries(kmMap).forEach(([name,km])=>{ KM_DATA[dateInput][name]=parseFloat(km.toFixed(1)); });
+      saveToStorage(); render();
+      showToast(`✅ استُورد ${matched} مندوب ليوم ${dateInput}`);
+
+    } else {
+      /* ── SINGLE-SHEET FORMAT ── */
+      const ws=wb.Sheets[sheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+      if(!rows.length){ showToast('❌ الملف فارغ أو غير مدعوم'); return; }
+
+      const nameKeys=['Courier Name','Driver Name','courier_name','Name','name','اسم المندوب','المندوب'];
+      const distKeys=['Distance (km)','Distance','distance','Total Distance','KM','km','Kilometers','المسافة'];
+      const headers=Object.keys(rows[0]);
+      let nameCol=nameKeys.find(k=>headers.includes(k))||headers.find(h=>/name|courier|driver|مندوب/i.test(h));
+      let distCol=distKeys.find(k=>headers.includes(k))||headers.find(h=>/dist|km|kilo|مساف/i.test(h));
+
+      if(!nameCol||!distCol){
+        nameCol=prompt(`الأعمدة:\n${headers.join('\n')}\n\nعمود المندوب:`,nameCol||'');
+        distCol=prompt('عمود المسافة:',distCol||'');
+        if(!nameCol||!distCol){ showToast('❌ إلغاء'); return; }
+      }
+
+      const kmMap={};
+      rows.forEach(row=>{
+        const name=(row[nameCol]||'').toString().trim();
+        const dist=parseFloat(row[distCol])||0;
+        if(name&&dist>0) kmMap[name]=(kmMap[name]||0)+dist;
+      });
+
+      const count=Object.keys(kmMap).length;
+      if(!count){ showToast('❌ لم يتم العثور على بيانات'); return; }
+
+      const dateInput=prompt(
+        `تم تحليل ${count} مندوب\n\nالتاريخ (YYYY-MM-DD):`,
+        suggestedDate
+      );
+      if(!dateInput||!dateInput.match(/^\d{4}-\d{2}-\d{2}$/)){ showToast('❌ تاريخ غير صحيح'); return; }
+
+      if(!KM_DATA[dateInput]) KM_DATA[dateInput]={};
+      Object.entries(kmMap).forEach(([name,km])=>{
+        KM_DATA[dateInput][name]=(KM_DATA[dateInput][name]||0)+parseFloat(km.toFixed(1));
+      });
+      saveToStorage(); render();
+      showToast(`✅ تم استيراد ${count} مندوب ليوم ${dateInput}`);
     }
-    const ws=wb.Sheets[wb.SheetNames[0]];
-    const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
-    if(!rows.length){ showToast('❌ الملف فارغ أو غير مدعوم'); return; }
-
-    // Detect name column
-    const nameKeys=['Courier Name','Driver Name','courier_name','driver_name','Name','name','اسم المندوب','المندوب'];
-    // Detect distance column
-    const distKeys=['Distance (km)','Distance','distance','Total Distance','total_distance','KM','km','Kilometers','kilometers','المسافة','المسافة (كم)','الكيلومترات'];
-
-    const headers=Object.keys(rows[0]);
-    let nameCol=nameKeys.find(k=>headers.includes(k)) || headers.find(h=>/name|courier|driver|مندوب/i.test(h));
-    let distCol=distKeys.find(k=>headers.includes(k)) || headers.find(h=>/dist|km|kilo|مساف/i.test(h));
-
-    if(!nameCol || !distCol){
-      // Show available columns and ask user
-      const colList=headers.join('\n');
-      const userNameCol=prompt(`لم أتعرف على الأعمدة تلقائياً.\nالأعمدة المتاحة:\n${colList}\n\nاكتب اسم عمود المندوب:`);
-      const userDistCol=prompt(`اكتب اسم عمود المسافة (كيلومترات):`);
-      if(!userNameCol||!userDistCol){ showToast('❌ إلغاء الاستيراد'); return; }
-      nameCol=userNameCol; distCol=userDistCol;
-    }
-
-    // Aggregate km per courier
-    const kmMap={};
-    rows.forEach(row=>{
-      const name=(row[nameCol]||'').toString().trim();
-      const dist=parseFloat(row[distCol])||0;
-      if(name && dist>0) kmMap[name]=(kmMap[name]||0)+dist;
-    });
-
-    const count=Object.keys(kmMap).length;
-    if(!count){ showToast('❌ لم يتم العثور على بيانات'); return; }
-
-    // Preview & confirm
-    const preview=Object.entries(kmMap).slice(0,5).map(([n,k])=>`${n}: ${k.toFixed(1)} كم`).join('\n');
-    const moreNote=count>5?`\n... و ${count-5} آخرين`:'';
-    const dateInput=prompt(
-      `تم تحليل ${count} مندوب مثلاً:\n${preview}${moreNote}\n\nأدخل التاريخ لهذه البيانات (YYYY-MM-DD):`,
-      suggestedDate
-    );
-    if(!dateInput||!dateInput.match(/^\d{4}-\d{2}-\d{2}$/)){ showToast('❌ تاريخ غير صحيح، إلغاء الاستيراد'); return; }
-
-    // Merge into KM_DATA
-    if(!KM_DATA[dateInput]) KM_DATA[dateInput]={};
-    Object.entries(kmMap).forEach(([name,km])=>{
-      KM_DATA[dateInput][name]=(KM_DATA[dateInput][name]||0)+parseFloat(km.toFixed(1));
-    });
-    saveToStorage();
-    render();
-    showToast(`✅ تم استيراد كيلومترات ${count} مندوب ليوم ${dateInput}`);
   };
   reader.readAsArrayBuffer(file);
 }
@@ -3075,6 +3231,45 @@ function showToast(msg){
   t._to=setTimeout(()=>t.style.display='none', 3500);
 }
 
+// ── PUSH NOTIFICATIONS ──
+function initNotifications(){
+  if(!('Notification' in window)) return;
+  if(Notification.permission==='default'){
+    Notification.requestPermission().then(p=>{
+      if(p==='granted') setTimeout(checkAndNotify,1500);
+    });
+  } else if(Notification.permission==='granted'){
+    setTimeout(checkAndNotify,1500);
+  }
+}
+
+function checkAndNotify(){
+  if(Notification.permission!=='granted') return;
+  const alerts=buildAlerts();
+  const redAlerts=alerts.filter(a=>a.sev==='red');
+  if(!redAlerts.length) return;
+
+  // Don't re-notify if same alerts already sent this session
+  const key=redAlerts.map(a=>a.title).join('|');
+  if(sessionStorage.getItem('kd_notified')===key) return;
+  sessionStorage.setItem('kd_notified',key);
+
+  redAlerts.forEach((alert,i)=>{
+    setTimeout(()=>{
+      try{
+        const n=new Notification('🔴 تنبيه عاجل — كيتا الرياض',{
+          body:`${alert.ico} ${alert.title}\n${alert.detail.slice(0,80)}`,
+          tag:'keeta-'+i,
+          dir:'rtl',
+          lang:'ar',
+          requireInteraction:false
+        });
+        n.onclick=()=>{ window.focus(); switchTab('alerts'); n.close(); };
+      }catch(_){}
+    },i*800);
+  });
+}
+
 // ── MANAGE COURIERS ──
 let mcEdits = {}; // name -> {newName, bike}
 
@@ -3217,6 +3412,7 @@ window.addEventListener('DOMContentLoaded', function(){
   updateClock();
   setInterval(updateClock, 1000);
   render();
+  initNotifications();
 });
 
 // ══════════════════════════════════════════════
