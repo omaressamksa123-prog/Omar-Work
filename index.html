@@ -4318,42 +4318,48 @@ async function getAiModels(key){
   return fallback;
 }
 
-// build a snapshot of current dashboard data for the AI
+// build a FULL snapshot of all dashboard data for the AI (search-everything mode)
 function buildAiContext(){
   const names=[...new Set(allData.filter(r=>r&&r.name).map(r=>r.name))];
-  // current month totals
-  const cm=names.map(n=>{
-    const rows=allData.filter(r=>r&&r.name===n&&mk(r.date)===activeMonth);
-    return {name:n, orders:rows.reduce((s,r)=>s+r.orders,0), hours:+rows.reduce((s,r)=>s+r.hours,0).toFixed(1)};
-  }).filter(x=>x.orders>0||x.hours>0).sort((a,b)=>b.orders-a.orders);
-  const alerts=buildAlerts().map(a=>`${a.title} (${a.detail})`);
   const months=[...new Set(allData.filter(r=>r&&r.date).map(r=>mk(r.date)))].sort();
 
-  // ── إقامات (مقيم) ──
-  const iqamaValid=MUQEEM_DATA.filter(r=>r.status==='Valid').map(r=>r.name);
-  const iqamaInvalid=MUQEEM_DATA.filter(r=>r.status==='InValid').map(r=>r.name);
-  const iqamaOutside=MUQEEM_DATA.filter(r=>r.outside==='نعم').map(r=>r.name);
+  // per-courier: all-time + per-month + current-month daily + km + status
+  const couriers=names.map(function(n){
+    const rows=allData.filter(r=>r&&r.name===n);
+    const byMonth={};
+    months.forEach(function(m){
+      const mr=rows.filter(r=>mk(r.date)===m);
+      const o=mr.reduce((s,r)=>s+r.orders,0);
+      if(o>0||mr.length) byMonth[m]={orders:o, hours:+mr.reduce((s,r)=>s+r.hours,0).toFixed(1), days:mr.filter(r=>r.orders>0).length};
+    });
+    const curDaily=rows.filter(r=>mk(r.date)===activeMonth).sort((a,b)=>a.date.localeCompare(b.date))
+      .map(function(r){ const km=(KM_DATA[r.date]||{})[n]; return {date:r.date, orders:r.orders, hours:r.hours, km:(km!=null?km:undefined)}; });
+    const totalKm=+Object.values(KM_DATA).reduce((s,d)=>s+(d[n]||0),0).toFixed(1);
+    const muq=MUQEEM_DATA.find(r=>r.name&&r.name.toLowerCase().includes(n.split(' ')[0].toLowerCase()));
+    return {
+      name:n,
+      bike:BIKES[n]||null,
+      iqamaNumber:(typeof IQAMA!=='undefined'?IQAMA[n]:null)||null,
+      hasLicense:LICENSE[n]===true,
+      allTimeOrders:rows.reduce((s,r)=>s+r.orders,0),
+      allTimeHours:+rows.reduce((s,r)=>s+r.hours,0).toFixed(1),
+      totalKm:totalKm,
+      byMonth:byMonth,
+      currentMonthDaily:curDaily
+    };
+  }).sort((a,b)=>b.allTimeOrders-a.allTimeOrders);
 
-  // ── تفاويض ──
-  const licenseOk=Object.keys(BIKES).filter(n=>LICENSE[n]===true);
-  const licenseNo=Object.keys(BIKES).filter(n=>LICENSE[n]!==true);
-
-  // ── بايكات ──
-  const bikes=Object.entries(BIKES).map(([name,plate])=>({name,plate}));
-
-  // ── مركبات: مشاكل التأمين/الفحص ──
-  const vehInsExpired=VEHICLES_DATA.filter(r=>r.insurance&&r.insurance!=='ساري المفعول'&&r.insurance!=='-').map(r=>r.plate);
+  const alerts=buildAlerts().map(a=>`${a.title} (${a.detail})`);
 
   return {
-    activeMonth, months, couriers:cm, allNames:names, alerts,
-    iqama:{
-      validCount:iqamaValid.length, validNames:iqamaValid,
-      invalidCount:iqamaInvalid.length, invalidNames:iqamaInvalid,
-      outsideCount:iqamaOutside.length, outsideNames:iqamaOutside
-    },
-    license:{ okCount:licenseOk.length, okNames:licenseOk, missingCount:licenseNo.length, missingNames:licenseNo },
-    bikes,
-    vehicles:{ total:VEHICLES_DATA.length, insuranceExpiredPlates:vehInsExpired }
+    today: new Date(Date.now()+3*3600000).toISOString().slice(0,10),
+    activeMonth, availableMonths:months, totalCouriers:names.length,
+    couriers,
+    bikes: Object.entries(BIKES).map(([name,plate])=>({name,plate})),
+    licenses: Object.keys(BIKES).map(n=>({name:n, hasLicense:LICENSE[n]===true})),
+    muqeem: MUQEEM_DATA.map(r=>({name:r.name, iqama:r.iqama, status:r.status, outsideKSA:r.outside, sanad:r.sanad, job:r.job, heavyLicense:r.heavy, lightLicense:r.light})),
+    vehicles: VEHICLES_DATA.map(v=>({plate:v.plate, type:v.type, brand:v.brand, model:v.model, year:v.year, color:v.color, status:v.status, licenseExp:v.licenseExp, inspExp:v.inspExp, inspStatus:v.inspStatus, insurance:v.insurance, hold:v.hold})),
+    alerts
   };
 }
 
@@ -4372,32 +4378,35 @@ async function aiSend(){
   aiTyping(true);
 
   const ctx=buildAiContext();
-  const sys=`أنت مساعد دعم ذكي لداشبورد "كيتا الرياض" لإدارة مندوبي التوصيل. ترد بالعربي المصري/الخليجي بشكل ودود ومختصر.
+  const sys=`أنت مساعد ذكي وكامل الصلاحيات لداشبورد "كيتا الرياض" لإدارة مندوبي التوصيل. عندك صلاحية كاملة على كل البيانات وتقدر تجاوب على أي سؤال وتدوّر على أي حاجة. ترد بالعربي المصري/الخليجي بشكل ودود ومختصر ومنظّم (استخدم نقاط لو فيه قائمة).
 
-بيانات الداشبورد الحالية (JSON):
+كل بيانات الداشبورد (JSON كامل — ابحث فيه بحرية):
 ${JSON.stringify(ctx)}
 
-الأقسام (tabs) المتاحة: overview(الرئيسية), orders(أداء كيتا), gps(GPS والكيلومترات), license(التفاويض), summary(الإجمالي), hs(HungerStation), bikes(البايكات), alerts(التنبيهات), muqeem(المؤسسة/الإقامات), vehicles(المركبات).
+دليل البيانات:
+- couriers: لكل مندوب → bike (رقم البايك)، iqamaNumber، hasLicense (تفويض)، allTimeOrders، allTimeHours، totalKm (إجمالي الكيلومترات)، byMonth (أوردرات/ساعات/أيام كل شهر)، currentMonthDaily (تفاصيل كل يوم في الشهر الحالي: date/orders/hours/km).
+- bikes: رقم لوحة البايك لكل مندوب.
+- licenses: مين عنده تفويض (hasLicense) ومين لأ.
+- muqeem: الإقامات → status (Valid=سارية / InValid=منتهية)، outsideKSA (نعم=خارج المملكة)، job، heavyLicense، lightLicense، iqama (رقم الإقامة). الأسماء هنا رسمية كاملة وقد تختلف عن أسماء couriers.
+- vehicles: كل المركبات → plate (اللوحة)، type، brand، model، year، color، insurance (التأمين)، inspStatus (الفحص)، licenseExp (انتهاء الرخصة).
+- alerts: ملخص المشاكل.
+- availableMonths: الشهور المتاحة. activeMonth: الشهر المعروض حالياً. today: تاريخ اليوم.
 
-دليل البيانات المتاحة في الـ JSON:
-- couriers: أداء المندوبين الشهر الحالي (orders/hours).
-- iqama: حالة الإقامات → validNames (الإقامات السارية)، invalidNames (المنتهية)، outsideNames (خارج المملكة) + الأعداد.
-- license: التفاويض → okNames (عندهم تفويض)، missingNames (بدون تفويض).
-- bikes: البايكات وأرقام لوحاتها لكل مندوب.
-- vehicles: المركبات ومشاكل التأمين.
-- alerts: ملخص كل المشاكل والتنبيهات.
+صلاحياتك في التنقل (action types):
+- "courier": يفتح بروفايل مندوب. value = اسم المندوب الكامل من couriers.
+- "tab": يفتح قسم. value = أحد: overview, orders(أداء كيتا), gps(الكيلومترات), license(التفاويض), summary(الإجمالي), hs(HungerStation), bikes(البايكات), alerts(التنبيهات), muqeem(الإقامات), vehicles(المركبات).
+- "plate": يفتح ويظلّل مركبة معينة في قسم المركبات. value = رقم اللوحة بالضبط من vehicles.
+- "month": يغيّر الشهر المعروض. value = شهر بصيغة YYYY-MM من availableMonths.
+- "none": لا تنقل.
 
-مهمتك:
-1. جاوب على أي سؤال عن أداء المندوبين أو الإقامات أو التفاويض أو البايكات بالأرقام والأسماء من البيانات أعلاه.
-2. مهم: لو سُئلت عن الإقامات السارية استخدم iqama.validNames، والمنتهية iqama.invalidNames. البيانات موجودة فعلاً فلا تقل "مفيش بيانات".
-3. لو طلب المستخدم يروح لمندوب → action type "courier" بالاسم الكامل بالضبط من allNames.
-4. لو طلب يروح لقسم → action type "tab" باسم القسم بالإنجليزي.
-5. لو في مشكلة (مندوب بدون تفويض، إقامة منتهية...) اشرح الخطوات لحلها زي شات دعم.
-6. ملاحظة: أسماء الإقامات (iqama) أسماء رسمية كاملة وقد تختلف عن أسماء المندوبين في couriers.
+قواعد:
+1. جاوب دايماً بالأرقام والأسماء الحقيقية من البيانات. لا تقل "مفيش بيانات" طالما موجودة.
+2. لو المستخدم طلب يروح/يشوف حاجة، حدد action مناسب وحط label واضح للزر (مثلاً "افتح بروفايل Naim" أو "اعرض المركبة").
+3. لو سؤال بحثي (مثال: مين أكتر مندوب كيلومترات؟ / أنهي مركبة لونها أحمر؟ / مين إقامته سارية؟) لخّص الإجابة بدقة.
+4. لو في مشكلة، اكتب خطوات الحل زي شات دعم.
 
 أرجع رد بصيغة JSON فقط بدون أي نص خارجها:
-{"reply":"ردك بالعربي","action":{"type":"courier|tab|none","value":"القيمة","label":"نص زر التنقل بالعربي"}}
-لو مفيش تنقل خلي action.type = "none".`;
+{"reply":"ردك بالعربي","action":{"type":"courier|tab|plate|month|none","value":"القيمة","label":"نص زر التنقل بالعربي"}}`;
 
   // build conversation for gemini
   const contents=[{role:'user',parts:[{text:sys}]},{role:'model',parts:[{text:'تمام، جاهز أساعدك.'}]}];
@@ -4449,6 +4458,25 @@ function execAiAction(action){
   } else if(action.type==='tab'){
     const valid=['overview','orders','gps','license','summary','hs','bikes','alerts','muqeem','vehicles'];
     if(valid.includes(action.value)) switchTab(action.value);
+  } else if(action.type==='plate'){
+    // navigate to a vehicle by plate (fuzzy match ignoring spaces)
+    const norm=s=>String(s).replace(/\s/g,'');
+    let veh=VEHICLES_DATA.find(v=>norm(v.plate)===norm(action.value));
+    if(!veh) veh=VEHICLES_DATA.find(v=>norm(v.plate).includes(norm(action.value))||norm(action.value).includes(norm(v.plate)));
+    if(veh){
+      selectedPlate=veh.plate;
+      switchTab('vehicles');
+      setTimeout(function(){
+        const row=document.getElementById('vrow-'+veh.plate.replace(/\s/g,'_'));
+        if(row) row.scrollIntoView({behavior:'smooth',block:'center'});
+      },150);
+    } else {
+      aiAddMsg('bot','مش لاقي مركبة باللوحة "'+action.value+'" 😕');
+    }
+  } else if(action.type==='month'){
+    const months=[...new Set(allData.filter(r=>r&&r.date).map(r=>mk(r.date)))];
+    if(months.includes(action.value)) setMonth(action.value);
+    else aiAddMsg('bot','الشهر "'+action.value+'" مش متاح 😕');
   }
 }
 </script>
