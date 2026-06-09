@@ -4158,5 +4158,241 @@ function gsShowVehicle(plate){
 
   </div>
 </div>
+
+<!-- ══════════ AI SUPPORT CHAT ══════════ -->
+<style>
+  #ai-fab{
+    position:fixed;bottom:22px;right:22px;z-index:300;
+    width:58px;height:58px;border-radius:50%;
+    background:linear-gradient(135deg,#00D4FF,#6366F1);
+    border:none;cursor:pointer;color:#fff;font-size:26px;
+    box-shadow:0 8px 28px rgba(0,212,255,.45);
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .2s, box-shadow .2s;
+  }
+  #ai-fab:hover{ transform:scale(1.08); box-shadow:0 10px 34px rgba(0,212,255,.6); }
+  #ai-fab.pulse::after{
+    content:'';position:absolute;inset:0;border-radius:50%;
+    border:2px solid rgba(0,212,255,.6);animation:aiPulse 2s infinite;
+  }
+  @keyframes aiPulse{0%{transform:scale(1);opacity:.8}100%{transform:scale(1.5);opacity:0}}
+  #ai-chat{
+    position:fixed;bottom:90px;right:22px;z-index:301;
+    width:min(380px,calc(100vw - 44px));height:min(560px,calc(100vh - 130px));
+    background:linear-gradient(180deg,#0E1626,#0A1019);
+    border:1px solid rgba(0,212,255,.25);border-radius:18px;
+    box-shadow:0 20px 70px rgba(0,0,0,.7);
+    display:none;flex-direction:column;overflow:hidden;
+    font-family:'Cairo',sans-serif;direction:rtl;
+    transform:translateY(20px) scale(.96);opacity:0;
+    transition:transform .25s cubic-bezier(.4,0,.2,1),opacity .25s;
+  }
+  #ai-chat.open{ display:flex;transform:translateY(0) scale(1);opacity:1; }
+  .aic-hdr{
+    background:linear-gradient(135deg,#141d35,#0d1828);
+    padding:14px 16px;display:flex;align-items:center;gap:10px;
+    border-bottom:1px solid rgba(0,212,255,.15);
+  }
+  .aic-hdr-ico{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#00D4FF,#6366F1);display:flex;align-items:center;justify-content:center;font-size:18px;}
+  .aic-hdr-title{font-size:14px;font-weight:800;color:#fff;}
+  .aic-hdr-sub{font-size:10px;color:#34D399;}
+  .aic-close{margin-right:auto;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#94A3B8;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:14px;}
+  .aic-close:hover{background:rgba(248,113,113,.15);color:#F87171;}
+  .aic-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:rgba(0,212,255,.2) transparent;}
+  .aic-msg{max-width:85%;padding:9px 13px;border-radius:14px;font-size:13px;line-height:1.7;white-space:pre-wrap;word-wrap:break-word;}
+  .aic-msg.user{align-self:flex-start;background:linear-gradient(135deg,#1e3a5f,#16304d);color:#E0F2FE;border-bottom-right-radius:4px;}
+  .aic-msg.bot{align-self:flex-end;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:#CBD5E1;border-bottom-left-radius:4px;}
+  .aic-msg.bot a,.aic-act-btn{color:#00D4FF;}
+  .aic-act-btn{display:inline-block;margin-top:8px;background:rgba(0,212,255,.12);border:1px solid rgba(0,212,255,.35);color:#00D4FF;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;transition:.15s;}
+  .aic-act-btn:hover{background:rgba(0,212,255,.25);}
+  .aic-typing{align-self:flex-end;display:flex;gap:4px;padding:10px 14px;}
+  .aic-typing span{width:7px;height:7px;border-radius:50%;background:#00D4FF;opacity:.5;animation:aiBounce 1.2s infinite;}
+  .aic-typing span:nth-child(2){animation-delay:.2s}.aic-typing span:nth-child(3){animation-delay:.4s}
+  @keyframes aiBounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-6px);opacity:1}}
+  .aic-quick{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 8px;}
+  .aic-chip{background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:#7DD3FC;padding:5px 11px;border-radius:20px;font-size:11px;cursor:pointer;font-family:'Cairo',sans-serif;transition:.15s;}
+  .aic-chip:hover{background:rgba(0,212,255,.18);}
+  .aic-foot{padding:10px 12px;border-top:1px solid rgba(255,255,255,.07);display:flex;gap:8px;align-items:flex-end;}
+  .aic-input{flex:1;background:#0B1220;border:1px solid rgba(0,212,255,.25);border-radius:12px;padding:10px 13px;color:#F1F5F9;font-family:'Cairo',sans-serif;font-size:13px;outline:none;resize:none;max-height:90px;line-height:1.5;}
+  .aic-input:focus{border-color:rgba(0,212,255,.55);}
+  .aic-send{background:linear-gradient(135deg,#00D4FF,#6366F1);border:none;color:#fff;width:40px;height:40px;border-radius:12px;cursor:pointer;font-size:17px;flex-shrink:0;transition:.15s;}
+  .aic-send:hover{transform:scale(1.06);}
+  .aic-send:disabled{opacity:.5;cursor:default;transform:none;}
+</style>
+
+<button id="ai-fab" class="pulse" onclick="toggleAiChat()" title="مساعد كيتا الذكي">🤖</button>
+<div id="ai-chat">
+  <div class="aic-hdr">
+    <div class="aic-hdr-ico">🤖</div>
+    <div>
+      <div class="aic-hdr-title">مساعد كيتا الذكي</div>
+      <div class="aic-hdr-sub">● متصل — اسألني أي حاجة</div>
+    </div>
+    <button class="aic-close" onclick="toggleAiChat()">✕</button>
+  </div>
+  <div class="aic-body" id="aic-body"></div>
+  <div class="aic-quick" id="aic-quick">
+    <div class="aic-chip" onclick="aiQuick('مين أحسن مندوب الشهر ده؟')">🏆 أحسن مندوب</div>
+    <div class="aic-chip" onclick="aiQuick('في أي مشاكل أو تنبيهات؟')">🔔 المشاكل</div>
+    <div class="aic-chip" onclick="aiQuick('مين عنده أقل أوردرات؟')">📉 الأضعف</div>
+    <div class="aic-chip" onclick="aiQuick('ودّيني على البايكات')">🏍 البايكات</div>
+  </div>
+  <div class="aic-foot">
+    <textarea id="aic-input" class="aic-input" rows="1" placeholder="اكتب سؤالك..." onkeydown="aiInputKey(event)" oninput="aiAutoGrow(this)"></textarea>
+    <button class="aic-send" id="aic-send" onclick="aiSend()">➤</button>
+  </div>
+</div>
+
+<script>
+let aiHistory=[];
+let aiBusy=false;
+
+function toggleAiChat(){
+  const c=document.getElementById('ai-chat');
+  const fab=document.getElementById('ai-fab');
+  const open=c.classList.toggle('open');
+  fab.classList.remove('pulse');
+  fab.innerHTML=open?'✕':'🤖';
+  if(open){
+    if(!document.getElementById('aic-body').children.length){
+      aiAddMsg('bot','أهلاً! 👋 أنا مساعد كيتا الذكي.\n\nأقدر:\n• أوديك على أي مندوب أو قسم\n• أقولك مين الأحسن والأضعف\n• أوريك المشاكل والتنبيهات\n• أكتبلك خطوات حل أي مشكلة\n\nاسألني أي حاجة! 🚀');
+    }
+    setTimeout(()=>document.getElementById('aic-input').focus(),250);
+  }
+}
+
+function aiAutoGrow(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,90)+'px'; }
+function aiInputKey(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); aiSend(); } }
+function aiQuick(t){ document.getElementById('aic-input').value=t; aiSend(); }
+
+function aiAddMsg(role,text,action){
+  const body=document.getElementById('aic-body');
+  const div=document.createElement('div');
+  div.className='aic-msg '+(role==='user'?'user':'bot');
+  div.textContent=text;
+  if(action){
+    const btn=document.createElement('button');
+    btn.className='aic-act-btn';
+    btn.textContent=action.label;
+    btn.onclick=()=>execAiAction(action);
+    div.appendChild(document.createElement('br'));
+    div.appendChild(btn);
+  }
+  body.appendChild(div);
+  body.scrollTop=body.scrollHeight;
+}
+
+function aiTyping(on){
+  const body=document.getElementById('aic-body');
+  let t=document.getElementById('aic-typing-ind');
+  if(on){
+    if(t) return;
+    t=document.createElement('div');
+    t.id='aic-typing-ind';t.className='aic-typing';
+    t.innerHTML='<span></span><span></span><span></span>';
+    body.appendChild(t);body.scrollTop=body.scrollHeight;
+  } else if(t){ t.remove(); }
+}
+
+// build a snapshot of current dashboard data for the AI
+function buildAiContext(){
+  const names=[...new Set(allData.filter(r=>r&&r.name).map(r=>r.name))];
+  // current month totals
+  const cm=names.map(n=>{
+    const rows=allData.filter(r=>r&&r.name===n&&mk(r.date)===activeMonth);
+    return {name:n, orders:rows.reduce((s,r)=>s+r.orders,0), hours:+rows.reduce((s,r)=>s+r.hours,0).toFixed(1)};
+  }).filter(x=>x.orders>0||x.hours>0).sort((a,b)=>b.orders-a.orders);
+  const alerts=buildAlerts().map(a=>`${a.title} (${a.detail})`);
+  const months=[...new Set(allData.filter(r=>r&&r.date).map(r=>mk(r.date)))].sort();
+  return {activeMonth, months, couriers:cm, allNames:names, alerts};
+}
+
+async function aiSend(){
+  if(aiBusy) return;
+  const inp=document.getElementById('aic-input');
+  const text=inp.value.trim();
+  if(!text) return;
+  const key=getApiKey();
+  if(!key){ openApiKeyModal(()=>aiSend()); return; }
+  inp.value='';aiAutoGrow(inp);
+  document.getElementById('aic-quick').style.display='none';
+  aiAddMsg('user',text);
+  aiHistory.push({role:'user',text});
+  aiBusy=true;document.getElementById('aic-send').disabled=true;
+  aiTyping(true);
+
+  const ctx=buildAiContext();
+  const sys=`أنت مساعد دعم ذكي لداشبورد "كيتا الرياض" لإدارة مندوبي التوصيل. ترد بالعربي المصري/الخليجي بشكل ودود ومختصر.
+
+بيانات الداشبورد الحالية (JSON):
+${JSON.stringify(ctx)}
+
+الأقسام (tabs) المتاحة: overview(الرئيسية), orders(أداء كيتا), gps(GPS والكيلومترات), license(التفاويض), summary(الإجمالي), hs(HungerStation), bikes(البايكات), alerts(التنبيهات), muqeem(المؤسسة/الإقامات), vehicles(المركبات).
+
+مهمتك:
+1. جاوب على أي سؤال عن أداء المندوبين بالأرقام من البيانات أعلاه.
+2. لو طلب المستخدم يروح لمندوب → action type "courier" بالاسم الكامل بالضبط من allNames.
+3. لو طلب يروح لقسم → action type "tab" باسم القسم بالإنجليزي.
+4. لو في مشكلة (مندوب بدون تفويض، إقامة منتهية...) اشرح الخطوات لحلها زي شات دعم.
+5. لو سأل عن مشاكل → استخدم بيانات alerts.
+
+أرجع رد بصيغة JSON فقط بدون أي نص خارجها:
+{"reply":"ردك بالعربي","action":{"type":"courier|tab|none","value":"القيمة","label":"نص زر التنقل بالعربي"}}
+لو مفيش تنقل خلي action.type = "none".`;
+
+  // build conversation for gemini
+  const contents=[{role:'user',parts:[{text:sys}]},{role:'model',parts:[{text:'تمام، جاهز أساعدك.'}]}];
+  aiHistory.slice(-8).forEach(m=>contents.push({role:m.role==='user'?'user':'model',parts:[{text:m.text}]}));
+
+  try{
+    const models=['gemini-2.0-flash','gemini-2.0-flash-lite','gemini-1.5-flash'];
+    let resp,lastErr;
+    for(const model of models){
+      try{
+        resp=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+          {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents,generationConfig:{temperature:0.4,responseMimeType:'application/json'}})});
+        if(resp.ok) break;
+        const e=await resp.json().catch(()=>({}));lastErr=e.error?.message||('error '+resp.status);resp=null;
+      }catch(e){lastErr=e.message;resp=null;}
+    }
+    if(!resp) throw new Error(lastErr||'فشل الاتصال');
+    const data=await resp.json();
+    const raw=data.candidates?.[0]?.content?.parts?.[0]?.text||'{}';
+    let parsed;
+    try{ parsed=JSON.parse(raw.replace(/```json|```/g,'').trim()); }
+    catch(_){ parsed={reply:raw,action:{type:'none'}}; }
+    aiTyping(false);
+    const action=parsed.action&&parsed.action.type&&parsed.action.type!=='none'?parsed.action:null;
+    aiAddMsg('bot',parsed.reply||'...',action);
+    aiHistory.push({role:'model',text:parsed.reply||''});
+  }catch(e){
+    aiTyping(false);
+    aiAddMsg('bot','😕 حصل خطأ: '+e.message+'\n\nتأكد إن الـ API Key صح من زر 🔑 في السايدبار.');
+  }finally{
+    aiBusy=false;document.getElementById('aic-send').disabled=false;
+    document.getElementById('aic-input').focus();
+  }
+}
+
+function execAiAction(action){
+  if(action.type==='courier'){
+    // find best matching name
+    const names=[...new Set(allData.filter(r=>r&&r.name).map(r=>r.name))];
+    let target=names.find(n=>n.toLowerCase()===String(action.value).toLowerCase());
+    if(!target) target=names.find(n=>n.toLowerCase().includes(String(action.value).toLowerCase())||String(action.value).toLowerCase().includes(n.toLowerCase()));
+    if(target){
+      selectedCourier=target;
+      switchTab('orders');
+      showHistory(target);
+    } else {
+      aiAddMsg('bot','مش لاقي المندوب "'+action.value+'" 😕');
+    }
+  } else if(action.type==='tab'){
+    const valid=['overview','orders','gps','license','summary','hs','bikes','alerts','muqeem','vehicles'];
+    if(valid.includes(action.value)) switchTab(action.value);
+  }
+}
+</script>
+
 </body>
 </html>
