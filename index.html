@@ -3125,13 +3125,52 @@ function importKmExcel(event){
 
 // ── API KEY SETTINGS ──
 function getApiKey(){ return localStorage.getItem('kd_apikey')||''; }
-function openApiKeyModal(){
+function openApiKeyModal(onSaved){
   const cur=getApiKey();
-  const key=prompt('أدخل Google Gemini API Key:\n(مجاني من aistudio.google.com)\n(يتخزن في متصفحك فقط، ما يتشارش مع أحد)', cur||'');
-  if(key===null) return;
-  if(key.trim()){ localStorage.setItem('kd_apikey', key.trim()); showToast('✅ تم حفظ الـ API Key'); }
-  else { localStorage.removeItem('kd_apikey'); showToast('🗑 تم حذف الـ API Key'); }
-  updateApiKeyStatus();
+  // remove any existing modal
+  const old=document.getElementById('apikey-overlay');
+  if(old) old.remove();
+
+  const overlay=document.createElement('div');
+  overlay.id='apikey-overlay';
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;display:flex;align-items:center;justify-content:center;';
+  overlay.innerHTML=
+    '<div style="background:#1A2238;border:1px solid rgba(0,212,255,.35);border-radius:18px;padding:28px 26px;width:min(420px,92vw);font-family:Cairo,sans-serif;direction:rtl;box-shadow:0 20px 60px rgba(0,0,0,.8);">'+
+      '<div style="font-size:17px;font-weight:800;color:#00D4FF;margin-bottom:6px;">🔑 Google Gemini API Key</div>'+
+      '<div style="font-size:12px;color:#64748B;margin-bottom:18px;">مطلوب لتحليل الصور بالذكاء الاصطناعي · مجاني من <a href="https://aistudio.google.com" target="_blank" style="color:#38BDF8">aistudio.google.com</a></div>'+
+      '<input id="ak-input" type="password" placeholder="AIza..." value="'+(cur||'')+'" style="width:100%;box-sizing:border-box;background:#0B1220;border:1px solid rgba(0,212,255,.3);border-radius:10px;padding:11px 14px;color:#F1F5F9;font-family:Cairo,sans-serif;font-size:13px;outline:none;margin-bottom:10px;" />'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:18px;">'+
+        '<input type="checkbox" id="ak-show" style="cursor:pointer"> <label for="ak-show" style="font-size:12px;color:#94A3B8;cursor:pointer">إظهار الـ Key</label>'+
+      '</div>'+
+      '<div style="font-size:11px;color:#334155;margin-bottom:18px;background:rgba(0,0,0,.2);border-radius:8px;padding:10px 12px;">'+
+        '🔒 يتخزن في متصفحك فقط — ما يتشارش مع أحد'+
+      '</div>'+
+      '<div style="display:flex;gap:10px;justify-content:flex-end;">'+
+        '<button id="ak-cancel" style="background:rgba(100,116,139,.15);border:1px solid rgba(100,116,139,.3);color:#94A3B8;padding:9px 22px;border-radius:10px;cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;">إلغاء</button>'+
+        '<button id="ak-save" style="background:linear-gradient(135deg,#00D4FF,#6366F1);border:none;color:#fff;padding:9px 22px;border-radius:10px;cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;font-weight:700;">✅ حفظ</button>'+
+      '</div>'+
+    '</div>';
+
+  document.body.appendChild(overlay);
+
+  const inp=document.getElementById('ak-input');
+  inp.focus(); inp.select();
+
+  document.getElementById('ak-show').onchange=function(){
+    inp.type=this.checked?'text':'password';
+  };
+
+  function save(){
+    const v=inp.value.trim();
+    overlay.remove();
+    if(v){ localStorage.setItem('kd_apikey',v); showToast('✅ تم حفظ الـ API Key'); if(onSaved) onSaved(); }
+    else { localStorage.removeItem('kd_apikey'); showToast('🗑 تم حذف الـ API Key'); }
+    updateApiKeyStatus();
+  }
+
+  document.getElementById('ak-save').onclick=save;
+  document.getElementById('ak-cancel').onclick=function(){ overlay.remove(); };
+  inp.onkeydown=function(e){ if(e.key==='Enter') save(); if(e.key==='Escape') overlay.remove(); };
 }
 
 // ── IMAGE UPLOAD DAY ──
@@ -3142,8 +3181,7 @@ async function uploadDayImage(event){
 
   const apiKey=getApiKey();
   if(!apiKey){
-    showToast('❌ محتاج Gemini API Key — اضغط 🔑 API Key في السايدبار');
-    openApiKeyModal();
+    openApiKeyModal(function(){ document.getElementById('img-upload-input').click(); });
     return;
   }
 
