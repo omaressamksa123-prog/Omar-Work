@@ -282,13 +282,13 @@
     backdrop-filter:blur(2px);transition:opacity .25s;
   }
   #profile-panel{
-    position:fixed;top:0;right:270px;width:420px;height:100vh;
+    position:fixed;top:0;right:0;width:440px;height:100vh;
     background:linear-gradient(180deg,#0D1525 0%,#0A1120 100%);
-    border-left:1px solid rgba(0,212,255,.18);
-    z-index:200;overflow-y:auto;overflow-x:hidden;
-    transform:translateX(calc(100% + 270px));
-    transition:transform .28s cubic-bezier(.4,0,.2,1);
-    box-shadow:-20px 0 60px rgba(0,0,0,.7);
+    border-left:1px solid rgba(0,212,255,.25);
+    z-index:220;overflow-y:auto;overflow-x:hidden;
+    transform:translateX(100%);
+    transition:transform .3s cubic-bezier(.4,0,.2,1);
+    box-shadow:-24px 0 80px rgba(0,0,0,.8);
     font-family:'Cairo',sans-serif;
     scrollbar-width:thin;scrollbar-color:rgba(0,212,255,.2) transparent;
   }
