@@ -2610,7 +2610,16 @@ function render(){
 function showHistory(name){
   selectedCourier=name;
   const allRows=allData.filter(r=>r&&r.name===name).sort((a,b)=>a.date.localeCompare(b.date));
-  if(!allRows.length) return;
+  const panel=document.getElementById('profile-panel');
+  const backdrop=document.getElementById('profile-backdrop');
+  if(!panel||!backdrop) return;
+
+  if(!allRows.length){
+    panel.innerHTML='<div style="padding:32px 20px;text-align:center;color:#475569;font-size:13px;">لا يوجد بيانات لهذا المندوب<br><br><button class="pp-close" onclick="closeHistory()" style="margin-top:10px">✕ إغلاق</button></div>';
+    panel.classList.add('pp-open');
+    backdrop.style.display='block';
+    return;
+  }
 
   const av=ac(name);
   const bike=BIKES[name]||'';
@@ -2746,8 +2755,6 @@ function showHistory(name){
   }
   h+='</div>';
 
-  const panel=document.getElementById('profile-panel');
-  const backdrop=document.getElementById('profile-backdrop');
   panel.innerHTML=h;
   panel.classList.add('pp-open');
   backdrop.style.display='block';
@@ -3423,6 +3430,11 @@ function updateApiKeyStatus(){
   const el=document.getElementById('apikey-status');
   if(el) el.textContent=getApiKey()?'✅':'❌';
 }
+
+// ESC key closes profile panel
+document.addEventListener('keydown', function(e){
+  if(e.key==='Escape') closeHistory();
+});
 
 window.addEventListener('DOMContentLoaded', function(){
   loadFromStorage();
