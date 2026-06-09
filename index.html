@@ -2992,9 +2992,9 @@ function loadFromStorage(){
     if(b) Object.assign(BIKES,JSON.parse(b));
     if(l) Object.assign(LICENSE,JSON.parse(l));
   } catch(e){ console.warn('Load failed:', e); }
-  // ── PATCH 2026-06-07 (corrected from Keeta dashboard screenshots) ──
-  (function patchJune7(){
-    const D='2026-06-07';
+  // ── PATCH 2026-06-08 (from Keeta dashboard screenshots) ──
+  (function patchJune8(){
+    const D='2026-06-08';
     const correct=[
       {name:'Ali Ashraf',       orders:0,  hours:0.0},
       {name:'Barbar Anwar',     orders:0,  hours:0.0},
@@ -3032,6 +3032,7 @@ function loadFromStorage(){
     // add correct data
     correct.forEach(function(c){ allData.push({name:c.name,orders:c.orders,hours:c.hours,date:D}); });
     saveToStorage();
+    console.log('[patch] June 8 data loaded:', correct.length, 'couriers');
   })();
 }
 
