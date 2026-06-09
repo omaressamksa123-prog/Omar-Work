@@ -3247,6 +3247,7 @@ function openApiKeyModal(onSaved){
   function save(){
     const v=inp.value.trim();
     overlay.remove();
+    try{ _aiModelsCache=null; }catch(_){}  // reset AI model cache on key change
     if(v){ localStorage.setItem('kd_apikey',v); showToast('✅ تم حفظ الـ API Key'); if(onSaved) onSaved(); }
     else { localStorage.removeItem('kd_apikey'); showToast('🗑 تم حذف الـ API Key'); }
     updateApiKeyStatus();
@@ -4228,7 +4229,8 @@ function gsShowVehicle(plate){
       <div class="aic-hdr-title">مساعد كيتا الذكي</div>
       <div class="aic-hdr-sub">● متصل — اسألني أي حاجة</div>
     </div>
-    <button class="aic-close" onclick="toggleAiChat()">✕</button>
+    <button class="aic-close" onclick="openApiKeyModal(()=>{_aiModelsCache=null;showToast('✅ تم تحديث الـ Key')})" title="تغيير API Key" style="margin-right:auto;">🔑</button>
+    <button class="aic-close" onclick="toggleAiChat()" style="margin-right:0;">✕</button>
   </div>
   <div class="aic-body" id="aic-body"></div>
   <div class="aic-quick" id="aic-quick">
