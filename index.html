@@ -2992,6 +2992,14 @@ function loadFromStorage(){
     if(b) Object.assign(BIKES,JSON.parse(b));
     if(l) Object.assign(LICENSE,JSON.parse(l));
   } catch(e){ console.warn('Load failed:', e); }
+  // ── CLEANUP: remove erroneous 2026-06-09 data (was wrongly duplicated from June 8) ──
+  (function cleanupJune9(){
+    if(localStorage.getItem('kd_cleaned_0609')) return;
+    let removed=0;
+    for(var i=allData.length-1;i>=0;i--){ if(allData[i]&&allData[i].date==='2026-06-09'){ allData.splice(i,1); removed++; } }
+    if(removed){ saveToStorage(); console.log('[cleanup] removed',removed,'wrong June 9 rows'); }
+    localStorage.setItem('kd_cleaned_0609','1');
+  })();
   // ── PATCH 2026-06-08 (Keeta dashboard screenshots 11:44 — final) ──
   (function patchJune8(){
     const D='2026-06-08';
