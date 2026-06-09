@@ -4294,6 +4294,28 @@ function aiTyping(on){
   } else if(t){ t.remove(); }
 }
 
+// fetch text-capable models available to THIS api key (cached)
+let _aiModelsCache=null;
+async function getAiModels(key){
+  if(_aiModelsCache) return _aiModelsCache;
+  const fallback=['gemini-2.0-flash','gemini-flash-latest','gemini-2.5-flash'];
+  try{
+    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}&pageSize=80`);
+    if(r.ok){
+      const d=await r.json();
+      const avail=(d.models||[])
+        .filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent'))
+        .map(m=>m.name.replace('models/',''))
+        .filter(n=>(n.includes('flash')||n.includes('pro'))&&!n.includes('vision')&&!n.includes('image')&&!n.includes('tts')&&!n.includes('embedding'));
+      // prefer flash (fast/cheap), then everything else
+      avail.sort((a,b)=>(b.includes('flash')?1:0)-(a.includes('flash')?1:0));
+      if(avail.length){ _aiModelsCache=[...new Set(avail)]; return _aiModelsCache; }
+    }
+  }catch(_){}
+  _aiModelsCache=fallback;
+  return fallback;
+}
+
 // build a snapshot of current dashboard data for the AI
 function buildAiContext(){
   const names=[...new Set(allData.filter(r=>r&&r.name).map(r=>r.name))];
@@ -4345,7 +4367,7 @@ ${JSON.stringify(ctx)}
   aiHistory.slice(-8).forEach(m=>contents.push({role:m.role==='user'?'user':'model',parts:[{text:m.text}]}));
 
   try{
-    const models=['gemini-2.0-flash','gemini-2.0-flash-lite','gemini-1.5-flash'];
+    const models=await getAiModels(key);
     let resp,lastErr;
     for(const model of models){
       try{
