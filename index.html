@@ -4328,7 +4328,33 @@ function buildAiContext(){
   }).filter(x=>x.orders>0||x.hours>0).sort((a,b)=>b.orders-a.orders);
   const alerts=buildAlerts().map(a=>`${a.title} (${a.detail})`);
   const months=[...new Set(allData.filter(r=>r&&r.date).map(r=>mk(r.date)))].sort();
-  return {activeMonth, months, couriers:cm, allNames:names, alerts};
+
+  // ── إقامات (مقيم) ──
+  const iqamaValid=MUQEEM_DATA.filter(r=>r.status==='Valid').map(r=>r.name);
+  const iqamaInvalid=MUQEEM_DATA.filter(r=>r.status==='InValid').map(r=>r.name);
+  const iqamaOutside=MUQEEM_DATA.filter(r=>r.outside==='نعم').map(r=>r.name);
+
+  // ── تفاويض ──
+  const licenseOk=Object.keys(BIKES).filter(n=>LICENSE[n]===true);
+  const licenseNo=Object.keys(BIKES).filter(n=>LICENSE[n]!==true);
+
+  // ── بايكات ──
+  const bikes=Object.entries(BIKES).map(([name,plate])=>({name,plate}));
+
+  // ── مركبات: مشاكل التأمين/الفحص ──
+  const vehInsExpired=VEHICLES_DATA.filter(r=>r.insurance&&r.insurance!=='ساري المفعول'&&r.insurance!=='-').map(r=>r.plate);
+
+  return {
+    activeMonth, months, couriers:cm, allNames:names, alerts,
+    iqama:{
+      validCount:iqamaValid.length, validNames:iqamaValid,
+      invalidCount:iqamaInvalid.length, invalidNames:iqamaInvalid,
+      outsideCount:iqamaOutside.length, outsideNames:iqamaOutside
+    },
+    license:{ okCount:licenseOk.length, okNames:licenseOk, missingCount:licenseNo.length, missingNames:licenseNo },
+    bikes,
+    vehicles:{ total:VEHICLES_DATA.length, insuranceExpiredPlates:vehInsExpired }
+  };
 }
 
 async function aiSend(){
@@ -4353,12 +4379,21 @@ ${JSON.stringify(ctx)}
 
 الأقسام (tabs) المتاحة: overview(الرئيسية), orders(أداء كيتا), gps(GPS والكيلومترات), license(التفاويض), summary(الإجمالي), hs(HungerStation), bikes(البايكات), alerts(التنبيهات), muqeem(المؤسسة/الإقامات), vehicles(المركبات).
 
+دليل البيانات المتاحة في الـ JSON:
+- couriers: أداء المندوبين الشهر الحالي (orders/hours).
+- iqama: حالة الإقامات → validNames (الإقامات السارية)، invalidNames (المنتهية)، outsideNames (خارج المملكة) + الأعداد.
+- license: التفاويض → okNames (عندهم تفويض)، missingNames (بدون تفويض).
+- bikes: البايكات وأرقام لوحاتها لكل مندوب.
+- vehicles: المركبات ومشاكل التأمين.
+- alerts: ملخص كل المشاكل والتنبيهات.
+
 مهمتك:
-1. جاوب على أي سؤال عن أداء المندوبين بالأرقام من البيانات أعلاه.
-2. لو طلب المستخدم يروح لمندوب → action type "courier" بالاسم الكامل بالضبط من allNames.
-3. لو طلب يروح لقسم → action type "tab" باسم القسم بالإنجليزي.
-4. لو في مشكلة (مندوب بدون تفويض، إقامة منتهية...) اشرح الخطوات لحلها زي شات دعم.
-5. لو سأل عن مشاكل → استخدم بيانات alerts.
+1. جاوب على أي سؤال عن أداء المندوبين أو الإقامات أو التفاويض أو البايكات بالأرقام والأسماء من البيانات أعلاه.
+2. مهم: لو سُئلت عن الإقامات السارية استخدم iqama.validNames، والمنتهية iqama.invalidNames. البيانات موجودة فعلاً فلا تقل "مفيش بيانات".
+3. لو طلب المستخدم يروح لمندوب → action type "courier" بالاسم الكامل بالضبط من allNames.
+4. لو طلب يروح لقسم → action type "tab" باسم القسم بالإنجليزي.
+5. لو في مشكلة (مندوب بدون تفويض، إقامة منتهية...) اشرح الخطوات لحلها زي شات دعم.
+6. ملاحظة: أسماء الإقامات (iqama) أسماء رسمية كاملة وقد تختلف عن أسماء المندوبين في couriers.
 
 أرجع رد بصيغة JSON فقط بدون أي نص خارجها:
 {"reply":"ردك بالعربي","action":{"type":"courier|tab|none","value":"القيمة","label":"نص زر التنقل بالعربي"}}
