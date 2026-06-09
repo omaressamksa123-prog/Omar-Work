@@ -75,6 +75,7 @@
     border-left:1px solid var(--border2);
     display:flex;flex-direction:column;
     overflow-y:auto;
+    position:relative;z-index:210;
   }
   .sidebar-header{
     padding:22px 20px 18px;
@@ -281,7 +282,7 @@
     backdrop-filter:blur(2px);transition:opacity .25s;
   }
   #profile-panel{
-    position:fixed;top:0;right:0;width:min(420px,100vw);height:100vh;
+    position:fixed;top:0;right:270px;width:420px;height:100vh;
     background:linear-gradient(180deg,#0D1525 0%,#0A1120 100%);
     border-left:1px solid rgba(0,212,255,.18);
     z-index:200;overflow-y:auto;overflow-x:hidden;
