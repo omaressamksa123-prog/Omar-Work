@@ -3034,6 +3034,45 @@ function loadFromStorage(){
     saveToStorage();
     console.log('[patch] June 8 data loaded:', correct.length, 'couriers');
   })();
+  // ── PATCH 2026-06-09 (from Keeta dashboard screenshots 11:44) ──
+  (function patchJune9(){
+    const D='2026-06-09';
+    const correct=[
+      {name:'Ali Ashraf',       orders:0,  hours:0.0},
+      {name:'Barbar Anwar',     orders:0,  hours:0.0},
+      {name:'Fahad Soomro',     orders:10, hours:5.5},
+      {name:'Faizan Ali',       orders:0,  hours:0.0},
+      {name:'Farhan Haider',    orders:43, hours:17.9},
+      {name:'MD Manik',         orders:1,  hours:0.1},
+      {name:'Muhammad Adil',    orders:27, hours:10.7},
+      {name:'Muhammad Shoaib',  orders:28, hours:13.3},
+      {name:'Muhammed Sajid',   orders:19, hours:8.6},
+      {name:'Muhammed Hammad',  orders:31, hours:14.5},
+      {name:'Muhammed Mujahid', orders:0,  hours:0.0},
+      {name:'Naim Uddin',       orders:45, hours:21.1},
+      {name:'Nazim Shabeer',    orders:38, hours:14.6},
+      {name:'Nazmul Hussein',   orders:0,  hours:0.0},
+      {name:'Omar Arish',       orders:20, hours:8.7},
+      {name:'Rana Molla',       orders:40, hours:20.3},
+      {name:'Rasel Islam',      orders:15, hours:9.3},
+      {name:'Sabbir Hossain',   orders:32, hours:16.3},
+      {name:'Sagar Hossain',    orders:31, hours:16.9},
+      {name:'Sajjad Ali',       orders:25, hours:6.6},
+      {name:'Sobuj Mia',        orders:17, hours:9.0},
+      {name:'Sumon Mia',        orders:0,  hours:0.0},
+      {name:'Suronjeet Das',    orders:17, hours:9.2},
+      {name:'Tawfeeq Aqib',     orders:31, hours:14.1},
+      {name:'Usama Asaad',      orders:37, hours:13.7},
+    ];
+    const existing=allData.filter(r=>r&&r.date===D);
+    const totalOrders=existing.reduce((s,r)=>s+r.orders,0);
+    const correctTotal=correct.reduce((s,r)=>s+r.orders,0);
+    if(totalOrders===correctTotal) return;
+    for(var i=allData.length-1;i>=0;i--){ if(allData[i]&&allData[i].date===D) allData.splice(i,1); }
+    correct.forEach(function(c){ allData.push({name:c.name,orders:c.orders,hours:c.hours,date:D}); });
+    saveToStorage();
+    console.log('[patch] June 9 data loaded:', correct.length, 'couriers');
+  })();
 }
 
 // ── IMPORT KM FROM TRIPS EXCEL ──
