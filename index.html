@@ -281,7 +281,7 @@
     backdrop-filter:blur(2px);transition:opacity .25s;
   }
   #profile-panel{
-    position:fixed;top:0;right:270px;width:400px;height:100vh;
+    position:fixed;top:0;right:0;width:min(420px,100vw);height:100vh;
     background:linear-gradient(180deg,#0D1525 0%,#0A1120 100%);
     border-left:1px solid rgba(0,212,255,.18);
     z-index:200;overflow-y:auto;overflow-x:hidden;
@@ -2615,122 +2615,139 @@ function showHistory(name){
   const bike=BIKES[name]||'';
   const iqama=IQAMA[name]||'';
   const licOk=LICENSE[name]===true;
-  const muq=MUQEEM_DATA.find(r=>r.name&&r.name.toLowerCase()===name.toLowerCase());
+  const muq=MUQEEM_DATA.find(function(r){return r.name&&r.name.toLowerCase()===name.toLowerCase();});
   const iqamaOk=muq?muq.status==='Valid':null;
   const outside=muq&&muq.outside==='نعم';
 
-  // ── current month rows ──
+  // current month
   const mRows=allRows.filter(r=>mk(r.date)===activeMonth);
-  const mO=mRows.reduce((s,r)=>s+r.orders,0);
-  const mH=mRows.reduce((s,r)=>s+r.hours,0);
+  const mO=mRows.reduce(function(s,r){return s+r.orders;},0);
+  const mH=mRows.reduce(function(s,r){return s+r.hours;},0);
   const mWork=mRows.filter(r=>r.orders>0).length;
   const mAbsent=mRows.filter(r=>r.orders===0).length;
   const mAvg=mWork?+(mO/mWork).toFixed(1):0;
-  const mKm=Object.entries(KM_DATA).filter(([d])=>mk(d)===activeMonth).reduce((s,[,d])=>s+(d[name]||0),0);
-  const maxMO=Math.max(...mRows.map(r=>r.orders),1);
+  const mKm=Object.entries(KM_DATA).filter(function(e){return mk(e[0])===activeMonth;}).reduce(function(s,e){return s+((e[1][name])||0);},0);
+  const maxMO=Math.max.apply(null,mRows.map(r=>r.orders).concat([1]));
 
-  // ── all-time totals ──
-  const totalO=allRows.reduce((s,r)=>s+r.orders,0);
-  const kmTotal=Object.values(KM_DATA).reduce((s,d)=>s+(d[name]||0),0);
-  const allKmTotals=Object.keys(BIKES).map(n=>Object.values(KM_DATA).reduce((s,d)=>s+(d[n]||0),0));
-  const allTotals=Object.keys(BIKES).map(n=>({n,o:allData.filter(r=>r&&r.name===n).reduce((s,r)=>s+r.orders,0)})).sort((a,b)=>b.o-a.o);
-  const rank=allTotals.findIndex(x=>x.n===name)+1;
-  const bestRow=allRows.reduce((b,r)=>r.orders>b.orders?r:b,allRows[0]);
+  // all-time
+  const totalO=allRows.reduce(function(s,r){return s+r.orders;},0);
+  const kmTotal=Object.values(KM_DATA).reduce(function(s,d){return s+(d[name]||0);},0);
+  const allKmMax=Math.max.apply(null,Object.keys(BIKES).map(function(n){return Object.values(KM_DATA).reduce(function(s,d){return s+(d[n]||0);},0);}).concat([1]));
+  const allTotals=Object.keys(BIKES).map(function(n){return {n:n,o:allData.filter(r=>r&&r.name===n).reduce(function(s,r){return s+r.orders;},0)};}).sort(function(a,b){return b.o-a.o;});
+  const rank=allTotals.findIndex(function(x){return x.n===name;})+1;
+  const bestRow=allRows.reduce(function(b,r){return r.orders>b.orders?r:b;},allRows[0]);
 
-  // ── months ──
-  const months=[...new Set(allRows.map(r=>mk(r.date)))].sort((a,b)=>b.localeCompare(a));
-  const maxMonthO=Math.max(...months.map(m=>allRows.filter(r=>mk(r.date)===m).reduce((s,r)=>s+r.orders,0)),1);
+  // months list
+  const monthSet={};
+  allRows.forEach(function(r){monthSet[mk(r.date)]=1;});
+  const months=Object.keys(monthSet).sort(function(a,b){return b.localeCompare(a);});
+  const maxMonthO=Math.max.apply(null,months.map(function(m){return allRows.filter(r=>mk(r.date)===m).reduce(function(s,r){return s+r.orders;},0);}).concat([1]));
 
-  const badge=(txt,ok)=>{
+  // badges
+  function badge(txt,ok){
     if(ok===null||ok===undefined) return '';
-    return ok
-      ?`<span style="background:rgba(16,185,129,.15);border:1px solid rgba(52,211,153,.3);color:#34D399;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;">✅ ${txt}</span>`
-      :`<span style="background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:#F87171;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;">❌ ${txt}</span>`;
-  };
+    if(ok) return '<span style="background:rgba(16,185,129,.15);border:1px solid rgba(52,211,153,.3);color:#34D399;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;">✅ '+txt+'</span>';
+    return '<span style="background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:#F87171;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;">❌ '+txt+'</span>';
+  }
+
+  // rank medal
+  function medal(r){return r===1?'🥇':r===2?'🥈':r===3?'🥉':'#'+r;}
+
+  // build HTML in pieces
+  var h='';
+
+  // HEADER
+  h+='<div class="pp-hdr">';
+  h+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">';
+  h+='<div class="pp-avatar" style="background:'+av.bg+';color:'+av.txt+'">'+ini(name)+'</div>';
+  h+='<div style="flex:1;min-width:0">';
+  h+='<div style="font-size:14px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+name+'</div>';
+  h+='<div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap">';
+  if(bike) h+='<span style="background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.3);color:#C084FC;padding:2px 8px;border-radius:20px;font-size:10px;">🏍 '+bike+'</span>';
+  if(iqama) h+='<span style="color:#64748B;font-size:10px;padding-top:3px">🪪 '+iqama+'</span>';
+  h+='</div></div>';
+  h+='<button class="pp-close" onclick="closeHistory()">✕</button>';
+  h+='</div>';
+  h+='<div style="display:flex;gap:5px;flex-wrap:wrap">';
+  h+=badge('تفويض',licOk);
+  h+=badge('إقامة صالحة',iqamaOk);
+  if(outside) h+='<span style="background:rgba(251,191,36,.1);border:1px solid rgba(252,211,77,.3);color:#FCD34D;padding:2px 8px;border-radius:20px;font-size:10px;">✈️ خارج</span>';
+  h+='</div></div>';
+
+  // CURRENT MONTH
+  h+='<div class="pp-section">';
+  h+='<div class="pp-section-title">📅 '+ml(activeMonth)+'</div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px">';
+  h+='<div class="pp-stat"><div class="pp-stat-lbl">أوردرات</div><div class="pp-stat-val" style="color:#A5B4FC">'+mO+'</div></div>';
+  h+='<div class="pp-stat"><div class="pp-stat-lbl">ساعات</div><div class="pp-stat-val" style="color:#34D399">'+mH.toFixed(0)+'h</div></div>';
+  h+='<div class="pp-stat"><div class="pp-stat-lbl">معدل/يوم</div><div class="pp-stat-val" style="color:#38BDF8">'+mAvg+'</div></div>';
+  h+='<div class="pp-stat"><div class="pp-stat-lbl">كم الشهر</div><div class="pp-stat-val" style="color:#FBBF24">'+mKm.toFixed(0)+'</div></div>';
+  h+='<div class="pp-stat"><div class="pp-stat-lbl">أيام عمل</div><div class="pp-stat-val" style="color:#10B981">'+mWork+(mAbsent?'<span style="font-size:10px;color:#F87171"> -'+mAbsent+'</span>':'')+'</div></div>';
+  h+='<div class="pp-stat"><div class="pp-stat-lbl">الترتيب</div><div class="pp-stat-val" style="color:#A855F7">'+medal(rank)+'</div></div>';
+  h+='</div></div>';
+
+  // ALL TIME
+  h+='<div class="pp-section">';
+  h+='<div class="pp-section-title">📊 إجمالي</div>';
+  h+='<div style="display:flex;gap:8px">';
+  h+='<div class="pp-stat" style="flex:1"><div class="pp-stat-lbl">كل الأوردرات</div><div class="pp-stat-val" style="color:#818CF8">'+totalO+'</div></div>';
+  h+='<div class="pp-stat" style="flex:1"><div class="pp-stat-lbl">كم إجمالي</div><div class="pp-stat-val" style="color:#FBBF24">'+kmTotal.toFixed(0)+'</div></div>';
+  h+='<div class="pp-stat" style="flex:1"><div class="pp-stat-lbl">أفضل يوم</div><div class="pp-stat-val" style="color:#F59E0B">'+bestRow.orders+' 🏆<div style="font-size:9px;color:#475569;font-weight:400">'+fd(bestRow.date)+'</div></div></div>';
+  h+='</div>';
+  if(kmTotal>0){
+    var kmPct=Math.round(kmTotal/allKmMax*100);
+    h+='<div style="margin-top:8px">';
+    h+='<div style="display:flex;justify-content:space-between;font-size:10px;color:#475569;margin-bottom:3px"><span>🛣 مقارنة الكم</span><span>'+kmTotal.toFixed(0)+' كم</span></div>';
+    h+='<div style="background:rgba(255,255,255,.06);border-radius:20px;height:6px;overflow:hidden"><div style="height:100%;width:'+kmPct+'%;background:linear-gradient(90deg,#D97706,#FBBF24);border-radius:20px"></div></div>';
+    h+='</div>';
+  }
+  h+='</div>';
+
+  // MONTHLY BREAKDOWN
+  if(months.length>1){
+    h+='<div class="pp-section">';
+    h+='<div class="pp-section-title">📆 أداء شهري</div>';
+    months.forEach(function(m){
+      var mo=allRows.filter(r=>mk(r.date)===m).reduce(function(s,r){return s+r.orders;},0);
+      var isCur=m===activeMonth;
+      var pct=Math.round(mo/maxMonthO*100);
+      var colBar=isCur?'background:linear-gradient(90deg,#00D4FF,#A855F7)':'';
+      var colTxt=isCur?'#00D4FF':'#64748B';
+      var colVal=isCur?'#00D4FF':'#A5B4FC';
+      var fw=isCur?'700':'400';
+      h+='<div class="pp-month-row">';
+      h+='<div style="width:48px;font-size:10px;color:'+colTxt+';text-align:right;flex-shrink:0;font-weight:'+fw+'">'+ml(m)+'</div>';
+      h+='<div class="pp-bar-bg"><div class="pp-bar-fill" style="width:'+pct+'%;'+colBar+'"></div></div>';
+      h+='<div style="font-size:11px;font-weight:700;color:'+colVal+';width:30px;text-align:left">'+mo+'</div>';
+      h+='</div>';
+    });
+    h+='</div>';
+  }
+
+  // DAILY CARDS (current month)
+  h+='<div class="pp-section" style="border-bottom:none">';
+  h+='<div class="pp-section-title">📆 يومي — '+ml(activeMonth)+'</div>';
+  h+='</div>';
+  h+='<div class="pp-day-grid">';
+  if(mRows.length){
+    mRows.forEach(function(r){
+      var best=r.orders===maxMO&&r.orders>0;
+      var dayKm=(KM_DATA[r.date]||{})[name];
+      h+='<div class="pp-day'+(best?' best':'')+'">';
+      h+='<div class="pp-day-date">'+fd(r.date)+'</div>';
+      h+='<div class="pp-day-o"'+(r.orders===0?' style="color:#475569"':'')+'>'+r.orders+'</div>';
+      h+='<div class="pp-day-h">'+(r.hours>0?r.hours.toFixed(1)+'h':'-')+'</div>';
+      if(dayKm!=null) h+='<div class="pp-day-km">'+dayKm+'كم</div>';
+      h+='</div>';
+    });
+  } else {
+    h+='<div style="color:#475569;font-size:12px;padding:10px">لا يوجد بيانات</div>';
+  }
+  h+='</div>';
 
   const panel=document.getElementById('profile-panel');
   const backdrop=document.getElementById('profile-backdrop');
-
-  panel.innerHTML=`
-    <!-- HEADER -->
-    <div class="pp-hdr">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-        <div class="pp-avatar" style="background:${av.bg};color:${av.txt}">${ini(name)}</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:14px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</div>
-          <div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap">
-            ${bike?`<span style="background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.3);color:#C084FC;padding:2px 8px;border-radius:20px;font-size:10px;">🏍 ${bike}</span>`:''}
-            ${iqama?`<span style="color:#475569;font-size:10px;padding-top:3px">🪪 ${iqama}</span>`:''}
-          </div>
-        </div>
-        <button class="pp-close" onclick="closeHistory()">✕</button>
-      </div>
-      <div style="display:flex;gap:5px;flex-wrap:wrap">
-        ${badge('تفويض',licOk)}
-        ${badge('إقامة صالحة',iqamaOk)}
-        ${outside?`<span style="background:rgba(251,191,36,.1);border:1px solid rgba(252,211,77,.3);color:#FCD34D;padding:2px 8px;border-radius:20px;font-size:10px;">✈️ خارج المملكة</span>`:''}
-      </div>
-    </div>
-
-    <!-- CURRENT MONTH -->
-    <div class="pp-section">
-      <div class="pp-section-title">📅 ${ml(activeMonth)}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:8px">
-        <div class="pp-stat"><div class="pp-stat-lbl">أوردرات</div><div class="pp-stat-val" style="color:#A5B4FC">${mO}</div></div>
-        <div class="pp-stat"><div class="pp-stat-lbl">ساعات</div><div class="pp-stat-val" style="color:#34D399">${mH.toFixed(0)}h</div></div>
-        <div class="pp-stat"><div class="pp-stat-lbl">معدل/يوم</div><div class="pp-stat-val" style="color:#38BDF8">${mAvg}</div></div>
-        <div class="pp-stat"><div class="pp-stat-lbl">كم الشهر</div><div class="pp-stat-val" style="color:#FBBF24">${mKm.toFixed(0)}</div></div>
-        <div class="pp-stat"><div class="pp-stat-lbl">أيام عمل</div><div class="pp-stat-val" style="color:#10B981">${mWork}${mAbsent?`<span style="font-size:10px;color:#F87171"> -${mAbsent}</span>`:''}</div></div>
-        <div class="pp-stat"><div class="pp-stat-lbl">الترتيب</div><div class="pp-stat-val" style="color:#A855F7">${rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'#'+rank}</div></div>
-      </div>
-    </div>
-
-    <!-- ALL TIME -->
-    <div class="pp-section">
-      <div class="pp-section-title">📊 إجمالي كل الأوقات</div>
-      <div style="display:flex;gap:10px;margin-bottom:8px">
-        <div class="pp-stat" style="flex:1"><div class="pp-stat-lbl">أوردرات</div><div class="pp-stat-val" style="color:#818CF8;font-size:20px">${totalO}</div></div>
-        <div class="pp-stat" style="flex:1"><div class="pp-stat-lbl">كم إجمالي</div><div class="pp-stat-val" style="color:#FBBF24;font-size:20px">${kmTotal.toFixed(0)}</div></div>
-        <div class="pp-stat" style="flex:1"><div class="pp-stat-lbl">أفضل يوم</div><div class="pp-stat-val" style="color:#F59E0B;font-size:16px">${bestRow.orders} 🏆<div style="font-size:9px;color:#475569;font-weight:400">${fd(bestRow.date)}</div></div></div>
-      </div>
-      ${kmTotal>0?`<div style="margin-top:4px">
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:#475569;margin-bottom:3px"><span>🛣 مقارنة الكم</span><span>${kmTotal.toFixed(0)} كم</span></div>
-        <div style="background:rgba(255,255,255,.06);border-radius:20px;height:6px;overflow:hidden"><div style="height:100%;width:${Math.round(kmTotal/Math.max(...allKmTotals,1)*100)}%;background:linear-gradient(90deg,#D97706,#FBBF24);border-radius:20px"></div></div>
-      </div>`:''}
-    </div>
-
-    <!-- MONTHLY BREAKDOWN -->
-    ${months.length>1?`<div class="pp-section">
-      <div class="pp-section-title">📆 أداء شهري</div>
-      ${months.map(m=>{
-        const mo=allRows.filter(r=>mk(r.date)===m).reduce((s,r)=>s+r.orders,0);
-        const isCur=m===activeMonth;
-        return`<div class="pp-month-row">
-          <div style="width:48px;font-size:10px;color:${isCur?'#00D4FF':'#64748B'};text-align:right;flex-shrink:0;font-weight:${isCur?700:400}">${ml(m)}</div>
-          <div class="pp-bar-bg"><div class="pp-bar-fill" style="width:${Math.round(mo/maxMonthO*100)}%;${isCur?'background:linear-gradient(90deg,#00D4FF,#A855F7)':''}"></div></div>
-          <div style="font-size:11px;font-weight:700;color:${isCur?'#00D4FF':'#A5B4FC'};width:30px;text-align:left">${mo}</div>
-        </div>`;
-      }).join('')}
-    </div>`:''}
-
-    <!-- DAILY CARDS for current month -->
-    <div class="pp-section" style="border-bottom:none">
-      <div class="pp-section-title">يومي — ${ml(activeMonth)}</div>
-    </div>
-    <div class="pp-day-grid">
-      ${mRows.length?mRows.map(r=>{
-        const best=r.orders===maxMO&&r.orders>0;
-        const dayKm=KM_DATA[r.date]?.[name];
-        return`<div class="pp-day ${best?'best':''}">
-          <div class="pp-day-date">${fd(r.date)}</div>
-          <div class="pp-day-o" style="${r.orders===0?'color:#475569':''}">${r.orders}</div>
-          <div class="pp-day-h">${r.hours>0?r.hours.toFixed(1)+'h':'-'}</div>
-          ${dayKm!=null?`<div class="pp-day-km">${dayKm}كم</div>`:''}
-        </div>`;
-      }).join(''):`<div style="color:#475569;font-size:12px;padding:10px">لا يوجد بيانات لهذا الشهر</div>`}
-    </div>`;
-
-  // show panel + backdrop
+  panel.innerHTML=h;
   panel.classList.add('pp-open');
   backdrop.style.display='block';
   panel.scrollTop=0;
