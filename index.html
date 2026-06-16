@@ -3813,6 +3813,9 @@ document.addEventListener('keydown', function(e){
 
 window.addEventListener('DOMContentLoaded', function(){
   loadFromStorage();
+  // افتح على أحدث شهر فيه داتا (بدل ما يفضل ثابت على مايو)
+  const _months=getMonths();
+  if(_months.length) activeMonth=_months[0];
   updateApiKeyStatus();
   // live clock
   function updateClock(){
