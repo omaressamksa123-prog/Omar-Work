@@ -3205,6 +3205,46 @@ function loadFromStorage(){
     correct.forEach(function(c){ allData.push({name:c.name,orders:c.orders,hours:c.hours,date:D}); });
     saveToStorage();
   })();
+  // ── PATCH 2026-06-14 (Keeta partner portal — By Courier, screenshots 11:34) ──
+  (function patchJune14(){
+    const D='2026-06-14';
+    const correct=[
+      {name:'Ali Ashraf',       orders:0,  hours:0.0},
+      {name:'Barbar Anwar',     orders:0,  hours:0.0},
+      {name:'Fahad Soomro',     orders:0,  hours:0.0},
+      {name:'Faizan Ali',       orders:0,  hours:0.0},
+      {name:'Farhan Haider',    orders:2,  hours:1.1},
+      {name:'MD Manik',         orders:0,  hours:0.0},
+      {name:'Mohammed Numan',   orders:0,  hours:0.0},
+      {name:'Muhammad Adil',    orders:30, hours:14.0},
+      {name:'Muhammad Shoaib',  orders:28, hours:10.6},
+      {name:'Muhammed Sajid',   orders:24, hours:10.8},
+      {name:'Muhammed Hammad',  orders:31, hours:15.5},
+      {name:'Muhammed Mujahid', orders:0,  hours:0.0},
+      {name:'Naim Uddin',       orders:31, hours:16.4},
+      {name:'Nazim Shabeer',    orders:40, hours:13.0},
+      {name:'Nazmul Hussein',   orders:0,  hours:0.0},
+      {name:'Omar Arish',       orders:20, hours:10.7},
+      {name:'Rana Molla',       orders:44, hours:19.7},
+      {name:'Rasel Islam',      orders:0,  hours:0.0},
+      {name:'Rizwan Muhammad',  orders:0,  hours:0.0},
+      {name:'Sabbir Hossain',   orders:15, hours:14.7},
+      {name:'Sagar Hossain',    orders:22, hours:16.3},
+      {name:'Sajjad Ali',       orders:20, hours:6.2},
+      {name:'Sobuj Mia',        orders:0,  hours:0.0},
+      {name:'Sumon Mia',        orders:0,  hours:0.0},
+      {name:'Suronjeet Das',    orders:41, hours:18.5},
+      {name:'Tawfeeq Aqib',     orders:0,  hours:0.0},
+      {name:'Usama Asaad',      orders:33, hours:14.9},
+    ];
+    const existing=allData.filter(r=>r&&r.date===D);
+    const tot=existing.reduce((s,r)=>s+r.orders,0);
+    const corr=correct.reduce((s,r)=>s+r.orders,0);
+    if(existing.length===correct.length&&tot===corr) return;
+    for(var i=allData.length-1;i>=0;i--){ if(allData[i]&&allData[i].date===D) allData.splice(i,1); }
+    correct.forEach(function(c){ allData.push({name:c.name,orders:c.orders,hours:c.hours,date:D}); });
+    saveToStorage();
+  })();
   // ── دمج تلقائي للأسماء المكررة (أخطاء إملائية لنفس الشخص) ──
   dedupeCourierNames();
 }
