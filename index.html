@@ -2442,7 +2442,8 @@ function render(){
     document.getElementById('chart-area').style.display='none';
     const vkd3=document.getElementById('vehicles-kpi'); if(vkd3) vkd3.style.display='none';
     const mkd0=document.getElementById('muqeem-kpi'); if(mkd0) mkd0.style.display='none';
-    const search=(document.getElementById('courier-search')?.value||'').toLowerCase();
+    const searchRaw=document.getElementById('cstatus-search')?.value||'';
+    const search=searchRaw.toLowerCase();
     const cSort=document.getElementById('cstatus-sort')?.value||'status';
     const cFilter=document.getElementById('cstatus-filter')?.value||'all';
 
@@ -2536,6 +2537,7 @@ function render(){
     let kpiDiv=document.getElementById('cstatus-kpi');
     if(!kpiDiv){kpiDiv=document.createElement('div');kpiDiv.id='cstatus-kpi';wrap.parentNode.insertBefore(kpiDiv,wrap);}
     kpiDiv.innerHTML=kpiRow+statusCards+`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+      <input id="cstatus-search" type="text" placeholder="🔍 ابحث باسم المندوب أو رقم الإقامة" oninput="render()" style="background:#1A2238;color:#F1F5F9;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 14px;font-family:Cairo,sans-serif;font-size:12px;min-width:240px;flex:1;" />
       <span style="font-size:12px;color:#94A3B8;">تصفية الإقامة:</span>
       <select id="cstatus-filter" onchange="render()" style="background:#1A2238;color:#F1F5F9;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 12px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer;">
         <option value="all">الكل (${total})</option>
@@ -2553,6 +2555,9 @@ function render(){
     </div>`;
     document.getElementById('cstatus-filter').value=cFilter;
     document.getElementById('cstatus-sort').value=cSort;
+    // استرجاع نص البحث والمؤشر بعد إعادة الرسم عشان الكتابة ما تتقطعش
+    const _cs=document.getElementById('cstatus-search');
+    if(_cs){ _cs.value=searchRaw; if(searchRaw){ _cs.focus(); _cs.setSelectionRange(searchRaw.length,searchRaw.length); } }
     kpiDiv.style.display='';
     return;
   }
