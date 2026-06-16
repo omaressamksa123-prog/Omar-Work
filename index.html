@@ -3171,16 +3171,28 @@ function saveToStorage(){
     localStorage.setItem('kd_license', JSON.stringify(LICENSE));
   } catch(e){ console.warn('Save failed:', e); }
 }
+// رقم نسخة البيانات الموحّدة — كبّره (مثلاً -2 ، -3) كل ما تحدّث البيانات في الكود
+// عشان كل الأجهزة تتجاهل ذاكرتها القديمة وتاخد النسخة الجديدة من GitHub
+const DATA_VERSION='2026-06-16-1';
 function loadFromStorage(){
+  const _storedVer=localStorage.getItem('kd_data_version');
+  const _useEmbedded=(_storedVer!==DATA_VERSION); // نسخة الكود أحدث ⇒ تجاهل الذاكرة القديمة
   try {
-    const d=localStorage.getItem('kd_data');
-    const k=localStorage.getItem('kd_km');
-    const b=localStorage.getItem('kd_bikes');
-    const l=localStorage.getItem('kd_license');
-    if(d){ const parsed=JSON.parse(d).filter(Boolean); if(parsed.length){ allData.length=0; parsed.forEach(r=>allData.push(r)); } }
-    if(k){ const parsed=JSON.parse(k); Object.keys(KM_DATA).forEach(key=>delete KM_DATA[key]); Object.assign(KM_DATA,parsed); }
-    if(b) Object.assign(BIKES,JSON.parse(b));
-    if(l) Object.assign(LICENSE,JSON.parse(l));
+    if(!_useEmbedded){
+      const d=localStorage.getItem('kd_data');
+      const k=localStorage.getItem('kd_km');
+      const b=localStorage.getItem('kd_bikes');
+      const l=localStorage.getItem('kd_license');
+      if(d){ const parsed=JSON.parse(d).filter(Boolean); if(parsed.length){ allData.length=0; parsed.forEach(r=>allData.push(r)); } }
+      if(k){ const parsed=JSON.parse(k); Object.keys(KM_DATA).forEach(key=>delete KM_DATA[key]); Object.assign(KM_DATA,parsed); }
+      if(b) Object.assign(BIKES,JSON.parse(b));
+      if(l) Object.assign(LICENSE,JSON.parse(l));
+    } else {
+      // اعتمد البيانات الموحّدة المضمّنة في الكود، واكتبها فوق الذاكرة القديمة
+      localStorage.setItem('kd_data_version', DATA_VERSION);
+      saveToStorage();
+      console.log('[data] adopted embedded canonical data, version', DATA_VERSION);
+    }
   } catch(e){ console.warn('Load failed:', e); }
   // ── CLEANUP: remove erroneous 2026-06-09 data ──
   // (أُلغيت دالة cleanupBadDays — يوم 9 يونيو بقى بيانات صحيحة في النسخة الموحّدة)
