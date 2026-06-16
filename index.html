@@ -2450,13 +2450,15 @@ function render(){
     const search=searchRaw.toLowerCase();
     const cSort=document.getElementById('cstatus-sort')?.value||'status';
     const cFilter=document.getElementById('cstatus-filter')?.value||'all';
+    const cStatusFilter=document.getElementById('cstatus-statusfilter')?.value||'all';
 
     // normalize iqama status into 3 buckets
     const iqBucket=s=> s==='Valid' ? 'valid' : (s==='InValid' ? 'invalid' : 'na');
 
     let filtered=CSTATUS_DATA.filter(r=>
       (!search || (r.name||'').toLowerCase().includes(search) || (r.iqama||'').includes(search)) &&
-      (cFilter==='all' || iqBucket(r.iqamaStatus)===cFilter)
+      (cFilter==='all' || iqBucket(r.iqamaStatus)===cFilter) &&
+      (cStatusFilter==='all' || (r.status||'')===cStatusFilter)
     );
 
     // ── إجماليات المكتب كله (على كل الداتا، مش المفلتر) ──
@@ -2542,6 +2544,11 @@ function render(){
     if(!kpiDiv){kpiDiv=document.createElement('div');kpiDiv.id='cstatus-kpi';wrap.parentNode.insertBefore(kpiDiv,wrap);}
     kpiDiv.innerHTML=kpiRow+statusCards+`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
       <input id="cstatus-search" type="text" placeholder="🔍 ابحث باسم المندوب أو رقم الإقامة" oninput="render()" style="background:#1A2238;color:#F1F5F9;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 14px;font-family:Cairo,sans-serif;font-size:12px;min-width:240px;flex:1;" />
+      <span style="font-size:12px;color:#94A3B8;">الحالة (الشغل):</span>
+      <select id="cstatus-statusfilter" onchange="render()" style="background:#1A2238;color:#F1F5F9;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 12px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer;">
+        <option value="all">كل الحالات (${total})</option>
+        ${statusOrder.map(([nm,s])=>`<option value="${nm}">${nm} (${s.total})</option>`).join('')}
+      </select>
       <span style="font-size:12px;color:#94A3B8;">تصفية الإقامة:</span>
       <select id="cstatus-filter" onchange="render()" style="background:#1A2238;color:#F1F5F9;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 12px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer;">
         <option value="all">الكل (${total})</option>
@@ -2559,6 +2566,7 @@ function render(){
     </div>`;
     document.getElementById('cstatus-filter').value=cFilter;
     document.getElementById('cstatus-sort').value=cSort;
+    const _sf=document.getElementById('cstatus-statusfilter'); if(_sf) _sf.value=cStatusFilter;
     // استرجاع نص البحث والمؤشر بعد إعادة الرسم عشان الكتابة ما تتقطعش
     const _cs=document.getElementById('cstatus-search');
     if(_cs){ _cs.value=searchRaw; if(searchRaw){ _cs.focus(); _cs.setSelectionRange(searchRaw.length,searchRaw.length); } }
