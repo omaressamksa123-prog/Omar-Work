@@ -692,6 +692,13 @@
       📁 استيراد كيلومترات Excel
     </button>
     <input type="file" id="km-excel-input" accept=".xlsx,.xls" style="display:none" onchange="importKmExcel(event)" />
+    <button class="add-btn" style="background:var(--navy3);margin-top:-8px;" onclick="backupData()" title="ينزّل كل بياناتك في ملف واحد">
+      💾 نسخة احتياطية (تصدير الكل)
+    </button>
+    <button class="add-btn" style="background:var(--navy3);margin-top:-8px;" onclick="document.getElementById('backup-input').click()" title="استرجاع نسخة احتياطية على أي جهاز">
+      📥 استرجاع نسخة احتياطية
+    </button>
+    <input type="file" id="backup-input" accept=".json,application/json" style="display:none" onchange="restoreData(event)" />
 
     <div class="sb-section">
       <div class="sb-label">الإجماليات</div>
@@ -3103,6 +3110,43 @@ function saveNewDay(){
   saveToStorage();
   closeAddModal();
   render();
+}
+
+// ── النسخ الاحتياطي والاسترجاع (لمزامنة البيانات بين الأجهزة) ──
+function backupData(){
+  try{
+    const dump={ _app:'keeta-dashboard', _version:1, _exportedAt:new Date().toISOString(), data:{} };
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k && k.indexOf('kd_')===0 && k!=='kd_apikey'){ dump.data[k]=localStorage.getItem(k); } // نستثني مفتاح الـ API لأسباب أمان
+    }
+    const blob=new Blob([JSON.stringify(dump,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download='keeta_backup_'+new Date().toISOString().slice(0,10)+'.json';
+    a.click(); URL.revokeObjectURL(url);
+    if(typeof showToast==='function') showToast('✅ تم تصدير نسخة احتياطية كاملة');
+  }catch(e){ alert('فشل التصدير: '+e.message); }
+}
+function restoreData(ev){
+  const file=ev.target.files&&ev.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(){
+    try{
+      const dump=JSON.parse(reader.result);
+      const obj=(dump&&dump.data)?dump.data:dump; // يدعم الصيغة الكاملة أو خام
+      const keys=Object.keys(obj).filter(k=>k.indexOf('kd_')===0 && k!=='kd_apikey');
+      if(!keys.length){ alert('الملف مش فيه بيانات صالحة'); return; }
+      if(!confirm('هيتم استبدال البيانات الحالية على الجهاز ده بالنسخة المستوردة. تمام؟')) return;
+      keys.forEach(k=>localStorage.setItem(k, obj[k]));
+      localStorage.removeItem('kd_cleaned_09'); // إعادة تطبيق أي تنظيف لازم
+      if(typeof showToast==='function') showToast('✅ تم الاسترجاع — جاري التحديث');
+      setTimeout(()=>location.reload(), 600);
+    }catch(e){ alert('فشل الاسترجاع: '+e.message); }
+    finally{ ev.target.value=''; }
+  };
+  reader.readAsText(file);
 }
 
 // ── LOCALSTORAGE PERSISTENCE ──
