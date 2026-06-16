@@ -1849,6 +1849,8 @@ function render(){
   const _ov=document.getElementById('overview-content');if(_ov)_ov.remove();
   const _al=document.getElementById('alerts-content');if(_al)_al.remove();
   const _mt=document.getElementById('main-table');if(_mt)_mt.style.display='';
+  // hide per-tab KPI panels up-front; each tab re-shows its own
+  ['muqeem-kpi','cstatus-kpi','vehicles-kpi'].forEach(id=>{const e=document.getElementById(id);if(e&&id!==(activeTab+'-kpi'))e.style.display='none';});
 
   document.getElementById('month-pills').innerHTML=getMonths().map(m=>
     `<button class="mpill ${m===activeMonth?'active':''}" onclick="setMonth('${m}')">${ml(m)}</button>`
@@ -3203,6 +3205,89 @@ function loadFromStorage(){
     correct.forEach(function(c){ allData.push({name:c.name,orders:c.orders,hours:c.hours,date:D}); });
     saveToStorage();
   })();
+  // ── دمج تلقائي للأسماء المكررة (أخطاء إملائية لنفس الشخص) ──
+  dedupeCourierNames();
+}
+
+// يجمّع الأسماء شديدة التشابه (فرق حرف/حرفين) في اسم موحّد، ويجمع أوردرات/ساعات/كيلومترات نفس اليوم
+function dedupeCourierNames(){
+  try{
+    // 1) اجمع كل الأسماء + وزن كل اسم (عدد ظهوره)
+    const weight={};
+    allData.filter(Boolean).forEach(r=>{ if(r.name) weight[r.name]=(weight[r.name]||0)+1; });
+    Object.values(KM_DATA).forEach(day=>Object.keys(day).forEach(n=>{ weight[n]=(weight[n]||0)+1; }));
+    Object.keys(BIKES).forEach(n=>{ if(weight[n]==null) weight[n]=0; });
+    const names=Object.keys(weight);
+    if(names.length<2) return;
+
+    const norm=s=>String(s).toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim();
+    const normMap={}; names.forEach(n=>normMap[n]=norm(n));
+    function lev(a,b){
+      const m=a.length,n=b.length; if(!m)return n; if(!n)return m;
+      let prev=Array.from({length:n+1},(_,j)=>j), cur=new Array(n+1);
+      for(let i=1;i<=m;i++){ cur[0]=i;
+        for(let j=1;j<=n;j++){ const c=a[i-1]===b[j-1]?0:1; cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+c); }
+        [prev,cur]=[cur,prev];
+      }
+      return prev[n];
+    }
+    const bikeSet=new Set(Object.keys(BIKES));
+
+    // 2) union-find لتجميع المتشابهين
+    const parent={}; names.forEach(n=>parent[n]=n);
+    const find=x=>{ while(parent[x]!==x){ parent[x]=parent[parent[x]]; x=parent[x]; } return x; };
+    const union=(a,b)=>{ const ra=find(a),rb=find(b); if(ra!==rb) parent[ra]=rb; };
+    for(let i=0;i<names.length;i++){
+      for(let j=i+1;j<names.length;j++){
+        // أمان: ما نمزجش اسمين رسميين (ليهم بايك) مع بعض أبداً
+        if(bikeSet.has(names[i]) && bikeSet.has(names[j])) continue;
+        const a=normMap[names[i]], b=normMap[names[j]];
+        if(a===b){ union(names[i],names[j]); continue; }
+        const maxlen=Math.max(a.length,b.length);
+        const allowed=Math.min(2, Math.max(1, Math.floor(0.2*maxlen))); // فرق حرفين كحد أقصى
+        if(Math.abs(a.length-b.length)<=allowed && lev(a,b)<=allowed) union(names[i],names[j]);
+      }
+    }
+
+    // 3) اختر الاسم الرسمي لكل مجموعة (الأولوية لاسم له بايك، وإلا الأكثر تكراراً)
+    const clusters={}; names.forEach(n=>{ const r=find(n); (clusters[r]=clusters[r]||[]).push(n); });
+    const canonOf={};
+    Object.values(clusters).forEach(members=>{
+      let canon=members.find(m=>bikeSet.has(m));
+      if(!canon){ members.sort((x,y)=>(weight[y]-weight[x])||(y.length-x.length)||x.localeCompare(y)); canon=members[0]; }
+      members.forEach(m=>canonOf[m]=canon);
+    });
+
+    const aliases=Object.entries(canonOf).filter(([k,v])=>k!==v);
+    if(!aliases.length) return; // مفيش تكرار
+
+    // 4) أعِد بناء allData (جمع الأوردرات/الساعات لنفس الاسم الموحّد + نفس التاريخ)
+    const merged={};
+    allData.filter(Boolean).forEach(r=>{
+      const cn=canonOf[r.name]||r.name;
+      const key=cn+'||'+r.date;
+      if(!merged[key]) merged[key]={name:cn,date:r.date,orders:0,hours:0};
+      merged[key].orders+=(+r.orders||0);
+      merged[key].hours +=(+r.hours||0);
+    });
+    allData.length=0;
+    Object.values(merged).forEach(r=>{ r.hours=Math.round(r.hours*10)/10; allData.push(r); });
+
+    // 5) أعِد بناء KM_DATA (جمع الكيلومترات لنفس الاسم الموحّد في نفس اليوم)
+    Object.keys(KM_DATA).forEach(date=>{
+      const day=KM_DATA[date], nd={};
+      Object.keys(day).forEach(n=>{ const cn=canonOf[n]||n; nd[cn]=(nd[cn]||0)+(+day[n]||0); });
+      Object.keys(nd).forEach(k=>nd[k]=Math.round(nd[k]*10)/10);
+      KM_DATA[date]=nd;
+    });
+
+    // 6) وحّد مفاتيح البايكات والتفاويض
+    Object.keys(BIKES).forEach(n=>{ const cn=canonOf[n]; if(cn&&cn!==n){ if(BIKES[cn]==null) BIKES[cn]=BIKES[n]; delete BIKES[n]; } });
+    Object.keys(LICENSE).forEach(n=>{ const cn=canonOf[n]; if(cn&&cn!==n){ if(LICENSE[cn]==null) LICENSE[cn]=LICENSE[n]; delete LICENSE[n]; } });
+
+    saveToStorage();
+    console.log('[dedupe] وحّدت '+aliases.length+' اسم مكرر:', aliases.map(([k,v])=>k+' → '+v));
+  }catch(e){ console.warn('dedupe failed:', e); }
 }
 
 // ── IMPORT KM FROM TRIPS EXCEL ──
