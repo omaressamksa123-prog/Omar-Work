@@ -702,6 +702,12 @@
       📁 استيراد كيلومترات Excel
     </button>
     <input type="file" id="km-excel-input" accept=".xlsx,.xls" style="display:none" onchange="importKmExcel(event)" />
+    <button class="add-btn" style="background:linear-gradient(135deg,#1E3A5F,#0F2942);margin-top:-8px;border:1px solid rgba(0,212,255,.3);" onclick="connectGitHub()" title="اربط GitHub Token عشان تحفظ البيانات في السحابة">
+      🔗 ربط GitHub (حفظ سحابي)
+    </button>
+    <button class="add-btn" style="background:var(--navy3);margin-top:-8px;" onclick="loadFromGitHub()" title="اسحب آخر البيانات من GitHub">
+      ☁️ مزامنة الآن
+    </button>
     <button class="add-btn" style="background:var(--navy3);margin-top:-8px;" onclick="backupData()" title="ينزّل كل بياناتك في ملف واحد">
       💾 نسخة احتياطية (تصدير الكل)
     </button>
@@ -3210,6 +3216,62 @@ function saveToStorage(){
     localStorage.setItem('kd_bikes', JSON.stringify(BIKES));
     localStorage.setItem('kd_license', JSON.stringify(LICENSE));
   } catch(e){ console.warn('Save failed:', e); }
+  // رفع تلقائي لقاعدة بيانات GitHub (بعد ما يخلّص تحميل الصفحة، ولو فيه Token)
+  if(window._appReady) scheduleGhPush();
+}
+
+// ════════ قاعدة بيانات GitHub (data.json) ════════
+const GH_REPO='omaressamksa123-prog/Omar-Work';
+const GH_RAW='https://raw.githubusercontent.com/'+GH_REPO+'/main/data.json';
+const GH_API='https://api.github.com/repos/'+GH_REPO+'/contents/data.json';
+function getGhToken(){ return localStorage.getItem('kd_gh_token')||''; }
+
+// تحميل البيانات من GitHub (كل الأجهزة تقرا من نفس المصدر) — مش محتاج Token
+async function loadFromGitHub(){
+  try{
+    const r=await fetch(GH_RAW+'?t='+Date.now(), {cache:'no-store'});
+    if(!r.ok) return;
+    const d=await r.json();
+    if(!d || !Array.isArray(d.data)) return;
+    if(d.version && d.version===localStorage.getItem('kd_remote_version')) return; // عندنا نفس النسخة
+    allData.length=0; d.data.filter(Boolean).forEach(x=>allData.push(x));
+    Object.keys(KM_DATA).forEach(k=>delete KM_DATA[k]); Object.assign(KM_DATA, d.km||{});
+    Object.keys(BIKES).forEach(k=>delete BIKES[k]); Object.assign(BIKES, d.bikes||{});
+    Object.keys(LICENSE).forEach(k=>delete LICENSE[k]); Object.assign(LICENSE, d.license||{});
+    if(d.version) localStorage.setItem('kd_remote_version', d.version);
+    try{ localStorage.setItem('kd_data', JSON.stringify(allData.filter(Boolean))); localStorage.setItem('kd_km', JSON.stringify(KM_DATA)); localStorage.setItem('kd_bikes', JSON.stringify(BIKES)); localStorage.setItem('kd_license', JSON.stringify(LICENSE)); }catch(e){}
+    const _m=getMonths(); if(_m.length) activeMonth=_m[0];
+    if(typeof render==='function') render();
+    if(typeof showToast==='function') showToast('☁️ تم تحميل آخر البيانات من GitHub');
+  }catch(e){ console.warn('GitHub pull failed', e); }
+}
+
+// رفع البيانات إلى GitHub — محتاج Token
+let _ghPushTimer=null, _ghPushing=false;
+function scheduleGhPush(){ if(!getGhToken()) return; clearTimeout(_ghPushTimer); _ghPushTimer=setTimeout(saveToGitHub, 2500); }
+async function saveToGitHub(){
+  const token=getGhToken(); if(!token || _ghPushing) return false;
+  _ghPushing=true;
+  try{
+    const version=new Date().toISOString();
+    const payload={version, data:allData.filter(Boolean), km:KM_DATA, bikes:BIKES, license:LICENSE};
+    const content=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+    let sha=null;
+    const g=await fetch(GH_API+'?ref=main&t='+Date.now(), {cache:'no-store', headers:{Authorization:'token '+token}});
+    if(g.ok){ const j=await g.json(); sha=j.sha; }
+    const r=await fetch(GH_API, {method:'PUT', headers:{Authorization:'token '+token,'Content-Type':'application/json'}, body:JSON.stringify({message:'data update '+version, content, sha, branch:'main'})});
+    if(r.ok){ localStorage.setItem('kd_remote_version', version); if(typeof showToast==='function') showToast('☁️ تم رفع البيانات على GitHub'); return true; }
+    const e=await r.json().catch(()=>({})); alert('فشل الرفع على GitHub: '+(e.message||r.status)+'\nتأكد إن الـ Token صح وله صلاحية الكتابة.'); return false;
+  }catch(e){ alert('خطأ في الرفع: '+e.message); return false; }
+  finally{ _ghPushing=false; }
+}
+function connectGitHub(){
+  const cur=getGhToken();
+  const t=prompt('الصق GitHub Token هنا (للسماح بحفظ البيانات على GitHub):', cur);
+  if(t===null) return;
+  localStorage.setItem('kd_gh_token', t.trim());
+  if(t.trim()){ if(typeof showToast==='function') showToast('🔗 تم ربط GitHub — جاري الرفع'); saveToGitHub(); }
+  else { if(typeof showToast==='function') showToast('تم مسح الـ Token'); }
 }
 // رقم نسخة البيانات الموحّدة — كبّره (مثلاً -2 ، -3) كل ما تحدّث البيانات في الكود
 // عشان كل الأجهزة تتجاهل ذاكرتها القديمة وتاخد النسخة الجديدة من GitHub
@@ -4028,6 +4090,10 @@ window.addEventListener('DOMContentLoaded', function(){
   setInterval(updateClock, 1000);
   render();
   initNotifications();
+  // اقرا آخر بيانات من قاعدة بيانات GitHub، وبعدها فعّل الرفع التلقائي
+  loadFromGitHub().finally(function(){ window._appReady=true; });
+  // أعِد المزامنة كل ما ترجع للتطبيق (عشان تشوف تعديلات الأجهزة التانية)
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) loadFromGitHub(); });
 });
 
 // ══════════════════════════════════════════════
