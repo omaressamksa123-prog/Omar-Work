@@ -2026,8 +2026,15 @@ function render(){
         const v=rec?rec.hours:null;
         return`<td class="hours-cell">${!v?'-':v.toFixed(1)+'h'}</td>`;
       }).join('');
+      // 🎯 توقّع تحقيق الهدف (900/شهر = 30/يوم) لكل مندوب
+      const _tgtDaysM=new Date(+activeMonth.split('-')[0], +activeMonth.split('-')[1], 0).getDate();
+      const _tgtActive=nr.filter(r=>r.orders>0).length;
+      const _tgtProj=Math.round((_tgtActive?totalO/_tgtActive:0)*_tgtDaysM);
+      const _tgtOk=_tgtProj>=900;
+      const _tgtBadge=`<div style="margin-bottom:4px"><span title="المتوقّع لآخر الشهر: ${_tgtProj} أوردر (الهدف 900)" style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;background:${_tgtOk?'rgba(16,185,129,.15)':'rgba(248,113,113,.12)'};color:${_tgtOk?'#34D399':'#F87171'};border:1px solid ${_tgtOk?'rgba(52,211,153,.35)':'rgba(248,113,113,.3)'}">${_tgtOk?'✅ هيحقق الهدف':'❌ مش هيحقق'}</span></div>`;
       html+=`<tr class="ord-row">
         <td class="name-col" rowspan="2">
+          ${_tgtBadge}
           <div class="c-name" onclick="showHistory('${name}')">${name}</div>
           ${iqama?`<div class="bike-tag" style="color:#7C3AED;font-size:10px">🪪 ${iqama}</div>`:''}
           ${bike?`<div class="bike-tag">🏍 ${bike}</div>`:''}
