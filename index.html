@@ -10,6 +10,12 @@
 <title>لوحة متابعة المندوبين</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+  // تسجيل Service Worker لضمان تحميل آخر نسخة دايماً بدون مشاكل كاش
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+  }
+</script>
 <style>
   :root {
     /* Dark theme palette */
