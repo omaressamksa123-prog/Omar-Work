@@ -1879,6 +1879,7 @@ function render(){
   const _mt=document.getElementById('main-table');if(_mt)_mt.style.display='';
   // hide per-tab KPI panels up-front; each tab re-shows its own
   ['muqeem-kpi','cstatus-kpi','vehicles-kpi'].forEach(id=>{const e=document.getElementById(id);if(e&&id!==(activeTab+'-kpi'))e.style.display='none';});
+  (function(){var _ot=document.getElementById('orders-target'); if(_ot && activeTab!=='orders') _ot.style.display='none';})();
 
   document.getElementById('month-pills').innerHTML=getMonths().map(m=>
     `<button class="mpill ${m===activeMonth?'active':''}" onclick="setMonth('${m}')">${ml(m)}</button>`
@@ -2766,6 +2767,48 @@ function render(){
 
   html+='</tbody>';
   document.getElementById('main-table').innerHTML=html;
+
+  // ── 🎯 لوحة هدف الأداء (Keeta): 30 أوردر/يوم = 900 أوردر/شهر ──
+  if(activeTab==='orders'){
+    const DAILY_TARGET=30, MONTH_TARGET=900;
+    const [yy,mm]=activeMonth.split('-').map(Number);
+    const daysInMonth=new Date(yy,mm,0).getDate();
+    const tNames=[...new Set(rows.map(r=>r.name))];
+    const proj=tNames.map(function(n){
+      const recs=rows.filter(r=>r.name===n);
+      const mo=recs.reduce((s,r)=>s+r.orders,0);
+      const activeDays=recs.filter(r=>r.orders>0).length;
+      const avg=activeDays?mo/activeDays:0;
+      const projected=Math.round(avg*daysInMonth);
+      return {name:n, orders:mo, activeDays:activeDays, avg:avg, projected:projected, ok:projected>=MONTH_TARGET};
+    }).filter(c=>c.orders>0 || c.activeDays>0); // تجاهل اللي مفيش ليهم أي نشاط
+    const achievers=proj.filter(c=>c.ok).sort((a,b)=>b.projected-a.projected);
+    const losers   =proj.filter(c=>!c.ok).sort((a,b)=>b.projected-a.projected);
+    const item=c=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 10px;border-radius:8px;background:rgba(255,255,255,.025);margin-bottom:5px;cursor:pointer;" onclick="selectedCourier='${c.name.replace(/'/g,"\\'")}';showHistory('${c.name.replace(/'/g,"\\'")}')">
+        <span style="font-size:12px;font-weight:700;color:#38BDF8;">${c.name}</span>
+        <span style="font-size:11px;color:var(--text2);white-space:nowrap;">معدّل <b style="color:${c.avg>=DAILY_TARGET?'#34D399':'#F87171'}">${c.avg.toFixed(1)}</b>/يوم · متوقّع <b style="color:${c.ok?'#34D399':'#F87171'}">${c.projected}</b></span>
+      </div>`;
+    const panel=`
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+        <span style="font-size:14px;font-weight:800;color:#F1F5F9;">🎯 هدف الأداء</span>
+        <span style="font-size:12px;color:var(--text2);">المعدّل المطلوب <b style="color:var(--cyan)">${DAILY_TARGET}</b> أوردر/يوم = <b style="color:var(--cyan)">${MONTH_TARGET}</b> أوردر/${ml(activeMonth)} (${daysInMonth} يوم)</span>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+        <div style="flex:1;min-width:260px;background:#131929;border:1px solid rgba(52,211,153,.25);border-radius:12px;padding:12px 14px;">
+          <div style="font-size:13px;font-weight:700;color:#34D399;margin-bottom:8px;">✅ هيحققوا الهدف (${achievers.length})</div>
+          ${achievers.length?achievers.map(item).join(''):'<div style="font-size:12px;color:var(--text3)">مفيش</div>'}
+        </div>
+        <div style="flex:1;min-width:260px;background:#131929;border:1px solid rgba(248,113,113,.25);border-radius:12px;padding:12px 14px;">
+          <div style="font-size:13px;font-weight:700;color:#F87171;margin-bottom:8px;">❌ مش هيحققوا الهدف (${losers.length})</div>
+          ${losers.length?losers.map(item).join(''):'<div style="font-size:12px;color:var(--text3)">مفيش</div>'}
+        </div>
+      </div>`;
+    let wrap=document.querySelector('.tbl-wrap');
+    let ot=document.getElementById('orders-target');
+    if(!ot){ ot=document.createElement('div'); ot.id='orders-target'; wrap.parentNode.insertBefore(ot,wrap); }
+    ot.innerHTML=panel; ot.style.display='';
+  }
+
   renderSidebar();
   if(selectedCourier) showHistory(selectedCourier);
   // draw daily orders chart for orders tab
