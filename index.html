@@ -4679,7 +4679,9 @@ function aiTyping(on){
 let _aiModelsCache=null;
 async function getAiModels(key){
   if(_aiModelsCache) return _aiModelsCache;
-  const fallback=['gemini-2.0-flash','gemini-flash-latest','gemini-2.5-flash'];
+  const fallback=['gemini-2.5-flash','gemini-2.0-flash','gemini-flash-latest','gemini-2.5-pro'];
+  // ترتيب الموديلات حسب الذكاء (الأحدث أولاً) مع تجنّب النسخ الضعيفة
+  const score=n=>{ let s=0; if(n.includes('2.5'))s+=30; else if(n.includes('2.0'))s+=20; else if(n.includes('1.5'))s+=10; if(n.includes('flash'))s+=5; if(n.includes('pro'))s+=2; return s; };
   try{
     const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}&pageSize=80`);
     if(r.ok){
@@ -4687,9 +4689,9 @@ async function getAiModels(key){
       const avail=(d.models||[])
         .filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent'))
         .map(m=>m.name.replace('models/',''))
-        .filter(n=>(n.includes('flash')||n.includes('pro'))&&!n.includes('vision')&&!n.includes('image')&&!n.includes('tts')&&!n.includes('embedding'));
-      // prefer flash (fast/cheap), then everything else
-      avail.sort((a,b)=>(b.includes('flash')?1:0)-(a.includes('flash')?1:0));
+        .filter(n=>(n.includes('flash')||n.includes('pro'))&&!n.includes('vision')&&!n.includes('image')&&!n.includes('tts')&&!n.includes('embedding')&&!n.includes('lite')&&!n.includes('-8b'));
+      // الأذكى أولاً (2.5 ثم 2.0)، والـ flash قبل الـ pro للسرعة
+      avail.sort((a,b)=>score(b)-score(a));
       if(avail.length){ _aiModelsCache=[...new Set(avail)]; return _aiModelsCache; }
     }
   }catch(_){}
@@ -4730,10 +4732,29 @@ function buildAiContext(){
 
   const alerts=buildAlerts().map(a=>`${a.title} (${a.detail})`);
 
+  // ── حالة المناديب (جدول الحالة الكامل 101 مندوب) + ملخص جاهز ──
+  let courierStatus=null;
+  if(typeof CSTATUS_DATA!=='undefined' && CSTATUS_DATA.length){
+    const iqB=s=> s==='Valid'?'valid':(s==='InValid'?'invalid':'na');
+    const byStatus={};
+    CSTATUS_DATA.forEach(r=>{ const k=r.status||'—'; (byStatus[k]=byStatus[k]||{total:0,valid:0,invalid:0,na:0}); byStatus[k].total++; byStatus[k][iqB(r.iqamaStatus)]++; });
+    courierStatus={
+      total: CSTATUS_DATA.length,
+      byWorkStatus: byStatus, // لكل حالة (Keeta/Hunger/Jahez/...): total + valid/invalid/na
+      byIqama: {
+        valid:   CSTATUS_DATA.filter(r=>iqB(r.iqamaStatus)==='valid').length,
+        invalid: CSTATUS_DATA.filter(r=>iqB(r.iqamaStatus)==='invalid').length,
+        na:      CSTATUS_DATA.filter(r=>iqB(r.iqamaStatus)==='na').length
+      },
+      list: CSTATUS_DATA.map(r=>({name:r.name, iqama:r.iqama, workStatus:r.status, iqamaStatus:r.iqamaStatus}))
+    };
+  }
+
   return {
     today: new Date(Date.now()+3*3600000).toISOString().slice(0,10),
     activeMonth, availableMonths:months, totalCouriers:names.length,
     couriers,
+    courierStatus,
     bikes: Object.entries(BIKES).map(([name,plate])=>({name,plate})),
     licenses: Object.keys(BIKES).map(n=>({name:n, hasLicense:LICENSE[n]===true})),
     muqeem: MUQEEM_DATA.map(r=>({name:r.name, iqama:r.iqama, status:r.status, outsideKSA:r.outside, sanad:r.sanad, job:r.job, heavyLicense:r.heavy, lightLicense:r.light})),
@@ -4766,6 +4787,7 @@ ${JSON.stringify(ctx)}
 - couriers: لكل مندوب → bike (رقم البايك)، iqamaNumber، hasLicense (تفويض)، allTimeOrders، allTimeHours، totalKm (إجمالي الكيلومترات)، byMonth (أوردرات/ساعات/أيام كل شهر)، currentMonthDaily (تفاصيل كل يوم في الشهر الحالي: date/orders/hours/km).
 - bikes: رقم لوحة البايك لكل مندوب.
 - licenses: مين عنده تفويض (hasLicense) ومين لأ.
+- courierStatus: حالة المناديب الرسمية (101 مندوب). total = الإجمالي. byWorkStatus = لكل حالة شغل (Keeta, Hunger, Jahez, Bolt, Transfer Kafala, Another, Supervisor, Exit, Escape) عدد total وتقسيمه valid/invalid/na حسب الإقامة. byIqama = إجمالي الإقامات الصالحة/غير الصالحة/غير المحددة. list = كل مندوب باسمه ورقم إقامته وحالة شغله (workStatus) وحالة إقامته (iqamaStatus). ⚠️ لأي سؤال عن "كام واحد شغّال كيتا/هنجر/جاهز..." استخدم courierStatus.byWorkStatus حصراً، مش couriers.
 - muqeem: الإقامات → status (Valid=سارية / InValid=منتهية)، outsideKSA (نعم=خارج المملكة)، job، heavyLicense، lightLicense، iqama (رقم الإقامة). الأسماء هنا رسمية كاملة وقد تختلف عن أسماء couriers.
 - vehicles: كل المركبات → plate (اللوحة)، type، brand، model، year، color، insurance (التأمين)، inspStatus (الفحص)، licenseExp (انتهاء الرخصة).
 - alerts: ملخص المشاكل.
@@ -4773,7 +4795,7 @@ ${JSON.stringify(ctx)}
 
 صلاحياتك في التنقل (action types):
 - "courier": يفتح بروفايل مندوب. value = اسم المندوب الكامل من couriers.
-- "tab": يفتح قسم. value = أحد: overview, orders(أداء كيتا), gps(الكيلومترات), license(التفاويض), summary(الإجمالي), hs(HungerStation), bikes(البايكات), alerts(التنبيهات), muqeem(الإقامات), vehicles(المركبات).
+- "tab": يفتح قسم. value = أحد: overview, orders(أداء كيتا), gps(الكيلومترات), license(التفاويض), summary(الإجمالي), hs(HungerStation), bikes(البايكات), alerts(التنبيهات), muqeem(الإقامات), vehicles(المركبات), cstatus(حالة المناديب).
 - "plate": يفتح ويظلّل مركبة معينة في قسم المركبات. value = رقم اللوحة بالضبط من vehicles.
 - "month": يغيّر الشهر المعروض. value = شهر بصيغة YYYY-MM من availableMonths.
 - "none": لا تنقل.
