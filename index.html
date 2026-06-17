@@ -1586,6 +1586,7 @@ const allData=[
 let activeMonth='2026-05';
 let selectedCourier='';
 let selectedPlate='';
+let ordersTargetOpen=false;
 let sortCol='total';
 let sortDir=-1; // -1=desc, 1=asc always
 let searchQuery='';
@@ -2768,7 +2769,7 @@ function render(){
   html+='</tbody>';
   document.getElementById('main-table').innerHTML=html;
 
-  // ── 🎯 لوحة هدف الأداء (Keeta): 30 أوردر/يوم = 900 أوردر/شهر ──
+  // ── 🎯 شريط هدف الأداء (Keeta): 30 أوردر/يوم = 900 أوردر/شهر — صغير وبعد الجدول ──
   if(activeTab==='orders'){
     const DAILY_TARGET=30, MONTH_TARGET=900;
     const [yy,mm]=activeMonth.split('-').map(Number);
@@ -2780,33 +2781,23 @@ function render(){
       const activeDays=recs.filter(r=>r.orders>0).length;
       const avg=activeDays?mo/activeDays:0;
       const projected=Math.round(avg*daysInMonth);
-      return {name:n, orders:mo, activeDays:activeDays, avg:avg, projected:projected, ok:projected>=MONTH_TARGET};
-    }).filter(c=>c.orders>0 || c.activeDays>0); // تجاهل اللي مفيش ليهم أي نشاط
+      return {name:n, avg:avg, projected:projected, ok:projected>=MONTH_TARGET, active:(mo>0||activeDays>0)};
+    }).filter(c=>c.active);
     const achievers=proj.filter(c=>c.ok).sort((a,b)=>b.projected-a.projected);
     const losers   =proj.filter(c=>!c.ok).sort((a,b)=>b.projected-a.projected);
-    const item=c=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 10px;border-radius:8px;background:rgba(255,255,255,.025);margin-bottom:5px;cursor:pointer;" onclick="selectedCourier='${c.name.replace(/'/g,"\\'")}';showHistory('${c.name.replace(/'/g,"\\'")}')">
-        <span style="font-size:12px;font-weight:700;color:#38BDF8;">${c.name}</span>
-        <span style="font-size:11px;color:var(--text2);white-space:nowrap;">معدّل <b style="color:${c.avg>=DAILY_TARGET?'#34D399':'#F87171'}">${c.avg.toFixed(1)}</b>/يوم · متوقّع <b style="color:${c.ok?'#34D399':'#F87171'}">${c.projected}</b></span>
-      </div>`;
-    const panel=`
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
-        <span style="font-size:14px;font-weight:800;color:#F1F5F9;">🎯 هدف الأداء</span>
-        <span style="font-size:12px;color:var(--text2);">المعدّل المطلوب <b style="color:var(--cyan)">${DAILY_TARGET}</b> أوردر/يوم = <b style="color:var(--cyan)">${MONTH_TARGET}</b> أوردر/${ml(activeMonth)} (${daysInMonth} يوم)</span>
-      </div>
-      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
-        <div style="flex:1;min-width:260px;background:#131929;border:1px solid rgba(52,211,153,.25);border-radius:12px;padding:12px 14px;">
-          <div style="font-size:13px;font-weight:700;color:#34D399;margin-bottom:8px;">✅ هيحققوا الهدف (${achievers.length})</div>
-          ${achievers.length?achievers.map(item).join(''):'<div style="font-size:12px;color:var(--text3)">مفيش</div>'}
-        </div>
-        <div style="flex:1;min-width:260px;background:#131929;border:1px solid rgba(248,113,113,.25);border-radius:12px;padding:12px 14px;">
-          <div style="font-size:13px;font-weight:700;color:#F87171;margin-bottom:8px;">❌ مش هيحققوا الهدف (${losers.length})</div>
-          ${losers.length?losers.map(item).join(''):'<div style="font-size:12px;color:var(--text3)">مفيش</div>'}
-        </div>
-      </div>`;
+    const chip=c=>`<span onclick="selectedCourier='${c.name.replace(/'/g,"\\'")}';showHistory('${c.name.replace(/'/g,"\\'")}')" style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid var(--border2);font-size:11px;cursor:pointer;white-space:nowrap;"><b style="color:#38BDF8">${c.name}</b><span style="color:${c.ok?'#34D399':'#F87171'}">${c.projected}</span></span>`;
+    const details=ordersTargetOpen?`<div style="display:flex;gap:6px;flex-wrap:wrap;padding:8px 12px 10px;">${[...achievers,...losers].map(chip).join('')}</div>`:'';
+    const strip=`<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:7px 14px;background:#131929;border:1px solid var(--border2);border-radius:10px;font-size:12px;">
+        <span style="font-weight:700;color:#F1F5F9;">🎯 هدف ${MONTH_TARGET}/${ml(activeMonth)} <span style="color:var(--text2);font-weight:400">(${DAILY_TARGET}/يوم)</span></span>
+        <span style="color:#34D399;font-weight:700;">✅ ${achievers.length} هيحققوا</span>
+        <span style="color:#F87171;font-weight:700;">❌ ${losers.length} مش هيحققوا</span>
+        <span onclick="toggleOrdersTarget()" style="margin-right:auto;color:var(--cyan);cursor:pointer;user-select:none;">${ordersTargetOpen?'▲ إخفاء':'▾ التفاصيل'}</span>
+      </div>${details}`;
     let wrap=document.querySelector('.tbl-wrap');
     let ot=document.getElementById('orders-target');
-    if(!ot){ ot=document.createElement('div'); ot.id='orders-target'; wrap.parentNode.insertBefore(ot,wrap); }
-    ot.innerHTML=panel; ot.style.display='';
+    if(!ot){ ot=document.createElement('div'); ot.id='orders-target'; ot.style.marginTop='10px'; }
+    if(ot.parentNode!==wrap.parentNode || ot.previousSibling!==wrap){ wrap.parentNode.insertBefore(ot, wrap.nextSibling); }
+    ot.innerHTML=strip; ot.style.display='';
   }
 
   renderSidebar();
@@ -3017,6 +3008,7 @@ function toggleLicense(name, val){
   render();
 }
 function setMonth(m){activeMonth=m;sortCol='total';sortDir=-1;render();}
+function toggleOrdersTarget(){ ordersTargetOpen=!ordersTargetOpen; render(); }
 
 function exportCSV(){
   const from=document.getElementById('exp-from').value;
