@@ -3386,6 +3386,14 @@ function loadFromStorage(){
     correct.forEach(function(c){ allData.push({name:c.name,orders:c.orders,hours:c.hours,date:D}); });
     saveToStorage();
   })();
+  // ── تصحيح كيلومترات 2026-06-06: حذف 3 قراءات خاطئة (قراءات عدّاد بالغلط) ──
+  (function fixJune6Km(){
+    const D='2026-06-06', bad=['Sagar Hossain','Usama Asaad','Rasel Islam'];
+    if(!KM_DATA[D]) return;
+    let changed=false;
+    bad.forEach(function(n){ if(KM_DATA[D][n]!=null && KM_DATA[D][n]>5000){ delete KM_DATA[D][n]; changed=true; } });
+    if(changed) saveToStorage();
+  })();
   // ── دمج تلقائي للأسماء المكررة (أخطاء إملائية لنفس الشخص) ──
   dedupeCourierNames();
 }
