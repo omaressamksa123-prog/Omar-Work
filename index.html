@@ -3261,8 +3261,8 @@ async function saveToGitHub(){
     if(g.ok){ const j=await g.json(); sha=j.sha; }
     const r=await fetch(GH_API, {method:'PUT', headers:{Authorization:'token '+token,'Content-Type':'application/json'}, body:JSON.stringify({message:'data update '+version, content, sha, branch:'main'})});
     if(r.ok){ localStorage.setItem('kd_remote_version', version); if(typeof showToast==='function') showToast('☁️ تم رفع البيانات على GitHub'); return true; }
-    const e=await r.json().catch(()=>({})); alert('فشل الرفع على GitHub: '+(e.message||r.status)+'\nتأكد إن الـ Token صح وله صلاحية الكتابة.'); return false;
-  }catch(e){ alert('خطأ في الرفع: '+e.message); return false; }
+    const e=await r.json().catch(()=>({})); console.warn('GitHub push failed:', e.message||r.status); if(typeof showToast==='function') showToast('⚠️ تعذّر الرفع على GitHub (راجع الـ Token)'); return false;
+  }catch(e){ console.warn('GitHub push error:', e.message); return false; }
   finally{ _ghPushing=false; }
 }
 function connectGitHub(){
