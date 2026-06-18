@@ -18,44 +18,43 @@
 </script>
 <style>
   :root {
-    /* Dark theme palette */
-    --bg:      #0E1322;
-    --bg2:     #141B2A;
-    --navy:    #0E1322;
-    --navy2:   #161D2E;
-    --navy3:   #1C2439;
-    --navy4:   #242E47;
+    /* Light theme palette (clean dashboard look) */
+    --bg:      #F4F6FA;
+    --bg2:     #FFFFFF;
+    --navy:    #F4F6FA;
+    --navy2:   #FFFFFF;
+    --navy3:   #F1F5F9;
+    --navy4:   #E8EDF4;
 
-    /* Neon accents */
-    --cyan:    #00D4FF;
-    --cyan2:   #38BDF8;
-    --purple:  #A855F7;
-    --purple2: #C084FC;
-    --pink:    #F472B6;
-    --pink2:   #EC4899;
+    /* Accents — blue primary + orange secondary */
+    --cyan:    #2563EB;
+    --cyan2:   #3B82F6;
+    --purple:  #F97316;
+    --purple2: #FB923C;
+    --pink:    #EC4899;
+    --pink2:   #DB2777;
 
-    /* Keep these aliases for compat */
-    --blue:    #6366F1;
-    --blue2:   #818CF8;
-    --blue3:   #A5B4FC;
-    --gold:    #FBBF24;
-    --gold2:   #FCD34D;
-    --green:   #10B981;
-    --green2:  #34D399;
-    --red:     #F87171;
-    --purple2-old: #C084FC;
+    --blue:    #2563EB;
+    --blue2:   #3B82F6;
+    --blue3:   #1D4ED8;
+    --gold:    #F59E0B;
+    --gold2:   #D97706;
+    --green:   #16A34A;
+    --green2:  #22C55E;
+    --red:     #DC2626;
+    --purple2-old: #FB923C;
 
-    --text1:   #E6EBF3;
-    --text2:   #9AA8BD;
-    --text3:   #5C6B82;
-    --border:  rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.11);
-    --text-muted: #7C8BA3;
-    --card:    #1A2238;
-    --card2:   rgba(255,255,255,0.04);
-    --r:  12px;
-    --r2: 8px;
-    --r3: 6px;
+    --text1:   #1E293B;
+    --text2:   #64748B;
+    --text3:   #94A3B8;
+    --border:  rgba(15,23,42,0.08);
+    --border2: rgba(15,23,42,0.12);
+    --text-muted: #94A3B8;
+    --card:    #FFFFFF;
+    --card2:   #F8FAFC;
+    --r:  14px;
+    --r2: 10px;
+    --r3: 8px;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{height:100%;overflow:hidden;}
@@ -69,13 +68,6 @@
     -moz-osx-font-smoothing:grayscale;
     text-rendering:optimizeLegibility;
   }
-  body::before{
-    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-    background:
-      radial-gradient(ellipse 60% 50% at 10% 0%,  rgba(168,85,247,.07) 0%,transparent 62%),
-      radial-gradient(ellipse 50% 40% at 90% 100%, rgba(0,212,255,.045) 0%,transparent 58%),
-      radial-gradient(ellipse 40% 30% at 50% 50%,  rgba(99,102,241,.035) 0%,transparent 62%);
-  }
 
   /* ══ LAYOUT ══ */
   .app{display:flex;height:100vh;position:relative;z-index:1;}
@@ -85,7 +77,7 @@
   /* ══ SIDEBAR ══ */
   .sidebar{
     width:270px;flex-shrink:0;
-    background:linear-gradient(180deg,#141B2D 0%,#0D1220 100%);
+    background:#FFFFFF;
     border-left:1px solid var(--border2);
     display:flex;flex-direction:column;
     overflow-y:auto;
@@ -93,7 +85,7 @@
   }
   .sidebar-header{
     padding:22px 20px 18px;
-    background:linear-gradient(135deg,#1E1B4B,#312E81);
+    background:linear-gradient(135deg,#2563EB,#3B82F6);
     border-bottom:1px solid rgba(168,85,247,.2);
     position:relative;overflow:hidden;
   }
@@ -166,7 +158,7 @@
     padding:10px 20px;
     border-bottom:1px solid var(--border2);
     display:flex;align-items:center;justify-content:space-between;gap:16px;
-    background:rgba(13,18,32,.97);backdrop-filter:blur(12px);
+    background:rgba(255,255,255,.92);backdrop-filter:blur(12px);
     box-shadow:0 1px 0 var(--border2),0 4px 20px rgba(0,0,0,.4);
     flex-shrink:0;
   }
@@ -198,7 +190,7 @@
     display:flex;gap:8px;
     padding:8px 20px;border-bottom:1px solid var(--border);
     flex-shrink:0;
-    background:rgba(13,18,32,.97);backdrop-filter:blur(12px);
+    background:rgba(255,255,255,.92);backdrop-filter:blur(12px);
     overflow-x:auto;
   }
   .kpi-card{
@@ -237,19 +229,19 @@
   table{border-collapse:collapse;font-size:13px;min-width:100%;}
 
   thead tr.h1 th{
-    background:linear-gradient(135deg,#1E1B4B 0%,#312E81 100%);
+    background:linear-gradient(135deg,#2563EB 0%,#3B82F6 100%);
     color:#fff;padding:12px 14px;text-align:center;
     white-space:nowrap;font-weight:700;font-size:13px;
     border-bottom:1px solid rgba(168,85,247,.25);
   }
-  thead tr.h1 th.name-col{text-align:right;min-width:170px;padding-right:18px;position:sticky;right:0;z-index:3;background:linear-gradient(135deg,#1E1B4B,#312E81);}
+  thead tr.h1 th.name-col{text-align:right;min-width:170px;padding-right:18px;position:sticky;right:0;z-index:3;background:linear-gradient(135deg,#2563EB,#3B82F6);}
   thead tr.h1 th.km-hd{background:linear-gradient(135deg,#1C2951,#1E3A5F);}
   thead tr.h2 th{
     background:rgba(99,102,241,.08);color:var(--text3);
     padding:6px 14px;text-align:center;font-size:11px;font-weight:500;
     border-bottom:1px solid var(--border);
   }
-  thead tr.h2 th.name-col{text-align:right;padding-right:18px;position:sticky;right:0;z-index:3;background:#16203A;}
+  thead tr.h2 th.name-col{text-align:right;padding-right:18px;position:sticky;right:0;z-index:3;background:#1D4ED8;}
   thead tr.h2 th.km-sub{background:rgba(0,212,255,.06);color:var(--cyan);}
 
   tbody td{
@@ -333,7 +325,7 @@
   .pp-day.best{background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.35);}
   .pp-day-date{font-size:9px;color:#475569;margin-bottom:2px;}
   .pp-day-o{font-size:15px;font-weight:800;color:#A5B4FC;}
-  .pp-day.best .pp-day-o{color:#00D4FF;}
+  .pp-day.best .pp-day-o{color:#2563EB;}
   .pp-day-h{font-size:9px;color:#34D399;margin-top:1px;}
   .pp-day-km{font-size:9px;color:#FBBF24;margin-top:1px;}
   .pp-close{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#94A3B8;border-radius:8px;padding:5px 12px;font-family:'Cairo',sans-serif;font-size:12px;cursor:pointer;transition:all .15s;}
@@ -348,7 +340,7 @@
   }
   @keyframes slideUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
   .hp-hdr{
-    background:linear-gradient(135deg,#1E1B4B 0%,#312E81 100%);
+    background:linear-gradient(135deg,#2563EB 0%,#3B82F6 100%);
     padding:16px 20px;display:flex;align-items:center;gap:14px;
     border-bottom:1px solid rgba(168,85,247,.2);
   }
@@ -433,7 +425,7 @@
   /* ── TABS ── */
   .tab-bar{
     display:flex;gap:0;border-bottom:1px solid var(--border2);
-    background:rgba(13,18,32,.98);backdrop-filter:blur(12px);
+    background:rgba(255,255,255,.96);backdrop-filter:blur(12px);
     box-shadow:0 1px 0 var(--border2);
     flex-shrink:0;padding:0 20px;
     position:sticky;top:0;z-index:8;
@@ -458,8 +450,8 @@
   /* ══ MODAL ══ */
   .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
   .modal-overlay.open{display:flex;}
-  .modal{background:#141B2D;border:1px solid var(--border2);border-radius:var(--r);width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.8),0 0 0 1px rgba(168,85,247,.1);animation:slideUp .2s ease;}
-  .modal-hdr{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#1E1B4B,#1A2238);}
+  .modal{background:#FFFFFF;border:1px solid var(--border2);border-radius:var(--r);width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.8),0 0 0 1px rgba(168,85,247,.1);animation:slideUp .2s ease;}
+  .modal-hdr{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:#F1F5F9;}
   .modal-hdr h3{font-size:16px;font-weight:700;color:var(--text1);}
   .modal-close{background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;transition:color .15s;}
   .modal-close:hover{color:var(--text1);}
@@ -559,8 +551,8 @@
   /* ── QUICK STATS ── */
   #quick-stats{
     display:flex;gap:6px;padding:5px 20px;
-    background:rgba(0,0,0,.2);border-bottom:1px solid var(--border);
-    font-size:11px;color:var(--text3);flex-shrink:0;
+    background:#FFFFFF;border-bottom:1px solid var(--border);
+    font-size:11px;color:var(--text2);flex-shrink:0;
     align-items:center;flex-wrap:wrap;
   }
   .qs-item{display:flex;align-items:center;gap:5px;padding:2px 10px;
@@ -583,7 +575,7 @@
   #gs-dropdown .gs-item:hover{background:rgba(255,255,255,.05);}
   #gs-dropdown .gs-item:first-child{border-radius:14px 14px 0 0;}
   #gs-dropdown .gs-ico{width:34px;height:34px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;}
-  #gs-dropdown .gs-item-main{font-size:13px;font-weight:700;color:#F1F5F9;margin-bottom:2px;}
+  #gs-dropdown .gs-item-main{font-size:13px;font-weight:700;color:#1E293B;margin-bottom:2px;}
   #gs-dropdown .gs-item-sub{font-size:11px;color:#64748B;line-height:1.5;display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
   #gs-dropdown .gs-hint{text-align:center;padding:24px;color:#334155;font-size:12px;}
   #gs-dropdown .gs-detail{padding:14px 16px;}
@@ -618,16 +610,16 @@
         <!-- GLOBAL SEARCH BAR -->
         <div id="gs-bar-wrap" style="position:relative;">
           <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.06);border:1px solid rgba(0,212,255,.25);border-radius:10px;padding:7px 14px;transition:all .2s;" id="gs-bar-box">
-            <span style="color:#00D4FF;font-size:14px;">🔍</span>
+            <span style="color:#2563EB;font-size:14px;">🔍</span>
             <input id="gs-bar-input" type="text" placeholder="ابحث: اسم · رقم إقامة · رقم دباب · لوحة..."
               autocomplete="off"
-              style="background:transparent;border:none;outline:none;color:#F1F5F9;font-family:'Cairo',sans-serif;font-size:13px;width:270px;"
+              style="background:transparent;border:none;outline:none;color:#1E293B;font-family:'Cairo',sans-serif;font-size:13px;width:270px;"
               oninput="gsBarSearch(this.value)"
               onfocus="gsBarSearch(this.value)"
             />
             <span id="gs-bar-clear" onclick="gsBarClear()" style="color:#475569;cursor:pointer;font-size:14px;display:none;">✕</span>
           </div>
-          <div id="gs-dropdown" style="display:none;position:absolute;top:calc(100% + 6px);right:0;width:560px;max-width:96vw;background:#141B2D;border:1px solid rgba(0,212,255,.2);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.8);z-index:300;max-height:480px;overflow-y:auto;">
+          <div id="gs-dropdown" style="display:none;position:absolute;top:calc(100% + 6px);right:0;width:560px;max-width:96vw;background:#FFFFFF;border:1px solid rgba(0,212,255,.2);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.8);z-index:300;max-height:480px;overflow-y:auto;">
           </div>
         </div>
         <button onclick="exportData()" style="
@@ -657,9 +649,9 @@
     <div class="content">
       <div class="tbl-wrap"><table id="main-table"></table></div>
       <div id="chart-area" style="display:none;margin-top:14px;">
-        <div style="background:#131929;border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:20px 24px;">
+        <div style="background:#FFFFFF;border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:20px 24px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-            <div style="font-size:14px;font-weight:700;color:#F1F5F9;">📊 إجمالي الأوردرات يومياً</div>
+            <div style="font-size:14px;font-weight:700;color:#1E293B;">📊 إجمالي الأوردرات يومياً</div>
             <div id="chart-peak" style="font-size:12px;color:#94A3B8;"></div>
           </div>
           <canvas id="orders-chart" style="width:100%;display:block;"></canvas>
@@ -689,7 +681,7 @@
     </button>
 
     
-    <button class="add-btn" style="background:linear-gradient(135deg,#1e3a5f,#0f2744);border:1px solid rgba(0,212,255,.3);margin-top:-8px;color:#00D4FF;" onclick="document.getElementById('data-update-modal').style.display='flex'">
+    <button class="add-btn" style="background:linear-gradient(135deg,#1e3a5f,#0f2744);border:1px solid rgba(0,212,255,.3);margin-top:-8px;color:#2563EB;" onclick="document.getElementById('data-update-modal').style.display='flex'">
       📤 تحديث البيانات
     </button>
     <button class="add-btn" style="background:var(--navy3);margin-top:-8px;" onclick="openManageModal()">
@@ -2405,7 +2397,7 @@ function render(){
       return `<span style="color:#94A3B8">${v||'—'}</span>`;
     }
     function cardBadge(v){
-      if(v==='سارى')          return `<span style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:#00D4FF;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">✅ سارى</span>`;
+      if(v==='سارى')          return `<span style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:#2563EB;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">✅ سارى</span>`;
       if(v==='لم يتم الاصدار') return `<span style="color:#475569;font-size:11px;">—</span>`;
       if(v==='منتهى')          return `<span style="background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);color:#FBBF24;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">⚠ منتهى</span>`;
       return `<span style="color:#94A3B8">${v||'—'}</span>`;
@@ -2457,7 +2449,7 @@ function render(){
     if(!kpiDiv){kpiDiv=document.createElement('div');kpiDiv.id='muqeem-kpi';wrap.parentNode.insertBefore(kpiDiv,wrap);}
     kpiDiv.innerHTML=kpiRow+`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
       <span style="font-size:12px;color:#94A3B8;">ترتيب حسب:</span>
-      <select id="muqeem-sort" onchange="render()" style="background:#1A2238;color:#F1F5F9;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 12px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer;">
+      <select id="muqeem-sort" onchange="render()" style="background:#F1F5F9;color:#1E293B;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 12px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer;">
         <option value="status">حالة الإقامة (Valid أولاً)</option>
         <option value="sanad">السند (مرفوع أولاً)</option>
         <option value="heavy">كارت تقيل (ساري أولاً)</option>
@@ -2516,9 +2508,9 @@ function render(){
     // تقسيم حسب الحالة (كروت)
     const statusCards=`<div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">`+
       statusOrder.map(([name,s])=>`
-        <div style="flex:1;min-width:150px;background:#131929;border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:12px 14px;">
+        <div style="flex:1;min-width:150px;background:#FFFFFF;border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:12px 14px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-            <span style="font-size:13px;font-weight:700;color:#F1F5F9;">${name}</span>
+            <span style="font-size:13px;font-weight:700;color:#1E293B;">${name}</span>
             <span style="font-size:18px;font-weight:900;color:#C084FC;">${s.total}</span>
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;font-size:11px;">
@@ -2543,7 +2535,7 @@ function render(){
       return `<span style="background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);color:#FBBF24;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:700;">⚠ N/A</span>`;
     }
     function stBadge(v){
-      const colors={Keeta:'#00D4FF',Jahez:'#FBBF24',Hunger:'#F472B6',Bolt:'#34D399','Transfer Kafala':'#A855F7',Another:'#818CF8',Supervisor:'#FCD34D',Exit:'#F87171',Escape:'#EC4899'};
+      const colors={Keeta:'#2563EB',Jahez:'#FBBF24',Hunger:'#F472B6',Bolt:'#34D399','Transfer Kafala':'#A855F7',Another:'#818CF8',Supervisor:'#FCD34D',Exit:'#F87171',Escape:'#EC4899'};
       const c=colors[v]||'#94A3B8';
       return `<span style="background:${c}1A;border:1px solid ${c}4D;color:${c};padding:3px 12px;border-radius:20px;font-size:11px;font-weight:700;">${v||'—'}</span>`;
     }
@@ -2571,21 +2563,21 @@ function render(){
     let kpiDiv=document.getElementById('cstatus-kpi');
     if(!kpiDiv){kpiDiv=document.createElement('div');kpiDiv.id='cstatus-kpi';wrap.parentNode.insertBefore(kpiDiv,wrap);}
     kpiDiv.innerHTML=kpiRow+statusCards+`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
-      <input id="cstatus-search" type="text" placeholder="🔍 ابحث باسم المندوب أو رقم الإقامة" oninput="render()" style="background:#1A2238;color:#F1F5F9;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 14px;font-family:Cairo,sans-serif;font-size:12px;min-width:240px;flex:1;" />
+      <input id="cstatus-search" type="text" placeholder="🔍 ابحث باسم المندوب أو رقم الإقامة" oninput="render()" style="background:#F1F5F9;color:#1E293B;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 14px;font-family:Cairo,sans-serif;font-size:12px;min-width:240px;flex:1;" />
       <span style="font-size:12px;color:#94A3B8;">الحالة (الشغل):</span>
-      <select id="cstatus-statusfilter" onchange="render()" style="background:#1A2238;color:#F1F5F9;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 12px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer;">
+      <select id="cstatus-statusfilter" onchange="render()" style="background:#F1F5F9;color:#1E293B;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 12px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer;">
         <option value="all">كل الحالات (${total})</option>
         ${statusOrder.map(([nm,s])=>`<option value="${nm}">${nm} (${s.total})</option>`).join('')}
       </select>
       <span style="font-size:12px;color:#94A3B8;">تصفية الإقامة:</span>
-      <select id="cstatus-filter" onchange="render()" style="background:#1A2238;color:#F1F5F9;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 12px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer;">
+      <select id="cstatus-filter" onchange="render()" style="background:#F1F5F9;color:#1E293B;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 12px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer;">
         <option value="all">الكل (${total})</option>
         <option value="valid">صالحة (${validN})</option>
         <option value="invalid">غير صالحة (${invalidN})</option>
         <option value="na">N/A (${naN})</option>
       </select>
       <span style="font-size:12px;color:#94A3B8;">ترتيب:</span>
-      <select id="cstatus-sort" onchange="render()" style="background:#1A2238;color:#F1F5F9;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 12px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer;">
+      <select id="cstatus-sort" onchange="render()" style="background:#F1F5F9;color:#1E293B;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 12px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer;">
         <option value="status">الحالة</option>
         <option value="iqama">حالة الإقامة</option>
         <option value="name">الاسم</option>
@@ -2669,7 +2661,7 @@ function render(){
       return `<span style="color:#475569;font-size:11px;">${v||'—'}</span>`;
     }
     function vInspBadge(v){
-      if(v==='ساري المفعول') return `<span style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:#00D4FF;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">✅ ساري</span>`;
+      if(v==='ساري المفعول') return `<span style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:#2563EB;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">✅ ساري</span>`;
       if(v==='لا يوجد')      return `<span style="color:#475569;font-size:11px;">—</span>`;
       return `<span style="color:#94A3B8;font-size:11px;">${v||'—'}</span>`;
     }
@@ -2705,9 +2697,9 @@ function render(){
     filtered.forEach(r=>{
       const isHL=selectedPlate&&r.plate.replace(/\s/g,'')===selectedPlate.replace(/\s/g,'');
       vHtml+=`<tr class="ord-row" id="vrow-${r.plate.replace(/\s/g,'_')}" style="${isHL?'background:rgba(0,212,255,.12);outline:2px solid rgba(0,212,255,.5);outline-offset:-2px;':''}">
-        <td style="font-family:monospace;font-size:13px;font-weight:700;color:${isHL?'#00D4FF':'#38BDF8'};">${isHL?'👉 ':''} ${r.plate}</td>
+        <td style="font-family:monospace;font-size:13px;font-weight:700;color:${isHL?'#2563EB':'#38BDF8'};">${isHL?'👉 ':''} ${r.plate}</td>
         <td>${vTypeBadge(r.type)}</td>
-        <td style="font-size:12px;color:#F1F5F9;font-weight:600;">${r.brand}</td>
+        <td style="font-size:12px;color:#1E293B;font-weight:600;">${r.brand}</td>
         <td style="font-size:12px;color:#94A3B8;">${r.model}</td>
         <td style="font-size:12px;color:#94A3B8;">${r.year}</td>
         <td style="font-size:12px;color:#94A3B8;">${r.color}</td>
@@ -2733,7 +2725,7 @@ function render(){
     if(!vKpiDiv){vKpiDiv=document.createElement('div');vKpiDiv.id='vehicles-kpi';vWrap.parentNode.insertBefore(vKpiDiv,vWrap);}
     vKpiDiv.innerHTML=vKpiRow+`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
       <span style="font-size:12px;color:#94A3B8;">ترتيب حسب:</span>
-      <select id="vehicles-sort" onchange="render()" style="background:#1A2238;color:#F1F5F9;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 12px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer;">
+      <select id="vehicles-sort" onchange="render()" style="background:#F1F5F9;color:#1E293B;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 12px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer;">
         <option value="tafweed">التفويض (موجود أولاً)</option>
         <option value="insurance">التأمين (ساري أولاً)</option>
         <option value="type">النوع</option>
@@ -2920,9 +2912,9 @@ function showHistory(name){
       var mo=allRows.filter(r=>mk(r.date)===m).reduce(function(s,r){return s+r.orders;},0);
       var isCur=m===activeMonth;
       var pct=Math.round(mo/maxMonthO*100);
-      var colBar=isCur?'background:linear-gradient(90deg,#00D4FF,#A855F7)':'';
-      var colTxt=isCur?'#00D4FF':'#64748B';
-      var colVal=isCur?'#00D4FF':'#A5B4FC';
+      var colBar=isCur?'background:linear-gradient(90deg,#2563EB,#A855F7)':'';
+      var colTxt=isCur?'#2563EB':'#64748B';
+      var colVal=isCur?'#2563EB':'#A5B4FC';
       var fw=isCur?'700':'400';
       h+='<div class="pp-month-row">';
       h+='<div style="width:48px;font-size:10px;color:'+colTxt+';text-align:right;flex-shrink:0;font-weight:'+fw+'">'+ml(m)+'</div>';
@@ -3728,10 +3720,10 @@ function openApiKeyModal(onSaved){
   overlay.id='apikey-overlay';
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;display:flex;align-items:center;justify-content:center;';
   overlay.innerHTML=
-    '<div style="background:#1A2238;border:1px solid rgba(0,212,255,.35);border-radius:18px;padding:28px 26px;width:min(420px,92vw);font-family:Cairo,sans-serif;direction:rtl;box-shadow:0 20px 60px rgba(0,0,0,.8);">'+
-      '<div style="font-size:17px;font-weight:800;color:#00D4FF;margin-bottom:6px;">🔑 Google Gemini API Key</div>'+
+    '<div style="background:#F1F5F9;border:1px solid rgba(0,212,255,.35);border-radius:18px;padding:28px 26px;width:min(420px,92vw);font-family:Cairo,sans-serif;direction:rtl;box-shadow:0 20px 60px rgba(0,0,0,.8);">'+
+      '<div style="font-size:17px;font-weight:800;color:#2563EB;margin-bottom:6px;">🔑 Google Gemini API Key</div>'+
       '<div style="font-size:12px;color:#64748B;margin-bottom:18px;">مطلوب لتحليل الصور بالذكاء الاصطناعي · مجاني من <a href="https://aistudio.google.com" target="_blank" style="color:#38BDF8">aistudio.google.com</a></div>'+
-      '<input id="ak-input" type="password" placeholder="AIza..." value="'+(cur||'')+'" style="width:100%;box-sizing:border-box;background:#0B1220;border:1px solid rgba(0,212,255,.3);border-radius:10px;padding:11px 14px;color:#F1F5F9;font-family:Cairo,sans-serif;font-size:13px;outline:none;margin-bottom:10px;" />'+
+      '<input id="ak-input" type="password" placeholder="AIza..." value="'+(cur||'')+'" style="width:100%;box-sizing:border-box;background:#0B1220;border:1px solid rgba(0,212,255,.3);border-radius:10px;padding:11px 14px;color:#1E293B;font-family:Cairo,sans-serif;font-size:13px;outline:none;margin-bottom:10px;" />'+
       '<div style="display:flex;align-items:center;gap:8px;margin-bottom:18px;">'+
         '<input type="checkbox" id="ak-show" style="cursor:pointer"> <label for="ak-show" style="font-size:12px;color:#94A3B8;cursor:pointer">إظهار الـ Key</label>'+
       '</div>'+
@@ -3740,7 +3732,7 @@ function openApiKeyModal(onSaved){
       '</div>'+
       '<div style="display:flex;gap:10px;justify-content:flex-end;">'+
         '<button id="ak-cancel" style="background:rgba(100,116,139,.15);border:1px solid rgba(100,116,139,.3);color:#94A3B8;padding:9px 22px;border-radius:10px;cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;">إلغاء</button>'+
-        '<button id="ak-save" style="background:linear-gradient(135deg,#00D4FF,#6366F1);border:none;color:#fff;padding:9px 22px;border-radius:10px;cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;font-weight:700;">✅ حفظ</button>'+
+        '<button id="ak-save" style="background:linear-gradient(135deg,#2563EB,#6366F1);border:none;color:#fff;padding:9px 22px;border-radius:10px;cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;font-weight:700;">✅ حفظ</button>'+
       '</div>'+
     '</div>';
 
@@ -3850,17 +3842,17 @@ Rules:
       const overlay=document.createElement('div');
       overlay.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:99999;display:flex;align-items:center;justify-content:center;';
       const lines=parsed.couriers.map(c=>`${c.name}: ${c.orders} أوردر، ${c.hours}h`).join('<br>');
-      overlay.innerHTML=`<div style="background:#1A2238;border:1px solid rgba(0,212,255,.3);border-radius:16px;padding:24px 28px;width:min(480px,90vw);font-family:Cairo,sans-serif;direction:rtl;">
-        <div style="font-size:16px;font-weight:800;color:#00D4FF;margin-bottom:16px;">📊 تأكيد إضافة اليوم</div>
+      overlay.innerHTML=`<div style="background:#F1F5F9;border:1px solid rgba(0,212,255,.3);border-radius:16px;padding:24px 28px;width:min(480px,90vw);font-family:Cairo,sans-serif;direction:rtl;">
+        <div style="font-size:16px;font-weight:800;color:#2563EB;margin-bottom:16px;">📊 تأكيد إضافة اليوم</div>
         <div style="margin-bottom:12px;">
           <label style="font-size:12px;color:#94A3B8;display:block;margin-bottom:6px;">📅 التاريخ (عدّله لو غلط):</label>
-          <input type="date" id="confirm-date" value="${parsed.date||todaySA}" style="background:#0B0F1E;border:1px solid rgba(0,212,255,.3);border-radius:8px;padding:8px 12px;color:#F1F5F9;font-family:Cairo,sans-serif;font-size:14px;width:100%;box-sizing:border-box;">
+          <input type="date" id="confirm-date" value="${parsed.date||todaySA}" style="background:#FFFFFF;border:1px solid rgba(0,212,255,.3);border-radius:8px;padding:8px 12px;color:#1E293B;font-family:Cairo,sans-serif;font-size:14px;width:100%;box-sizing:border-box;">
         </div>
         <div style="background:rgba(0,0,0,.3);border-radius:8px;padding:12px;max-height:200px;overflow-y:auto;font-size:12px;color:#94A3B8;margin-bottom:16px;line-height:1.8;">${lines}</div>
         <div style="font-size:12px;color:#64748B;margin-bottom:16px;">${parsed.couriers.length} مندوب — تضيفهم للداشبورد؟</div>
         <div style="display:flex;gap:10px;justify-content:flex-end;">
           <button id="confirm-cancel" style="background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:#F87171;padding:8px 20px;border-radius:8px;cursor:pointer;font-family:Cairo,sans-serif;">إلغاء</button>
-          <button id="confirm-ok" style="background:linear-gradient(135deg,#00D4FF,#6366F1);border:none;color:#fff;padding:8px 20px;border-radius:8px;cursor:pointer;font-family:Cairo,sans-serif;font-weight:700;">✅ إضافة</button>
+          <button id="confirm-ok" style="background:linear-gradient(135deg,#2563EB,#6366F1);border:none;color:#fff;padding:8px 20px;border-radius:8px;cursor:pointer;font-family:Cairo,sans-serif;font-weight:700;">✅ إضافة</button>
         </div>
       </div>`;
       document.body.appendChild(overlay);
@@ -4131,10 +4123,10 @@ function drawOrdersChart(days, dayOT, dayHT) {
   for (let i = 0; i <= gridCount; i++) {
     const val = Math.round((maxVal / gridCount) * i);
     const y = PAD_T + chartH - (i / gridCount) * chartH;
-    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.strokeStyle = 'rgba(15,23,42,0.08)';
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(PAD_L + chartW, y); ctx.stroke();
-    ctx.fillStyle = '#475569';
+    ctx.fillStyle = '#94A3B8';
     ctx.fillText(val, PAD_L - 6, y);
   }
 
@@ -4143,8 +4135,8 @@ function drawOrdersChart(days, dayOT, dayHT) {
 
   // gradient fill under line
   const grad = ctx.createLinearGradient(0, PAD_T, 0, PAD_T + chartH);
-  grad.addColorStop(0, 'rgba(0,212,255,0.25)');
-  grad.addColorStop(1, 'rgba(0,212,255,0.00)');
+  grad.addColorStop(0, 'rgba(37,99,235,0.18)');
+  grad.addColorStop(1, 'rgba(37,99,235,0.00)');
 
   // draw bars
   dayOT.forEach((v, i) => {
@@ -4154,8 +4146,8 @@ function drawOrdersChart(days, dayOT, dayHT) {
 
     // bar gradient
     const bg = ctx.createLinearGradient(0, y, 0, y + barH);
-    bg.addColorStop(0, 'rgba(168,85,247,0.8)');
-    bg.addColorStop(1, 'rgba(99,102,241,0.3)');
+    bg.addColorStop(0, i === dayOT.indexOf(Math.max(...dayOT)) ? 'rgba(249,115,22,0.9)' : 'rgba(59,130,246,0.85)');
+    bg.addColorStop(1, i === dayOT.indexOf(Math.max(...dayOT)) ? 'rgba(249,115,22,0.4)' : 'rgba(59,130,246,0.35)');
     ctx.fillStyle = bg;
     ctx.beginPath();
     ctx.roundRect(x - barW/2, y, barW, barH, [3, 3, 0, 0]);
@@ -4169,7 +4161,7 @@ function drawOrdersChart(days, dayOT, dayHT) {
     const y = PAD_T + chartH - (v / maxVal) * chartH;
     i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
   });
-  ctx.strokeStyle = '#00D4FF';
+  ctx.strokeStyle = '#2563EB';
   ctx.lineWidth = 2.5;
   ctx.lineJoin = 'round';
   ctx.stroke();
@@ -4191,13 +4183,12 @@ function drawOrdersChart(days, dayOT, dayHT) {
     // dot
     ctx.beginPath();
     ctx.arc(x, y, i === maxIdx ? 5 : 3.5, 0, Math.PI * 2);
-    ctx.fillStyle = i === maxIdx ? '#00FFCC' : '#00D4FF';
-    if (i === maxIdx) { ctx.shadowColor='#00FFCC'; ctx.shadowBlur=8; }
+    ctx.fillStyle = i === maxIdx ? '#F97316' : '#2563EB';
     ctx.fill();
     ctx.shadowBlur = 0;
     // value label on top (only show every 2nd if crowded)
     if (n <= 12 || i % 2 === 0 || i === maxIdx) {
-      ctx.fillStyle = i === maxIdx ? '#00FFCC' : 'rgba(255,255,255,0.7)';
+      ctx.fillStyle = i === maxIdx ? '#EA580C' : '#475569';
       ctx.font = `bold ${10}px Cairo, sans-serif`;
       ctx.fillText(v, x, y - 7);
     }
@@ -4503,7 +4494,7 @@ function gsShowMuqeem(iqama){
     <div style="padding:10px 14px">
       <button class="gs-back" onclick="_gsBack()">‹ رجوع للنتايج</button>
       <div style="background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:12px;padding:16px 18px;margin-bottom:12px">
-        <div style="font-size:16px;font-weight:800;color:#F1F5F9;margin-bottom:4px">${r.name}</div>
+        <div style="font-size:16px;font-weight:800;color:#1E293B;margin-bottom:4px">${r.name}</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
           ${pill2(ok?'✅ إقامة صالحة':'❌ إقامة منتهية',ok)}
           ${bikeNum?pill2('🏍 دباب: '+bikeNum,true):''}
@@ -4517,7 +4508,7 @@ function gsShowMuqeem(iqama){
         ${row('🏗 سند', r.sanad==='True'?'✅ موجود':'❌ غير موجود', r.sanad==='True'?'#34D399':'#F87171')}
         ${row('🚗 رخصة ثقيلة', r.heavy||'—', r.heavy==='سارى'?'#34D399':'#64748B')}
         ${row('🚗 رخصة خفيفة', r.light||'—', r.light==='سارى'?'#34D399':'#64748B')}
-        ${totalO>0?row('📦 إجمالي الأوردرات', totalO.toLocaleString(),'#00D4FF'):''}
+        ${totalO>0?row('📦 إجمالي الأوردرات', totalO.toLocaleString(),'#2563EB'):''}
       </div>
     </div>`)
 }
@@ -4536,7 +4527,7 @@ function gsShowBike(name){
     <div style="padding:10px 14px">
       <button class="gs-back" onclick="_gsBack()">‹ رجوع للنتايج</button>
       <div style="background:rgba(168,85,247,.05);border:1px solid rgba(168,85,247,.2);border-radius:12px;padding:16px 18px;margin-bottom:12px">
-        <div style="font-size:16px;font-weight:800;color:#F1F5F9;margin-bottom:4px">${name}</div>
+        <div style="font-size:16px;font-weight:800;color:#1E293B;margin-bottom:4px">${name}</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
           ${bikeNum?`<span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;background:rgba(168,85,247,.15);color:#C084FC;border:1px solid rgba(168,85,247,.3)">🏍 دباب: ${bikeNum}</span>`:''}
           ${pill2(hasL?'✅ تفويض':'❌ بدون تفويض',hasL)}
@@ -4545,7 +4536,7 @@ function gsShowBike(name){
       </div>
       <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:4px 16px;margin-bottom:12px">
         ${mq?row('🪪 رقم الإقامة', mq.iqama,'#38BDF8'):''}
-        ${totalO>0?row('📦 إجمالي الأوردرات', totalO.toLocaleString(),'#00D4FF'):''}
+        ${totalO>0?row('📦 إجمالي الأوردرات', totalO.toLocaleString(),'#2563EB'):''}
         ${totalH>0?row('⏱ إجمالي الساعات', totalH.toFixed(1)+'h','#34D399'):''}
         ${mq&&mq.job?row('💼 المهنة', mq.job):''}
       </div>
@@ -4601,14 +4592,14 @@ function gsShowVehicle(plate){
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
       <div>
-        <div style="font-size:18px;font-weight:800;color:#00D4FF;">📤 تحديث البيانات</div>
+        <div style="font-size:18px;font-weight:800;color:#2563EB;">📤 تحديث البيانات</div>
         <div style="font-size:12px;color:#475569;margin-top:3px;">ارفع ملف Excel جديد — البيانات تتحدث تلقائياً وتتحفظ في المتصفح</div>
       </div>
       <button onclick="document.getElementById('data-update-modal').style.display='none'" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#94A3B8;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;">✕</button>
     </div>
 
     <!-- MUQEEM CARD -->
-    <div style="background:#1A2238;border:1px solid rgba(168,85,247,.25);border-radius:14px;padding:20px;margin-bottom:14px;">
+    <div style="background:#F1F5F9;border:1px solid rgba(168,85,247,.25);border-radius:14px;padding:20px;margin-bottom:14px;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
         <div style="background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.3);border-radius:10px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:20px;">🏢</div>
         <div style="flex:1;">
@@ -4630,7 +4621,7 @@ function gsShowVehicle(plate){
     </div>
 
     <!-- VEHICLES CARD -->
-    <div style="background:#1A2238;border:1px solid rgba(251,191,36,.25);border-radius:14px;padding:20px;margin-bottom:14px;">
+    <div style="background:#F1F5F9;border:1px solid rgba(251,191,36,.25);border-radius:14px;padding:20px;margin-bottom:14px;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
         <div style="background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:10px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:20px;">🚗</div>
         <div style="flex:1;">
@@ -4652,7 +4643,7 @@ function gsShowVehicle(plate){
     </div>
 
     <!-- LICENSE CARD -->
-    <div style="background:#1A2238;border:1px solid rgba(16,185,129,.25);border-radius:14px;padding:20px;">
+    <div style="background:#F1F5F9;border:1px solid rgba(16,185,129,.25);border-radius:14px;padding:20px;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
         <div style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:10px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:20px;">📋</div>
         <div style="flex:1;">
@@ -4681,7 +4672,7 @@ function gsShowVehicle(plate){
   #ai-fab{
     position:fixed;bottom:22px;right:22px;z-index:300;
     width:58px;height:58px;border-radius:50%;
-    background:linear-gradient(135deg,#00D4FF,#6366F1);
+    background:linear-gradient(135deg,#2563EB,#6366F1);
     border:none;cursor:pointer;color:#fff;font-size:26px;
     box-shadow:0 8px 28px rgba(0,212,255,.45);
     display:flex;align-items:center;justify-content:center;
@@ -4710,7 +4701,7 @@ function gsShowVehicle(plate){
     padding:14px 16px;display:flex;align-items:center;gap:10px;
     border-bottom:1px solid rgba(0,212,255,.15);
   }
-  .aic-hdr-ico{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#00D4FF,#6366F1);display:flex;align-items:center;justify-content:center;font-size:18px;}
+  .aic-hdr-ico{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#2563EB,#6366F1);display:flex;align-items:center;justify-content:center;font-size:18px;}
   .aic-hdr-title{font-size:14px;font-weight:800;color:#fff;}
   .aic-hdr-sub{font-size:10px;color:#34D399;}
   .aic-close{margin-right:auto;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#94A3B8;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:14px;}
@@ -4719,20 +4710,20 @@ function gsShowVehicle(plate){
   .aic-msg{max-width:85%;padding:9px 13px;border-radius:14px;font-size:13px;line-height:1.7;white-space:pre-wrap;word-wrap:break-word;}
   .aic-msg.user{align-self:flex-start;background:linear-gradient(135deg,#1e3a5f,#16304d);color:#E0F2FE;border-bottom-right-radius:4px;}
   .aic-msg.bot{align-self:flex-end;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:#CBD5E1;border-bottom-left-radius:4px;}
-  .aic-msg.bot a,.aic-act-btn{color:#00D4FF;}
-  .aic-act-btn{display:inline-block;margin-top:8px;background:rgba(0,212,255,.12);border:1px solid rgba(0,212,255,.35);color:#00D4FF;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;transition:.15s;}
+  .aic-msg.bot a,.aic-act-btn{color:#2563EB;}
+  .aic-act-btn{display:inline-block;margin-top:8px;background:rgba(0,212,255,.12);border:1px solid rgba(0,212,255,.35);color:#2563EB;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;transition:.15s;}
   .aic-act-btn:hover{background:rgba(0,212,255,.25);}
   .aic-typing{align-self:flex-end;display:flex;gap:4px;padding:10px 14px;}
-  .aic-typing span{width:7px;height:7px;border-radius:50%;background:#00D4FF;opacity:.5;animation:aiBounce 1.2s infinite;}
+  .aic-typing span{width:7px;height:7px;border-radius:50%;background:#2563EB;opacity:.5;animation:aiBounce 1.2s infinite;}
   .aic-typing span:nth-child(2){animation-delay:.2s}.aic-typing span:nth-child(3){animation-delay:.4s}
   @keyframes aiBounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-6px);opacity:1}}
   .aic-quick{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 8px;}
   .aic-chip{background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:#7DD3FC;padding:5px 11px;border-radius:20px;font-size:11px;cursor:pointer;font-family:'Cairo',sans-serif;transition:.15s;}
   .aic-chip:hover{background:rgba(0,212,255,.18);}
   .aic-foot{padding:10px 12px;border-top:1px solid rgba(255,255,255,.07);display:flex;gap:8px;align-items:flex-end;}
-  .aic-input{flex:1;background:#0B1220;border:1px solid rgba(0,212,255,.25);border-radius:12px;padding:10px 13px;color:#F1F5F9;font-family:'Cairo',sans-serif;font-size:13px;outline:none;resize:none;max-height:90px;line-height:1.5;}
+  .aic-input{flex:1;background:#0B1220;border:1px solid rgba(0,212,255,.25);border-radius:12px;padding:10px 13px;color:#1E293B;font-family:'Cairo',sans-serif;font-size:13px;outline:none;resize:none;max-height:90px;line-height:1.5;}
   .aic-input:focus{border-color:rgba(0,212,255,.55);}
-  .aic-send{background:linear-gradient(135deg,#00D4FF,#6366F1);border:none;color:#fff;width:40px;height:40px;border-radius:12px;cursor:pointer;font-size:17px;flex-shrink:0;transition:.15s;}
+  .aic-send{background:linear-gradient(135deg,#2563EB,#6366F1);border:none;color:#fff;width:40px;height:40px;border-radius:12px;cursor:pointer;font-size:17px;flex-shrink:0;transition:.15s;}
   .aic-send:hover{transform:scale(1.06);}
   .aic-send:disabled{opacity:.5;cursor:default;transform:none;}
 </style>
